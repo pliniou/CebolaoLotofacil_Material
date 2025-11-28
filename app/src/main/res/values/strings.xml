@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Cebolão Lotofácil</string>
+
+    <!-- General -->
+    <string name="general_close">Fechar</string>
+    <string name="general_cancel">Cancelar</string>
+    <string name="general_retry">Tentar Novamente</string>
+    <string name="general_loading">Carregando… (e torcendo!)</string>
+    <string name="general_loading_analysis">Analisando… (cruzando os dedos!)</string>
+    <string name="general_selected">Selecionado</string>
+    <string name="general_error_title">Opa, algo deu errado</string>
+    <string name="general_failed_to_load_data">Falha ao carregar os dados</string>
+    <string name="general_info_icon_description">Informação</string>
+    <string name="general_analysis_failed_snackbar">Falha ao analisar o jogo. Tente mais tarde.</string>
+
+    <!-- Home Screen -->
+    <string name="home_title">Cebolão</string>
+    <string name="home_subtitle">Estatísticas e Gerador</string>
+    <string name="home_next_contest">Próximo Concurso: %1$d</string>
+    <string name="home_prize_estimate">Prêmio Estimado</string>
+    <string name="home_accumulated_prize_final_five">Acumulado Final 0 ou 5</string>
+    <string name="home_last_contest_format">Último Concurso: %1$d</string>
+    <string name="home_winners_last_contest">Premiação do Último Concurso</string>
+    <string name="home_hits_format">%1$d acertos</string>
+    <string name="home_winner_count_one">%1$d ganhador</string>
+    <string name="home_winner_count_other">%1$d ganhadores</string>
+    <string name="home_sync_failed_message">Falha na sincronização. Dados podem estar desatualizados.</string>
+    <string name="home_sync_success_message">Dados atualizados com sucesso!</string>
+    <string name="home_sync_button_description">Atualizar dados</string>
+    <string name="home_statistics_center">Central de Estatísticas</string>
+    <string name="home_analysis_period">Período de Análise</string>
+    <string name="home_all_contests">Todos</string>
+    <string name="home_last_contests_format">Últimos %1$d</string>
+    <string name="home_hot_numbers">Dezenas Quentes</string>
+    <string name="home_overdue_numbers">Dezenas Atrasadas</string>
+    <string name="home_suffix_times">vezes</string>
+    <string name="home_suffix_ago">atrás</string>
+    <string name="home_understanding_stats">Entendendo os Dados</string>
+    <string name="home_overdue_hot_numbers_desc">"<b>Quentes:</b> Dezenas mais sorteadas no período.\n<b>Atrasadas:</b> Dezenas que não saem há mais tempo."</string>
+    <string name="home_distribution_charts_desc">"<b>Gráficos:</b> Acompanhe a frequência de padrões como Soma e Pares para fugir das combinações improváveis."</string>
+    <string name="error_load_data_failed">Erro ao carregar dados. Verifique sua conexão.</string>
+
+    <!-- Filters Screen -->
+    <string name="filters_title">Gerador</string>
+    <string name="filters_subtitle">Crie jogos inteligentes</string>
+    <string name="filters_reset_button_description">Redefinir filtros</string>
+    <string name="filters_reset_dialog_title">Redefinir Filtros?</string>
+    <string name="filters_reset_dialog_message">Todas as configurações voltarão ao padrão.</string>
+    <string name="filters_reset_confirm">Redefinir</string>
+    <string name="filters_button_generate">Gerar Jogos</string>
+    <string name="filters_button_generating_progress">Gerando %1$d / %2$d</string>
+    <string name="filters_button_cancel_description">Cancelar</string>
+    <string name="filters_quantity_decrease">Diminuir</string>
+    <string name="filters_quantity_increase">Aumentar</string>
+    <string name="filters_unavailable_data">Dados insuficientes</string>
+    <string name="filters_info_button_description">Info sobre %1$s</string>
+    <string name="filters_info_dialog_title_format">Sobre: %1$s</string>
+    <string name="filters_min_label">Mín</string>
+    <string name="filters_max_label">Máx</string>
+    <string name="filters_analysis_title">Análise dos Filtros</string>
+    <string name="filters_success_chance">Probabilidade Estimada</string>
+    <string name="filters_no_active_filters">Nenhum filtro ativo (Aleatório)</string>
+    <string name="filters_presets_title">Presets</string>
+    <string name="filters_presets_subtitle">Configurações rápidas</string>
+    <string name="restrictiveness_very_tight">Muito Restrito</string>
+    <string name="restrictiveness_tight">Restrito</string>
+    <string name="restrictiveness_moderate">Moderado</string>
+    <string name="restrictiveness_loose">Flexível</string>
+    <string name="restrictiveness_very_loose">Muito Flexível</string>
+    <string name="restrictiveness_disabled">Desligado</string>
+
+    <!-- Game Generator Service -->
+    <string name="game_generator_failure_no_history">Histórico insuficiente para gerar com precisão.</string>
+    <string name="game_generator_heuristic_start">Aplicando heurística…</string>
+    <string name="game_generator_random_fallback">Filtros muito restritos. Completando com aleatórios.</string>
+    <string name="game_generator_random_start">Gerando aleatoriamente…</string>
+    <string name="game_generator_failure_generic">Não foi possível gerar jogos com estes filtros.</string>
+
+    <!-- Games Screen -->
+    <string name="games_title">Meus Jogos</string>
+    <string name="games_subtitle">Gerencie suas apostas</string>
+    <string name="games_empty_state_title">Nenhum jogo salvo</string>
+    <string name="games_empty_state_description">Gere novos jogos na aba Gerador!</string>
+    <string name="games_share_chooser_title">Compartilhar jogo via…</string>
+    <string name="games_share_game_subject">Meu Jogo da Lotofácil</string>
+    <string name="share_game_message_template"><![CDATA[🍀 Jogo gerado no <b>Cebolão Lotofácil</b>:\n\n<b>%1$s</b>]]></string>
+    <string name="games_pin_game_description">Fixar</string>
+    <string name="games_unpin_game_description">Desafixar</string>
+    <string name="games_delete_game_description">Excluir</string>
+    <string name="games_share_game_description">Compartilhar</string>
+    <string name="games_analyze_button">Analisar</string>
+    <string name="games_check_button">Conferir</string>
+    <string name="games_clear_unpinned_button_description">Limpar não fixados</string>
+    <string name="games_clear_dialog_title">Limpar Jogos?</string>
+    <string name="games_clear_dialog_message">Excluir todos os jogos não fixados?</string>
+    <string name="games_clear_confirm">Limpar</string>
+    <string name="games_delete_dialog_title">Excluir Jogo?</string>
+    <string name="games_delete_dialog_message">Esta ação é irreversível.</string>
+    <string name="games_delete_confirm">Excluir</string>
+    <string name="games_analysis_dialog_title">Análise do Jogo</string>
+    <string name="games_analysis_combination_title">Dezenas</string>
+    <string name="games_analysis_prize_summary_title">Histórico de Prêmios</string>
+    <string name="games_analysis_total_label">Total Premiado</string>
+    <string name="games_analysis_last_prize_label">Último</string>
+    <string name="games_analysis_last_prize_value">Conc. #%1$s (%2$s pts)</string>
+
+    <!-- Checker Screen -->
+    <string name="checker_title">Conferidor</string>
+    <string name="checker_subtitle">Simule resultados</string>
+    <string name="checker_progress_format">%1$d / %2$d</string>
+    <string name="checker_clear_button_description">Limpar</string>
+    <string name="checker_save_button_description">Salvar</string>
+    <string name="checker_check_button">Conferir</string>
+    <string name="checker_incomplete_game_message">Selecione 15 números para conferir.</string>
+    <string name="checker_save_success_message">Jogo salvo!</string>
+    <string name="checker_results_header_wins">Jogo Premiado!</string>
+
+    <string name="error_analysis_failed">Erro ao fazer analise</string>
+    <string name="checker_save_fail_message">Falha ao salvar jogo.</string>
+
+    <string name="checker_results_header_no_wins">Sem prêmios registrados</string>
+    <string name="checker_results_analysis_in_contests">%1$d concursos analisados</string>
+    <string name="checker_score_breakdown_hits_format">%1$d pts</string>
+    <string name="checker_score_breakdown_times_format_one">vez</string>
+    <string name="checker_score_breakdown_times_format_other">vezes</string>
+    <string name="checker_last_hit_info">Último: Conc. #%1$s (%2$s pts)</string>
+    <string name="checker_no_wins_message">Esta combinação nunca foi sorteada.</string>
+    <string name="checker_simple_stats_title">Estatísticas</string>
+    <string name="checker_recent_hits_chart_title">Desempenho Recente</string>
+
+    <!-- About Screen -->
+    <string name="about_title">Sobre</string>
+    <string name="about_subtitle">Configurações e Ajuda</string>
+    <string name="about_personalization_title">Visual</string>
+    <string name="about_theme_title">Tema</string>
+    <string name="about_theme_light">Claro</string>
+    <string name="about_theme_dark">Escuro</string>
+    
+    <string name="about_purpose_title">O App</string>
+    <string name="about_purpose_subtitle">Objetivo e ferramentas</string>
+    <string name="about_rules_title">Regras</string>
+    <string name="about_rules_subtitle">Lotofácil básica</string>
+    <string name="about_bolao_title">Bolão</string>
+    <string name="about_bolao_subtitle">Apostas em grupo</string>
+    <string name="about_privacy_title">Privacidade</string>
+    <string name="about_privacy_subtitle">Seus dados locais</string>
+    <string name="about_legal_title">Legal</string>
+    <string name="about_legal_subtitle">Isenção de responsabilidade</string>
+    <string name="studio_name">Cebolão Studio</string>
+    <string name="studio_slogan">Sorte com Inteligência</string>
+
+    <string name="about_purpose_desc_body">Ferramenta de análise estatística e geração de jogos baseada em tendências históricas.</string>
+    <string name="about_purpose_item1_title">Análise</string>
+    <string name="about_purpose_item1_desc">Identifique dezenas frequentes e atrasadas.</string>
+    <string name="about_purpose_item2_title">Gerador</string>
+    <string name="about_purpose_item2_desc">Crie jogos usando filtros matemáticos.</string>
+    <string name="about_purpose_item3_title">Conferência</string>
+    <string name="about_purpose_item3_desc">Valide jogos contra todo o histórico.</string>
+    <string name="about_purpose_desc_footer">O app não garante prêmios. Loteria é, acima de tudo, sorte.</string>
+    
+    <string name="about_rules_item1">"<b>Aposta:</b> Escolha 15 a 20 números (1–25)."</string>
+    <string name="about_rules_item2">"<b>Ganhos:</b> Acerte 11, 12, 13, 14 ou 15."</string>
+    <string name="about_rules_item3">"<b>Sorteios:</b> Segunda a sábado, 20h."</string>
+    
+    <string name="about_bolao_desc_body">Bolões oficiais da CAIXA permitem apostas em grupo com recibos individuais.</string>
+    <string name="about_bolao_desc_footer">Este app apenas gera os números; não realiza apostas.</string>
+    
+    <string name="about_privacy_desc_body">Seus dados pertencem a você.</string>
+    <string name="about_privacy_item1">"<b>Local:</b> Jogos salvos ficam apenas no seu aparelho."</string>
+    <string name="about_privacy_item2">"<b>Anônimo:</b> Não coletamos dados pessoais."</string>
+    <string name="about_privacy_item3">"<b>Seguro:</b> Conexão apenas com API oficial da Caixa."</string>
+    
+    <string name="about_legal_item1">Sem vínculo com a Caixa Econômica Federal.</string>
+    <string name="about_legal_item2">Confira sempre seu bilhete em canais oficiais.</string>
+    <string name="about_legal_item3">Não nos responsabilizamos por perdas financeiras.</string>
+    <string name="about_legal_footer">Jogue com responsabilidade.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_skip">Pular</string>
+    <string name="onboarding_next">Próximo</string>
+    <string name="onboarding_start">Começar</string>
+    <string name="onboarding_title_1">Bem-vindo!</string>
+    <string name="onboarding_desc_1">Estatísticas avançadas e inteligência para seus jogos.</string>
+    <string name="onboarding_title_2">Análise</string>
+    <string name="onboarding_desc_2">Descubra os números quentes, frios e tendências.</string>
+    <string name="onboarding_title_3">Gerador</string>
+    <string name="onboarding_desc_3">Use filtros poderosos para criar combinações otimizadas.</string>
+    <string name="onboarding_title_4">Conferidor</string>
+    <string name="onboarding_desc_4">Teste seus jogos contra a história da Lotofácil.</string>
+
+    <!-- Accessibility / UI Utils -->
+    <string name="number_ball_state_selected">selecionado</string>
+    <string name="number_ball_state_highlighted">destaque</string>
+    <string name="number_ball_state_disabled">desabilitado</string>
+    <string name="number_ball_state_available">disponível</string>
+    <string name="number_ball_content_description">Dezena %1$s, %2$s</string>
+    <string name="number_grid_toggle_number">Alternar %1$s</string>
+
+    <!-- Widgets -->
+    <string name="widget_last_draw_title">Último Sorteio</string>
+    <string name="widget_next_contest_title">Próximo (%1$d)</string>
+    <string name="widget_next_contest_title_generic">Próximo</string>
+    <string name="widget_pinned_game_title">Jogo Fixado</string>
+    <string name="widget_error_load">Erro</string>
+    <string name="widget_no_pinned_games">Sem Fixados</string>
+    <string name="widget_last_draw_description">Resultado do último sorteio.</string>
+    <string name="widget_next_contest_description">Data e prêmio do próximo sorteio.</string>
+    <string name="widget_pinned_game_description">Exibe um jogo fixado aleatório.</string>
+    <string name="widget_ball_placeholder_text">--</string>
+
+</resources>

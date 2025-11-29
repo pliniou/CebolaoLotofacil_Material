@@ -5,8 +5,12 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -36,10 +40,24 @@ fun StatisticsPanel(
     SectionCard(modifier = modifier.fillMaxWidth()) {
         Box {
             Column(verticalArrangement = Arrangement.spacedBy(Dimen.CardPadding)) {
-                Text(
-                    text = stringResource(id = R.string.home_statistics_center),
-                    style = MaterialTheme.typography.titleLarge
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.home_statistics_center),
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    // Indicador sutil de loading no header
+                    if(isStatsLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(Dimen.SmallIcon),
+                            strokeWidth = Dimen.ProgressBarStroke
+                        )
+                    }
+                }
+                
                 TimeWindowSelector(
                     selectedWindow = selectedWindow,
                     onTimeWindowSelected = onTimeWindowSelected
@@ -47,19 +65,19 @@ fun StatisticsPanel(
 
                 AppDivider()
 
+                // Conteúdo Animado
                 AnimatedContent(
                     targetState = stats,
                     transitionSpec = { fadeIn(tween(AppConfig.Animation.MEDIUM_DURATION)) togetherWith fadeOut(tween(AppConfig.Animation.MEDIUM_DURATION)) },
                     label = "StatsContent"
                 ) { targetStats ->
-                    Column(verticalArrangement = Arrangement.spacedBy(Dimen.CardPadding)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(Dimen.SectionSpacing)) {
                         StatRow(
                             title = stringResource(R.string.home_hot_numbers),
                             numbers = targetStats.mostFrequentNumbers.toImmutableList(),
                             icon = Icons.Default.LocalFireDepartment,
                             suffix = stringResource(R.string.home_suffix_times)
                         )
-                        AppDivider()
                         StatRow(
                             title = stringResource(R.string.home_overdue_numbers),
                             numbers = targetStats.mostOverdueNumbers.toImmutableList(),
@@ -69,17 +87,8 @@ fun StatisticsPanel(
                     }
                 }
             }
-
-            if (isStatsLoading) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .matchParentSize()
-                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = AppConfig.UI.ALPHA_BORDER_DEFAULT))
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
+            
+            // Overlay de carregamento desabilitado em favor do indicador no header para menos intrusão visual
         }
     }
 }
@@ -90,7 +99,7 @@ private fun TimeWindowSelector(
     onTimeWindowSelected: (Int) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
-        Text(stringResource(R.string.home_analysis_period), style = MaterialTheme.typography.titleMedium)
+        Text(stringResource(R.string.home_analysis_period), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
         LazyRow(horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
             items(AppConfig.UI.TIME_WINDOWS) { window ->
                 val label = if (window == 0) {

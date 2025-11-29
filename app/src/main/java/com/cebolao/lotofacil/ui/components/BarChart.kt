@@ -5,8 +5,10 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -25,6 +27,13 @@ import com.cebolao.lotofacil.ui.theme.Dimen
 import kotlinx.collections.immutable.ImmutableList
 import kotlin.math.roundToInt
 
+/**
+ * Gráfico de Barras Moderno e Otimizado.
+ * - Barras com cantos arredondados apenas no topo.
+ * - Grid pontilhado sutil.
+ * - Tooltip flutuante ao tocar.
+ * - Animação suave na entrada.
+ */
 @Composable
 fun BarChart(
     data: ImmutableList<Pair<String, Int>>,
@@ -36,17 +45,17 @@ fun BarChart(
     val animProgress = remember { Animatable(0f) }
     var selectedIndex by remember { mutableStateOf<Int?>(null) }
     
-    // Cores e Paints cacheados
+    // Configuração de Cores e Pincéis (Memoized para performance no onDraw)
     val colors = ChartColors(
         primary = MaterialTheme.colorScheme.primary,
-        secondary = MaterialTheme.colorScheme.secondary,
+        secondary = MaterialTheme.colorScheme.tertiary, // Cor de destaque para barra selecionada
         text = MaterialTheme.colorScheme.onSurfaceVariant,
-        line = MaterialTheme.colorScheme.outlineVariant,
+        line = MaterialTheme.colorScheme.outlineVariant.copy(alpha = AppConfig.UI.CHART_GRID_ALPHA),
         tooltipBg = MaterialTheme.colorScheme.inverseSurface,
         tooltipText = MaterialTheme.colorScheme.inverseOnSurface
     )
     
-    val paints = remember(density) { ChartPaints(density, colors) }
+    val paints = remember(density, colors) { ChartPaints(density, colors) }
 
     LaunchedEffect(data) {
         selectedIndex = null
@@ -54,90 +63,100 @@ fun BarChart(
         animProgress.animateTo(1f, tween(AppConfig.Animation.LONG_DURATION))
     }
 
-    Canvas(
-        modifier = modifier
-            .height(chartHeight)
-            .fillMaxSize()
-            .pointerInput(data) {
-                detectTapGestures { offset ->
-                    val dimen = ChartDimensions(size.toSize(), Dimen.BarChartYAxisLabelWidth.toPx(), Dimen.BarChartXAxisLabelHeight.toPx())
-                    val barWidth = dimen.calculateBarWidth(data.size, Dimen.MediumPadding.toPx())
-                    
-                    val index = data.indices.firstOrNull { i ->
-                        val left = dimen.yAxisWidth + i * (barWidth + Dimen.MediumPadding.toPx())
-                        offset.x in left..(left + barWidth)
+    Box(modifier = modifier.height(chartHeight).padding(vertical = Dimen.SmallPadding)) {
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(data) {
+                    detectTapGestures { offset ->
+                        val dimen = ChartDimensions(size.toSize(), Dimen.BarChartYAxisLabelWidth.toPx(), Dimen.BarChartXAxisLabelHeight.toPx())
+                        val barWidth = dimen.calculateBarWidth(data.size, Dimen.MediumPadding.toPx())
+                        
+                        // Hit detection simples
+                        val index = data.indices.firstOrNull { i ->
+                            val left = dimen.yAxisWidth + i * (barWidth + Dimen.MediumPadding.toPx())
+                            // Área de toque expandida horizontalmente para facilitar
+                            val touchAreaLeft = left - (Dimen.MediumPadding.toPx() / 2)
+                            val touchAreaRight = left + barWidth + (Dimen.MediumPadding.toPx() / 2)
+                            offset.x in touchAreaLeft..touchAreaRight
+                        }
+                        selectedIndex = if (selectedIndex == index) null else index
                     }
-                    selectedIndex = if (selectedIndex == index) null else index
                 }
-            }
-    ) {
-        val dimen = ChartDimensions(size, Dimen.BarChartYAxisLabelWidth.toPx(), Dimen.BarChartXAxisLabelHeight.toPx())
-        val barWidth = dimen.calculateBarWidth(data.size, Dimen.MediumPadding.toPx())
-        val barSpacing = Dimen.MediumPadding.toPx()
+        ) {
+            val dimen = ChartDimensions(size, Dimen.BarChartYAxisLabelWidth.toPx(), Dimen.BarChartXAxisLabelHeight.toPx())
+            val barWidth = dimen.calculateBarWidth(data.size, Dimen.MediumPadding.toPx())
+            val barSpacing = Dimen.MediumPadding.toPx()
 
-        // Grid
-        drawGrid(maxValue, dimen, paints.text, colors.line)
+            // Desenhar Grid e Labels do Eixo Y
+            drawGrid(maxValue, dimen, paints.text, colors.line)
 
-        // Barras
-        data.forEachIndexed { index, (label, value) ->
-            val barHeight = (value.toFloat() / maxValue) * dimen.chartHeight * animProgress.value
-            val left = dimen.yAxisWidth + index * (barWidth + barSpacing)
-            val top = dimen.topPadding + dimen.chartHeight - barHeight
-            
-            if (barHeight > 0) {
-                drawRoundRect(
-                    brush = Brush.verticalGradient(listOf(colors.primary, colors.secondary)),
-                    topLeft = Offset(left, top),
-                    size = Size(barWidth, barHeight),
-                    cornerRadius = CornerRadius(Dimen.SmallPadding.toPx())
+            // Desenhar Barras
+            data.forEachIndexed { index, (label, value) ->
+                val targetBarHeight = (value.toFloat() / maxValue) * dimen.chartHeight
+                val currentBarHeight = targetBarHeight * animProgress.value
+                
+                val left = dimen.yAxisWidth + index * (barWidth + barSpacing)
+                val top = dimen.topPadding + dimen.chartHeight - currentBarHeight
+                
+                val isSelected = selectedIndex == index
+                
+                if (currentBarHeight > 0) {
+                    // Gradiente sutil nas barras
+                    val brush = Brush.verticalGradient(
+                        colors = if (isSelected) 
+                            listOf(colors.secondary, colors.secondary.copy(alpha = 0.8f))
+                        else 
+                            listOf(colors.primary, colors.primary.copy(alpha = 0.8f)),
+                        startY = top,
+                        endY = top + currentBarHeight
+                    )
+
+                    drawRoundRect(
+                        brush = brush,
+                        topLeft = Offset(left, top),
+                        size = Size(barWidth, currentBarHeight),
+                        cornerRadius = CornerRadius(Dimen.SmallPadding.toPx(), Dimen.SmallPadding.toPx()) // Arredondado
+                    )
+                }
+
+                // Label do Eixo X (Rotacionado se necessário)
+                drawContext.canvas.nativeCanvas.save()
+                drawContext.canvas.nativeCanvas.rotate(
+                    AppConfig.UI.CHART_LABEL_ROTATION, 
+                    left + barWidth / 2, 
+                    size.height - dimen.xAxisHeight / 2
                 )
-            }
-
-            // Label Valor (acima da barra) - oculta se selecionado para não sobrepor tooltip
-            if (selectedIndex != index) {
                 drawContext.canvas.nativeCanvas.drawText(
-                    value.toString(),
+                    label,
                     left + barWidth / 2,
-                    top - Dimen.ExtraSmallPadding.toPx(),
-                    paints.value
+                    size.height - dimen.xAxisHeight / 4,
+                    paints.label
                 )
+                drawContext.canvas.nativeCanvas.restore()
             }
 
-            // Label Eixo X (rotacionado)
-            drawContext.canvas.nativeCanvas.save()
-            drawContext.canvas.nativeCanvas.rotate(
-                AppConfig.UI.CHART_LABEL_ROTATION, 
-                left + barWidth / 2, 
-                size.height - dimen.xAxisHeight / 2
-            )
-            drawContext.canvas.nativeCanvas.drawText(
-                label,
-                left + barWidth / 2,
-                size.height - dimen.xAxisHeight / 2,
-                paints.label
-            )
-            drawContext.canvas.nativeCanvas.restore()
-        }
-
-        // Tooltip (desenhado por último)
-        selectedIndex?.let { index ->
-            val value = data[index].second
-            val left = dimen.yAxisWidth + index * (barWidth + barSpacing)
-            val barHeight = (value.toFloat() / maxValue) * dimen.chartHeight * animProgress.value
-            val top = dimen.topPadding + dimen.chartHeight - barHeight
-            
-            drawTooltip(
-                centerX = left + barWidth / 2,
-                bottomY = top - Dimen.SmallPadding.toPx(),
-                text = value.toString(),
-                bg = colors.tooltipBg,
-                paint = paints.tooltip
-            )
+            // Tooltip desenhado por último para ficar acima de tudo
+            selectedIndex?.let { index ->
+                val value = data[index].second
+                val left = dimen.yAxisWidth + index * (barWidth + barSpacing)
+                val targetBarHeight = (value.toFloat() / maxValue) * dimen.chartHeight
+                val currentBarHeight = targetBarHeight * animProgress.value
+                val top = dimen.topPadding + dimen.chartHeight - currentBarHeight
+                
+                drawTooltip(
+                    centerX = left + barWidth / 2,
+                    bottomY = top - Dimen.ExtraSmallPadding.toPx(),
+                    text = value.toString(),
+                    bg = colors.tooltipBg,
+                    paint = paints.tooltip
+                )
+            }
         }
     }
 }
 
-// Classes auxiliares para limpar o Composable principal
+// Helpers Isolados
 private data class ChartColors(
     val primary: Color, val secondary: Color, val text: Color, val line: Color, val tooltipBg: Color, val tooltipText: Color
 )
@@ -145,9 +164,6 @@ private data class ChartColors(
 private class ChartPaints(density: androidx.compose.ui.unit.Density, colors: ChartColors) {
     val text = Paint().apply {
         isAntiAlias = true; color = colors.text.toArgb(); textSize = density.run { 10.dp.toPx() }; textAlign = Paint.Align.RIGHT
-    }
-    val value = Paint().apply {
-        isAntiAlias = true; color = colors.primary.toArgb(); textSize = density.run { 10.dp.toPx() }; textAlign = Paint.Align.CENTER; isFakeBoldText = true
     }
     val label = Paint().apply {
         isAntiAlias = true; color = colors.text.toArgb(); textSize = density.run { 10.dp.toPx() }; textAlign = Paint.Align.CENTER
@@ -158,7 +174,7 @@ private class ChartPaints(density: androidx.compose.ui.unit.Density, colors: Cha
 }
 
 private data class ChartDimensions(val size: Size, val yAxisWidth: Float, val xAxisHeight: Float) {
-    val topPadding = Dimen.CardPadding.value // Aproximação simplificada, idealmente converter DP
+    val topPadding = 24f // Espaço extra para tooltips no topo
     val chartHeight = size.height - xAxisHeight - topPadding
     
     fun calculateBarWidth(count: Int, spacing: Float): Float {
@@ -169,35 +185,56 @@ private data class ChartDimensions(val size: Size, val yAxisWidth: Float, val xA
 
 private fun DrawScope.drawGrid(max: Int, dimen: ChartDimensions, paint: Paint, color: Color) {
     val lines = AppConfig.UI.CHART_GRID_LINES
-    val pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 5f), 0f)
+    val pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f) // Grid pontilhado maior
     
     for (i in 0..lines) {
-        val y = dimen.topPadding + dimen.chartHeight * (1f - i.toFloat() / lines)
+        val normalizedY = 1f - i.toFloat() / lines
+        val y = dimen.topPadding + dimen.chartHeight * normalizedY
         val value = (max * i.toFloat() / lines).roundToInt()
         
+        // Linha do Grid
         drawLine(
-            color = color.copy(alpha = 0.3f),
+            color = color,
             start = Offset(dimen.yAxisWidth, y),
             end = Offset(size.width, y),
-            pathEffect = pathEffect
+            pathEffect = pathEffect,
+            strokeWidth = 2f
         )
+        // Valor do Eixo Y
         drawContext.canvas.nativeCanvas.drawText(
             value.toString(),
-            dimen.yAxisWidth - 8f,
-            y + 4f, // Ajuste visual de baseline
+            dimen.yAxisWidth - 12f,
+            y + 10f, 
             paint
         )
     }
 }
 
 private fun DrawScope.drawTooltip(centerX: Float, bottomY: Float, text: String, bg: Color, paint: Paint) {
-    val width = 40f 
-    val height = 24f
-    drawRoundRect(
-        color = bg,
-        topLeft = Offset(centerX - width / 2, bottomY - height),
-        size = Size(width, height),
-        cornerRadius = CornerRadius(4f)
-    )
-    drawContext.canvas.nativeCanvas.drawText(text, centerX, bottomY - 8f, paint)
+    val padding = 16f
+    val textWidth = paint.measureText(text)
+    val width = textWidth + padding * 2
+    val height = 50f
+    
+    // Tooltip estilo "Balão"
+    val path = Path().apply {
+        // Retângulo arredondado
+        addRoundRect(
+            androidx.compose.ui.geometry.RoundRect(
+                left = centerX - width / 2,
+                top = bottomY - height,
+                right = centerX + width / 2,
+                bottom = bottomY,
+                cornerRadius = CornerRadius(8f, 8f)
+            )
+        )
+        // Triângulo indicador na parte inferior
+        moveTo(centerX - 10f, bottomY)
+        lineTo(centerX, bottomY + 10f)
+        lineTo(centerX + 10f, bottomY)
+        close()
+    }
+
+    drawPath(path, color = bg)
+    drawContext.canvas.nativeCanvas.drawText(text, centerX, bottomY - height / 2 + 10f, paint)
 }

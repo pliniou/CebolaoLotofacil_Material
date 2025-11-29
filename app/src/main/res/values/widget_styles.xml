@@ -1,31 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Estilo Base Unificado -->
     <style name="Widget.Text" parent="android:Widget.TextView">
         <item name="android:fontFamily">sans-serif</item>
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textColor">@color/widget_text_primary_light</item>
     </style>
 
+    <!-- Título Principal -->
     <style name="Widget.Text.Title">
         <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="android:textSize">18sp</item>
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textSize">16sp</item> <!-- Reduzido levemente para elegância -->
+        <item name="android:textColor">@color/widget_text_primary_light</item>
+        <item name="android:letterSpacing">0.02</item>
     </style>
 
+    <!-- Valor do Prêmio (Destaque) -->
     <style name="Widget.Text.Prize" parent="Widget.Text.Title">
-        <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="android:textSize">@dimen/widget_large_text_size</item>
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:fontFamily">sans-serif-black</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">#00796B</item> <!-- Primary Color Fixed for Widget contrast -->
     </style>
 
+    <!-- Bola Numerada -->
     <style name="Widget.Text.NumberBall">
-        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:textColor">?android:attr/textColorSecondary</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/widget_text_primary_light</item>
     </style>
 
     <style name="Widget.Text.Loading">
-        <item name="android:textSize">14sp</item>
-        <item name="android:textColor">?android:attr/textColorSecondary</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/widget_text_secondary_light</item>
+        <item name="android:fontFamily">sans-serif-light</item>
     </style>
 </resources>

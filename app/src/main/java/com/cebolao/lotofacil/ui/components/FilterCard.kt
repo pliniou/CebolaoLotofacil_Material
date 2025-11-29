@@ -64,7 +64,8 @@ fun FilterCard(
     )
     val containerColor by animateColorAsState(
         targetValue = if (enabled) MaterialTheme.colorScheme.primaryContainer
-        else MaterialTheme.colorScheme.surfaceColorAtElevation(Dimen.Elevation.Level1),
+        // Atualizado: Level1 -> Low
+        else MaterialTheme.colorScheme.surfaceColorAtElevation(Dimen.Elevation.Low),
         animationSpec = tween(AppConfig.Animation.MEDIUM_DURATION),
         label = "containerColor"
     )
@@ -72,9 +73,11 @@ fun FilterCard(
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
-        elevation = CardDefaults.cardElevation(Dimen.Elevation.Level0),
+        // Atualizado: Level0 -> None
+        elevation = CardDefaults.cardElevation(Dimen.Elevation.None),
         colors = CardDefaults.cardColors(containerColor = containerColor),
-        border = BorderStroke(Dimen.Border.Default, borderColor)
+        // Atualizado: Border.Default -> Border.Thin
+        border = BorderStroke(Dimen.Border.Thin, borderColor)
     ) {
         Column(
             modifier = Modifier.padding(

@@ -124,12 +124,15 @@ class WidgetUpdateWorker @AssistedInject constructor(
             val data = fetchData()
             for (appWidgetId in appWidgetIds) {
                 val views = RemoteViews(context.packageName, layoutId).apply {
+                    // Configura o intent de refresh para o novo ID do botão
                     setOnClickPendingIntent(
                         R.id.widget_refresh_button,
                         WidgetUtils.getRefreshPendingIntent(context, providerClass, appWidgetId)
                     )
+                    
                     if (data != null) {
                         updateViews(this, data)
+                        // Alterna visibilidade baseado nos novos IDs
                         setViewVisibility(R.id.widget_loading_text, View.GONE)
                         setViewVisibility(R.id.widget_content, View.VISIBLE)
                     } else {

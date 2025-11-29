@@ -24,6 +24,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.ui.theme.AppConfig
@@ -34,10 +35,10 @@ enum class NumberBallVariant { Primary, Secondary, Lotofacil }
 
 @Immutable
 private data class BallStyle(
-    val gradientStart: Color,
-    val gradientEnd: Color,
-    val content: Color,
-    val border: Color,
+    val gradientColors: List<Color>,
+    val contentColor: Color,
+    val borderColor: Color,
+    val borderWidth: Dp,
     val elevation: Dp
 )
 
@@ -53,11 +54,14 @@ fun NumberBall(
 ) {
     val style = getBallStyle(isSelected, isHighlighted, isDisabled, variant)
 
+    // Animações suaves
     val elevation by animateDpAsState(style.elevation, label = "elevation")
-    val startColor by animateColorAsState(style.gradientStart, tween(AppConfig.Animation.SHORT_DURATION), label = "start")
-    val endColor by animateColorAsState(style.gradientEnd, tween(AppConfig.Animation.SHORT_DURATION), label = "end")
-    val contentColor by animateColorAsState(style.content, tween(AppConfig.Animation.SHORT_DURATION), label = "content")
-    val borderColor by animateColorAsState(style.border, tween(AppConfig.Animation.SHORT_DURATION), label = "border")
+    val contentColor by animateColorAsState(style.contentColor, tween(AppConfig.Animation.SHORT_DURATION), label = "content")
+    val borderColor by animateColorAsState(style.borderColor, tween(AppConfig.Animation.SHORT_DURATION), label = "border")
+    
+    // Gradiente animado (simplificado para transição suave de cores)
+    val startColor by animateColorAsState(style.gradientColors.first(), tween(AppConfig.Animation.SHORT_DURATION), label = "gradStart")
+    val endColor by animateColorAsState(style.gradientColors.last(), tween(AppConfig.Animation.SHORT_DURATION), label = "gradEnd")
 
     val desc = stringResource(
         R.string.number_ball_content_description, 
@@ -68,11 +72,11 @@ fun NumberBall(
     Box(
         modifier = modifier
             .size(size)
-            .shadow(elevation, CircleShape, spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
+            .shadow(elevation, CircleShape) // Sombra natural do Material
             .clip(CircleShape)
-            .background(Brush.verticalGradient(listOf(startColor, endColor)))
+            .background(Brush.linearGradient(listOf(startColor, endColor)))
             .border(
-                width = if (isSelected) Dimen.Border.Thick else Dimen.Border.Default,
+                width = style.borderWidth,
                 color = borderColor,
                 shape = CircleShape
             )
@@ -82,8 +86,8 @@ fun NumberBall(
         Text(
             text = DEFAULT_NUMBER_FORMAT.format(number),
             color = contentColor,
-            style = MaterialTheme.typography.bodyMedium.copy(
-                fontSize = (size.value / AppConfig.UI.BALL_TEXT_FACTOR).sp,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontSize = (size.value / 2.6).sp, // Ajuste fino da fonte baseado no tamanho
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold
             )
         )
@@ -98,11 +102,14 @@ private fun getBallStyle(
     variant: NumberBallVariant
 ): BallStyle {
     val theme = MaterialTheme.colorScheme
+    
+    // Definição da cor base baseada na variante
     val baseColor = when (variant) {
         NumberBallVariant.Primary -> theme.primary
         NumberBallVariant.Secondary -> theme.secondary
         NumberBallVariant.Lotofacil -> theme.tertiary
     }
+    
     val onBaseColor = when (variant) {
         NumberBallVariant.Primary -> theme.onPrimary
         NumberBallVariant.Secondary -> theme.onSecondary
@@ -111,32 +118,35 @@ private fun getBallStyle(
 
     return when {
         isDisabled -> BallStyle(
-            gradientStart = theme.surfaceVariant.copy(alpha = AppConfig.UI.ALPHA_DISABLED),
-            gradientEnd = theme.surface.copy(alpha = AppConfig.UI.ALPHA_DISABLED),
-            content = theme.onSurfaceVariant.copy(alpha = AppConfig.UI.ALPHA_DISABLED),
-            border = theme.outline.copy(alpha = AppConfig.UI.ALPHA_DISABLED),
-            elevation = Dimen.Elevation.Level0
+            gradientColors = listOf(theme.surfaceVariant.copy(alpha = 0.5f), theme.surfaceVariant.copy(alpha = 0.3f)),
+            contentColor = theme.onSurfaceVariant.copy(alpha = 0.38f),
+            borderColor = Color.Transparent,
+            borderWidth = 0.dp,
+            elevation = Dimen.Elevation.None
         )
         isSelected -> BallStyle(
-            gradientStart = baseColor,
-            gradientEnd = baseColor.copy(alpha = AppConfig.UI.ALPHA_SELECTED),
-            content = onBaseColor,
-            border = baseColor.copy(alpha = AppConfig.UI.ALPHA_DISABLED),
-            elevation = Dimen.Elevation.Level3
+            // Gradiente vibrante para seleção
+            gradientColors = listOf(baseColor, baseColor.copy(alpha = 0.8f)),
+            contentColor = onBaseColor,
+            borderColor = Color.Transparent, // Sem borda quando selecionado, o preenchimento basta
+            borderWidth = 0.dp,
+            elevation = Dimen.Elevation.Medium
         )
         isHighlighted -> BallStyle(
-            gradientStart = baseColor.copy(alpha = AppConfig.UI.ALPHA_HIGHLIGHT),
-            gradientEnd = baseColor.copy(alpha = 0.1f),
-            content = baseColor,
-            border = baseColor.copy(alpha = 0.6f),
-            elevation = Dimen.Elevation.Level1
+            // Destaque sutil (ex: números quentes)
+            gradientColors = listOf(baseColor.copy(alpha = 0.2f), baseColor.copy(alpha = 0.1f)),
+            contentColor = baseColor,
+            borderColor = baseColor.copy(alpha = 0.5f),
+            borderWidth = Dimen.Border.Thin,
+            elevation = Dimen.Elevation.Low
         )
         else -> BallStyle(
-            gradientStart = theme.surface,
-            gradientEnd = theme.surfaceVariant,
-            content = theme.onSurfaceVariant,
-            border = theme.outline.copy(alpha = AppConfig.UI.ALPHA_BORDER_DEFAULT),
-            elevation = Dimen.Elevation.Level1
+            // Estado padrão: Fundo limpo com borda sutil
+            gradientColors = listOf(theme.surface, theme.surface),
+            contentColor = theme.onSurface,
+            borderColor = theme.outlineVariant.copy(alpha = 0.6f),
+            borderWidth = Dimen.Border.Thin,
+            elevation = Dimen.Elevation.None
         )
     }
 }

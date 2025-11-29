@@ -1,5 +1,7 @@
 package com.cebolao.lotofacil.ui.components
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -27,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +37,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.ui.theme.AccentPalette
 import com.cebolao.lotofacil.ui.theme.AppConfig
@@ -50,25 +54,34 @@ fun ColorPaletteCard(
     val palettes = AccentPalette.entries
     val isDarkTheme = isSystemInDarkTheme()
 
+    // Otimização: Memoização dos esquemas de cores
     val previewColorSchemes = remember(isDarkTheme, palettes) {
         palettes.associateWith {
             if (isDarkTheme) darkColorSchemeFor(it) else lightColorSchemeFor(it)
         }
     }
 
-    LazyRow(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding),
-        contentPadding = PaddingValues(horizontal = Dimen.SmallPadding)
-    ) {
-        items(palettes) { palette ->
-            val colorScheme = previewColorSchemes[palette]!!
-            PalettePreviewCard(
-                colorScheme = colorScheme,
-                name = palette.paletteName,
-                isSelected = currentPalette == palette,
-                onClick = { onPaletteChange(palette) }
-            )
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
+        Text(
+            "Cores de Destaque", 
+            style = MaterialTheme.typography.titleSmall, 
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding),
+            contentPadding = PaddingValues(end = Dimen.ScreenPadding) // Espaço para scroll
+        ) {
+            items(palettes) { palette ->
+                val colorScheme = previewColorSchemes[palette]!!
+                PalettePreviewCard(
+                    colorScheme = colorScheme,
+                    name = palette.paletteName,
+                    isSelected = currentPalette == palette,
+                    onClick = { onPaletteChange(palette) }
+                )
+            }
         }
     }
 }
@@ -81,20 +94,21 @@ private fun PalettePreviewCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val borderColor by animateColorAsState(
+        targetValue = if (isSelected) colorScheme.primary else Color.Transparent,
+        animationSpec = tween(AppConfig.Animation.SHORT_DURATION),
+        label = "border"
+    )
+
     Card(
         modifier = modifier
             .width(Dimen.PaletteCardWidth)
             .height(Dimen.PaletteCardHeight)
             .clickable { onClick() },
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(
-            containerColor = colorScheme.surfaceVariant
-        ),
-        border = if (isSelected) {
-            BorderStroke(Dimen.Border.Thick, colorScheme.primary)
-        } else {
-            BorderStroke(Dimen.Border.Default, MaterialTheme.colorScheme.outline)
-        }
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
+        border = BorderStroke(if (isSelected) Dimen.Border.Thick else Dimen.Border.Hairline, borderColor),
+        elevation = CardDefaults.cardElevation(if (isSelected) Dimen.Elevation.Medium else Dimen.Elevation.Low)
     ) {
         Column(
             modifier = Modifier
@@ -104,14 +118,13 @@ private fun PalettePreviewCard(
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)
+                horizontalArrangement = Arrangement.spacedBy(Dimen.ExtraSmallPadding)
             ) {
                 ColorSwatch(colorScheme.primary, modifier = Modifier.weight(1f))
-                ColorSwatch(colorScheme.secondary, modifier = Modifier.weight(1f))
                 ColorSwatch(colorScheme.tertiary, modifier = Modifier.weight(1f))
             }
 
-            Spacer(modifier = Modifier.height(Dimen.MediumPadding))
+            Spacer(modifier = Modifier.weight(1f))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -120,16 +133,17 @@ private fun PalettePreviewCard(
             ) {
                 Text(
                     text = name,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.labelMedium,
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                    color = colorScheme.onSurfaceVariant
+                    color = colorScheme.onSurface,
+                    maxLines = 1
                 )
                 if (isSelected) {
                     Icon(
                         imageVector = Icons.Filled.CheckCircle,
                         contentDescription = stringResource(R.string.general_selected),
                         tint = colorScheme.primary,
-                        modifier = Modifier.size(Dimen.SmallIcon)
+                        modifier = Modifier.size(14.dp)
                     )
                 }
             }
@@ -141,12 +155,12 @@ private fun PalettePreviewCard(
 private fun ColorSwatch(color: Color, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
-            .height(Dimen.LargeIcon)
+            .height(20.dp)
             .clip(MaterialTheme.shapes.small)
             .background(color)
             .border(
-                width = Dimen.Border.Default,
-                color = MaterialTheme.colorScheme.outline.copy(alpha = AppConfig.UI.COLOR_SWATCH_BORDER_ALPHA),
+                width = Dimen.Border.Hairline,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
                 shape = MaterialTheme.shapes.small
             )
     )

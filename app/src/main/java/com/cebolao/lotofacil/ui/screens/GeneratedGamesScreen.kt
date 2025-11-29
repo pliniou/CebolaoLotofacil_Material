@@ -2,7 +2,15 @@ package com.cebolao.lotofacil.ui.screens
 
 import android.content.Intent
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -11,9 +19,24 @@ import androidx.compose.material.icons.automirrored.filled.ListAlt
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.PushPin
-import androidx.compose.material.icons.filled.Style
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -30,11 +53,22 @@ import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.data.LotofacilGame
 import com.cebolao.lotofacil.navigation.Screen
 import com.cebolao.lotofacil.navigation.navigateToChecker
-import com.cebolao.lotofacil.ui.components.*
+import com.cebolao.lotofacil.ui.components.AnimateOnEntry
+import com.cebolao.lotofacil.ui.components.AppConfirmationDialog
+import com.cebolao.lotofacil.ui.components.GameAnalysisDialog
+import com.cebolao.lotofacil.ui.components.GameCard
+import com.cebolao.lotofacil.ui.components.GameCardAction
+import com.cebolao.lotofacil.ui.components.LoadingDialog
+import com.cebolao.lotofacil.ui.components.MessageState
+import com.cebolao.lotofacil.ui.components.SectionCard
+import com.cebolao.lotofacil.ui.components.StandardPageLayout
 import com.cebolao.lotofacil.ui.theme.Dimen
 import com.cebolao.lotofacil.util.MIME_TYPE_TEXT_PLAIN
 import com.cebolao.lotofacil.util.rememberCurrencyFormatter
-import com.cebolao.lotofacil.viewmodels.*
+import com.cebolao.lotofacil.viewmodels.GameAnalysisUiState
+import com.cebolao.lotofacil.viewmodels.GameScreenEvent
+import com.cebolao.lotofacil.viewmodels.GameSummary
+import com.cebolao.lotofacil.viewmodels.GameViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -65,7 +99,7 @@ fun GeneratedGamesScreen(
         }
     }
 
-    // Dialogs Recursivos
+    // Handlers e Dialogs
     AnalysisDialogHandler(analysisState, viewModel::dismissAnalysisDialog, snackbarHostState)
     
     if (showClearDialog) {
@@ -109,23 +143,44 @@ fun GeneratedGamesScreen(
             } else {
                 GameSummarySection(uiState.summary)
                 
-                PrimaryTabRow(selectedTabIndex = pagerState.currentPage) {
+                // Tabs alinhadas
+                TabRow(
+                    selectedTabIndex = pagerState.currentPage,
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    indicator = { tabPositions ->
+                        TabRowDefaults.SecondaryIndicator(
+                            Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                ) {
                     TABS.forEachIndexed { index, title ->
                         Tab(
                             selected = pagerState.currentPage == index,
                             onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
-                            text = { Text(title) }
+                            text = { Text(title, style = MaterialTheme.typography.titleSmall) }
                         )
                     }
                 }
                 
                 HorizontalPager(state = pagerState, modifier = Modifier.weight(1f)) { page ->
-                    // Uso do StandardPageLayout interno ao Pager
-                    StandardPageLayout(contentPadding = PaddingValues(0.dp)) { // Padding 0 pois StandardPageLayout já aplica o default
-                        val games = if (page == 0) unpinned else pinned
-                        items(games, key = { it.numbers.hashCode() }) { game ->
-                            AnimateOnEntry(modifier = Modifier.animateItemPlacement()) {
-                                GameCard(game, onAction = { action -> handleAction(action, game, viewModel, navController) })
+                    val games = if (page == 0) unpinned else pinned
+                    
+                    if (games.isEmpty()) {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text(
+                                text = if(page == 0) "Nenhum jogo gerado ainda" else "Nenhum jogo fixado",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    } else {
+                        StandardPageLayout(contentPadding = PaddingValues(0.dp)) {
+                            items(games, key = { it.numbers.hashCode() }) { game ->
+                                AnimateOnEntry(modifier = Modifier.animateItemPlacement()) {
+                                    GameCard(game, onAction = { action -> handleAction(action, game, viewModel, navController) })
+                                }
                             }
                         }
                     }
@@ -135,7 +190,7 @@ fun GeneratedGamesScreen(
     }
 }
 
-// Helpers mantidos iguais ao anterior, pois são específicos desta tela
+// Helpers
 private fun handleAction(action: GameCardAction, game: LotofacilGame, viewModel: GameViewModel, navController: NavController) {
     when (action) {
         GameCardAction.Analyze -> viewModel.analyzeGame(game)
@@ -198,12 +253,11 @@ private fun EmptyState(navController: NavController) {
 @Composable
 private fun GameSummarySection(summary: GameSummary) {
     val formatter = rememberCurrencyFormatter()
-    SectionCard(modifier = Modifier.padding(Dimen.ScreenPadding)) {
-        TitleWithIcon(text = "Resumo", icon = Icons.Default.Style)
+    SectionCard(modifier = Modifier.padding(start = Dimen.ScreenPadding, end = Dimen.ScreenPadding, top = Dimen.SmallPadding)) {
         Row(Modifier.fillMaxWidth(), Arrangement.SpaceAround) {
-            SummaryItem("Total", "${summary.totalGames}")
+            SummaryItem("Jogos", "${summary.totalGames}")
             SummaryItem("Fixados", "${summary.pinnedGames}", Icons.Default.PushPin)
-            SummaryItem("Custo", formatter.format(summary.totalCost))
+            SummaryItem("Custo Total", formatter.format(summary.totalCost))
         }
     }
 }
@@ -213,8 +267,8 @@ private fun SummaryItem(label: String, value: String, icon: ImageVector? = null)
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Dimen.ExtraSmallPadding)) {
             icon?.let { Icon(it, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(Dimen.SmallIcon)) }
-            Text(value, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Text(value, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Black)
         }
-        Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }

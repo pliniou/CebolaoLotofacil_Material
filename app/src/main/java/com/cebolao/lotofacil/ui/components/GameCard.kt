@@ -7,8 +7,10 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.FactCheck
@@ -17,6 +19,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.PushPin
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,11 +28,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
 import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.data.LotofacilGame
 import com.cebolao.lotofacil.ui.theme.AppConfig
@@ -53,77 +54,59 @@ fun GameCard(
     val haptic = LocalHapticFeedback.current
     val isPinned = game.isPinned
 
+    // Animação de elevação e borda quando fixado
     val elevation by animateDpAsState(
-        targetValue = if (isPinned) Dimen.Elevation.Level2 else Dimen.Elevation.Level0,
+        targetValue = if (isPinned) Dimen.Elevation.Medium else Dimen.Elevation.Low,
         animationSpec = spring(stiffness = Spring.StiffnessMedium),
         label = "elevation"
     )
     val borderColor by animateColorAsState(
-        targetValue = if (isPinned) MaterialTheme.colorScheme.primary
-        // Refatorado: Usa a constante do AppConfig
-        else MaterialTheme.colorScheme.outline.copy(alpha = AppConfig.UI.ALPHA_BORDER_DEFAULT),
+        targetValue = if (isPinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
         animationSpec = tween(AppConfig.Animation.MEDIUM_DURATION),
         label = "borderColor"
     )
     val containerColor by animateColorAsState(
-        targetValue = if (isPinned) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
+        targetValue = if (isPinned) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surface,
         animationSpec = tween(AppConfig.Animation.MEDIUM_DURATION),
         label = "containerColor"
     )
-    val borderWidth by animateDpAsState(
-        targetValue = if (isPinned) Dimen.Border.Thick else Dimen.Border.Default,
-        label = "borderWidth"
-    )
 
-    BaseGameCard(
-        modifier = modifier,
-        elevation = elevation,
-        borderColor = borderColor,
-        borderWidth = borderWidth,
-        containerColor = containerColor
-    ) {
-        NumberGrid(
-            allNumbers = game.numbers.sorted().toImmutableList(),
-            selectedNumbers = game.numbers,
-            onNumberClick = {},
-            maxSelection = game.numbers.size,
-            numberSize = Dimen.NumberBall,
-            ballVariant = NumberBallVariant.Secondary
-        )
-
-        AppDivider()
-
-        GameCardActions(
-            isPinned = isPinned,
-            onAction = { action ->
-                val feedback = when (action) {
-                    GameCardAction.Pin, GameCardAction.Delete -> HapticFeedbackType.LongPress
-                    else -> HapticFeedbackType.TextHandleMove
-                }
-                haptic.performHapticFeedback(feedback)
-                onAction(action)
-            }
-        )
-    }
-}
-
-@Composable
-private fun BaseGameCard(
-    modifier: Modifier = Modifier,
-    elevation: Dp,
-    borderColor: Color,
-    borderWidth: Dp,
-    containerColor: Color,
-    content: @Composable () -> Unit
-) {
-    SectionCard(
+    Card(
         modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
         elevation = CardDefaults.cardElevation(defaultElevation = elevation),
-        border = BorderStroke(width = borderWidth, color = borderColor),
-        colors = CardDefaults.cardColors(containerColor = containerColor),
-        contentSpacing = Dimen.MediumPadding
+        border = BorderStroke(width = if(isPinned) Dimen.Border.Regular else Dimen.Border.Thin, color = borderColor),
+        colors = CardDefaults.cardColors(containerColor = containerColor)
     ) {
-        content()
+        Column(
+            modifier = Modifier.padding(Dimen.CardPadding),
+            verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)
+        ) {
+            // Grid de Números Otimizado
+            NumberGrid(
+                allNumbers = game.numbers.sorted().toImmutableList(),
+                selectedNumbers = game.numbers,
+                onNumberClick = {},
+                maxSelection = game.numbers.size,
+                numberSize = Dimen.NumberBallSmall, // Bolas um pouco menores no card para caber bem
+                ballVariant = if (isPinned) NumberBallVariant.Primary else NumberBallVariant.Secondary
+            )
+
+            AppDivider()
+
+            GameCardActions(
+                isPinned = isPinned,
+                onAction = { action ->
+                    // Feedback tátil nas ações
+                    val feedback = when (action) {
+                        GameCardAction.Pin, GameCardAction.Delete -> HapticFeedbackType.LongPress
+                        else -> HapticFeedbackType.TextHandleMove
+                    }
+                    haptic.performHapticFeedback(feedback)
+                    onAction(action)
+                }
+            )
+        }
     }
 }
 
@@ -137,17 +120,14 @@ private fun GameCardActions(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Ações de Gerenciamento (Esquerda)
         Row(horizontalArrangement = Arrangement.spacedBy(Dimen.ExtraSmallPadding)) {
             IconButton(onClick = { onAction(GameCardAction.Pin) }) {
                 Icon(
                     modifier = Modifier.size(Dimen.MediumIcon),
                     imageVector = if (isPinned) Icons.Filled.PushPin else Icons.Outlined.PushPin,
-                    contentDescription = if (isPinned)
-                        stringResource(R.string.games_unpin_game_description)
-                    else
-                        stringResource(R.string.games_pin_game_description),
-                    tint = if (isPinned) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.onSurfaceVariant
+                    contentDescription = stringResource(if (isPinned) R.string.games_unpin_game_description else R.string.games_pin_game_description),
+                    tint = if (isPinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             IconButton(onClick = { onAction(GameCardAction.Delete) }) {
@@ -155,10 +135,12 @@ private fun GameCardActions(
                     modifier = Modifier.size(Dimen.MediumIcon),
                     imageVector = Icons.Filled.Delete,
                     contentDescription = stringResource(R.string.games_delete_game_description),
-                    tint = MaterialTheme.colorScheme.error
+                    tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f) // Um pouco mais sutil
                 )
             }
         }
+        
+        // Ações Funcionais (Direita)
         Row(horizontalArrangement = Arrangement.spacedBy(Dimen.ExtraSmallPadding)) {
             IconButton(onClick = { onAction(GameCardAction.Share) }) {
                 Icon(
@@ -176,7 +158,10 @@ private fun GameCardActions(
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            IconButton(onClick = { onAction(GameCardAction.Check) }) {
+            // Botão de destaque para Conferir
+            IconButton(
+                onClick = { onAction(GameCardAction.Check) },
+            ) {
                 Icon(
                     modifier = Modifier.size(Dimen.MediumIcon),
                     imageVector = Icons.AutoMirrored.Filled.FactCheck,

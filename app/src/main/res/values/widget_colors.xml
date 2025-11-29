@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="widget_background_light">#E6E0F2F0</color>
-
-    <color name="widget_background_dark">#E61C1C1E</color>
+    <!-- Backgrounds ligeiramente translúcidos (95% opacidade) para efeito moderno -->
+    <color name="widget_background_light">#F2F7F9FC</color> <!-- Off-white 95% -->
+    <color name="widget_background_dark">#F21E1E1E</color>  <!-- Dark Surface 95% -->
+    
+    <!-- Cores de texto ajustadas para contraste em Widgets -->
+    <color name="widget_text_primary_light">#1A1C1E</color>
+    <color name="widget_text_primary_dark">#E2E2E6</color>
+    <color name="widget_text_secondary_light">#43474E</color>
+    <color name="widget_text_secondary_dark">#C3C7CF</color>
 </resources>

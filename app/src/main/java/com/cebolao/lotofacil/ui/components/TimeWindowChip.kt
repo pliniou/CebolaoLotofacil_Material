@@ -44,7 +44,8 @@ fun TimeWindowChip(
         ),
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(containerColor = container),
-        border = if (!isSelected) BorderStroke(Dimen.Border.Default, MaterialTheme.colorScheme.outline.copy(alpha = AppConfig.UI.TIME_WINDOW_CHIP_BORDER_ALPHA)) else null
+        // Atualizado: Border.Default -> Border.Thin
+        border = if (!isSelected) BorderStroke(Dimen.Border.Thin, MaterialTheme.colorScheme.outline.copy(alpha = AppConfig.UI.TIME_WINDOW_CHIP_BORDER_ALPHA)) else null
     ) {
         Text(
             text = label,

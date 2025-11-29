@@ -73,6 +73,7 @@ android {
 
 dependencies {
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.espresso.core)
     // Core Library Desugaring
     coreLibraryDesugaring(libs.android.desugarJdkLibs)
 

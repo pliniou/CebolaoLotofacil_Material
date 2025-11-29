@@ -27,8 +27,10 @@ fun FilterStatsPanel(
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(Dimen.Elevation.Level1)),
-        elevation = CardDefaults.cardElevation(Dimen.Elevation.Level1)
+        // Atualizado: Level1 -> Low
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(Dimen.Elevation.Low)),
+        // Atualizado: Level1 -> Low
+        elevation = CardDefaults.cardElevation(Dimen.Elevation.Low)
     ) {
         Column(
             modifier = Modifier.padding(Dimen.CardPadding),
@@ -36,7 +38,6 @@ fun FilterStatsPanel(
         ) {
             Text(stringResource(R.string.filters_analysis_title), style = MaterialTheme.typography.titleLarge)
             FilterRestrictiveness(probability = successProbability)
-            // Correção: Constante renomeada
             HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = AppConfig.UI.ALPHA_BORDER_DEFAULT))
             FilterStatistics(activeFilters)
         }
@@ -51,10 +52,9 @@ private fun FilterRestrictiveness(probability: Float) {
         label = "probabilityAnimation"
     )
 
-    // Correção: Comparação explícita de Float e constantes renomeadas
     val (progressColor, textColor) = when {
-        animatedProbability < AppConfig.UI.BALL_TEXT_FACTOR -> MaterialTheme.colorScheme.error to MaterialTheme.colorScheme.error
-        animatedProbability < AppConfig.UI.ANIMATE_ENTRY_OFFSET_DIVISOR -> MaterialTheme.colorScheme.tertiary to MaterialTheme.colorScheme.tertiary
+        animatedProbability < 0.2f -> MaterialTheme.colorScheme.error to MaterialTheme.colorScheme.error
+        animatedProbability < 0.5f -> MaterialTheme.colorScheme.tertiary to MaterialTheme.colorScheme.tertiary
         else -> MaterialTheme.colorScheme.primary to MaterialTheme.colorScheme.primary
     }
 
@@ -118,7 +118,6 @@ private fun FilterStatRow(filter: FilterState) {
 
 @Composable
 private fun RestrictivenessChip(category: RestrictivenessCategory) {
-    // Correção: Uso de destructuring explícito ou apenas propriedades para evitar ambiguidade do Kotlin
     val color = when (category) {
         RestrictivenessCategory.VERY_TIGHT, RestrictivenessCategory.TIGHT -> MaterialTheme.colorScheme.error
         RestrictivenessCategory.MODERATE -> MaterialTheme.colorScheme.tertiary
@@ -135,10 +134,8 @@ private fun RestrictivenessChip(category: RestrictivenessCategory) {
         RestrictivenessCategory.DISABLED -> R.string.restrictiveness_disabled
     }
 
-    val alpha = AppConfig.UI.ALPHA_DISABLED
-
     Surface(
-        color = color.copy(alpha = alpha),
+        color = color.copy(alpha = AppConfig.UI.ALPHA_DISABLED),
         shape = MaterialTheme.shapes.small
     ) {
         Text(

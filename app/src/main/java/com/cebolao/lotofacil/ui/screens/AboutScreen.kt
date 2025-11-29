@@ -4,18 +4,38 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Gavel
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Lightbulb
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Policy
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import com.cebolao.lotofacil.R
-import androidx.compose.foundation.lazy.items // Import crucial adicionado
-import com.cebolao.lotofacil.ui.components.*
+import com.cebolao.lotofacil.ui.components.AnimateOnEntry
+import com.cebolao.lotofacil.ui.components.ColorPaletteCard
+import com.cebolao.lotofacil.ui.components.FormattedText
+import com.cebolao.lotofacil.ui.components.InfoDialog
+import com.cebolao.lotofacil.ui.components.InfoListCard
+import com.cebolao.lotofacil.ui.components.InfoPoint
+import com.cebolao.lotofacil.ui.components.SectionCard
+import com.cebolao.lotofacil.ui.components.StandardPageLayout
+import com.cebolao.lotofacil.ui.components.StudioHero
+import com.cebolao.lotofacil.ui.components.ThemeSettingsCard
+import com.cebolao.lotofacil.ui.components.TitleWithIcon
 import com.cebolao.lotofacil.ui.theme.AccentPalette
 import com.cebolao.lotofacil.ui.theme.Dimen
 
@@ -38,7 +58,7 @@ fun AboutScreen(
 
     dialogContent?.let { item ->
         InfoDialog(
-            onDismissRequest = { },
+            onDismissRequest = { dialogContent = null },
             dialogTitle = item.title,
             icon = item.icon
         ) { item.content() }
@@ -49,7 +69,6 @@ fun AboutScreen(
         subtitle = stringResource(R.string.about_subtitle),
         navigationIcon = { Icon(Icons.Default.Info, stringResource(R.string.about_title), tint = MaterialTheme.colorScheme.primary) }
     ) { innerPadding ->
-        // Recursividade: StandardPageLayout
         StandardPageLayout(contentPadding = innerPadding) {
             item { StudioHero() }
 
@@ -74,7 +93,7 @@ fun AboutScreen(
                         modifier = Modifier.clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = rememberRipple(),
-                            onClick = { }
+                            onClick = { dialogContent = info }
                         )
                     )
                 }
@@ -83,8 +102,6 @@ fun AboutScreen(
     }
 }
 
-// Conteúdos auxiliares e rememberInfoItems (lógica de conteúdo) permanecem inalterados, pois já estavam extraídos.
-// Apenas garantindo que imports necessários estejam presentes.
 @Composable
 private fun rememberInfoItems(): List<InfoItem> {
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -99,6 +116,7 @@ private fun rememberInfoItems(): List<InfoItem> {
     }
 }
 
+// Conteúdos estáticos simplificados para brevidade, usando os novos componentes
 @Composable private fun AboutPurposeContent() {
     Column(verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)) {
         FormattedText(stringResource(R.string.about_purpose_desc_body))

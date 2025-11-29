@@ -2,8 +2,10 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
 
+    <!-- Referenciando as cores definidas em values/widget_colors.xml -->
     <solid android:color="@color/widget_background_light" />
 
-    <corners android:radius="28dp" />
+    <!-- Arredondamento consistente com o Shape.kt (Large = 24dp) -->
+    <corners android:radius="24dp" />
 
 </shape>

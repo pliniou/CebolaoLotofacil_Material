@@ -4,7 +4,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -23,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -42,7 +46,6 @@ import com.cebolao.lotofacil.ui.components.FilterStatsPanel
 import com.cebolao.lotofacil.ui.components.FormattedText
 import com.cebolao.lotofacil.ui.components.GenerationActionsPanel
 import com.cebolao.lotofacil.ui.components.InfoDialog
-import com.cebolao.lotofacil.ui.components.SectionCard
 import com.cebolao.lotofacil.ui.components.StandardPageLayout
 import com.cebolao.lotofacil.ui.theme.Dimen
 import com.cebolao.lotofacil.viewmodels.FiltersScreenState
@@ -151,26 +154,55 @@ private fun FilterPresetSelector(
     onPresetSelected: (FilterPreset) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    SectionCard(modifier = modifier) {
-        Text(stringResource(R.string.filters_presets_title), style = MaterialTheme.typography.titleMedium)
-        Text(
-            stringResource(R.string.filters_presets_subtitle),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+    // Usando SectionCard sem background para um look mais "limpo" no carrossel horizontal
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = Dimen.ExtraSmallPadding),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(stringResource(R.string.filters_presets_title), style = MaterialTheme.typography.titleMedium)
+            Text(
+                stringResource(R.string.filters_presets_subtitle),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        
         LazyRow(horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
             items(filterPresets) { preset ->
                 Card(
-                    modifier = Modifier.clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = { onPresetSelected(preset) }
+                    modifier = Modifier
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = { onPresetSelected(preset) }
+                        )
+                        .size(width = Dimen.PaletteCardWidth * 1.3f, height = Dimen.PaletteCardHeight * 0.9f),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface
                     ),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    elevation = CardDefaults.cardElevation(Dimen.Elevation.Low),
+                    shape = MaterialTheme.shapes.medium
                 ) {
-                    Column(Modifier.padding(Dimen.MediumPadding)) {
-                        Text(preset.name, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-                        Text(preset.description, style = MaterialTheme.typography.labelSmall)
+                    Column(
+                        modifier = Modifier.padding(Dimen.MediumPadding).fillMaxWidth(),
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            preset.name, 
+                            style = MaterialTheme.typography.titleSmall, 
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            preset.description, 
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 3,
+                            minLines = 2
+                        )
                     }
                 }
             }

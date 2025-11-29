@@ -53,8 +53,10 @@ fun GenerationActionsPanel(
 
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shadowElevation = Dimen.Elevation.Level4,
-        tonalElevation = Dimen.Elevation.Level2
+        // Atualizado: Level4 -> High
+        shadowElevation = Dimen.Elevation.High,
+        // Atualizado: Level2 -> Medium
+        tonalElevation = Dimen.Elevation.Medium
     ) {
         Row(
             modifier = Modifier

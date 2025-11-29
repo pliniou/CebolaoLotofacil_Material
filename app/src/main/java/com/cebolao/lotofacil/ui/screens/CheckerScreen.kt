@@ -1,6 +1,7 @@
 package com.cebolao.lotofacil.ui.screens
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Analytics
@@ -74,10 +75,9 @@ private fun CheckerContent(
     onToggleNumber: (Int) -> Unit,
     paddingValues: PaddingValues
 ) {
-    // Recursividade: StandardPageLayout
     StandardPageLayout(contentPadding = paddingValues) {
         item {
-            Column(verticalArrangement = Arrangement.spacedBy(Dimen.CardSpacing)) {
+            Column(verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)) {
                 SelectionProgress(selectedNumbers.size)
                 AnimateOnEntry {
                     SectionCard {
@@ -100,9 +100,10 @@ private fun CheckerContent(
                         icon = Icons.Default.ErrorOutline,
                         title = stringResource(R.string.general_error_title),
                         message = stringResource(state.messageResId),
-                        iconTint = MaterialTheme.colorScheme.error
+                        iconTint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(vertical = Dimen.SectionSpacing)
                     )
-                    else -> Unit
+                    else -> Spacer(Modifier.height(Dimen.SectionSpacing))
                 }
             }
         }
@@ -124,15 +125,31 @@ private fun BarChartCard(result: CheckResult) {
         TitleWithIcon(stringResource(R.string.checker_recent_hits_chart_title), Icons.Default.Analytics)
         val chartData = result.recentHits.map { it.first.toString().takeLast(AppConfig.UI.CHECKER_CHART_SUFFIX_LENGTH) to it.second }
         val maxValue = (chartData.maxOfOrNull { it.second }?.coerceAtLeast(AppConfig.UI.CHECKER_CHART_MIN_MAX_VALUE) ?: AppConfig.UI.CHECKER_CHART_MIN_MAX_VALUE)
-        BarChart(data = chartData.toImmutableList(), maxValue = maxValue, modifier = Modifier.fillMaxWidth().height(Dimen.BarChartHeight))
+        BarChart(
+            data = chartData.toImmutableList(),
+            maxValue = maxValue,
+            modifier = Modifier.fillMaxWidth().height(Dimen.BarChartHeight)
+        )
     }
 }
 
 @Composable
 private fun SelectionProgress(count: Int) {
-    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
-        LinearProgressIndicator(progress = { count.toFloat() / LotofacilConstants.GAME_SIZE }, modifier = Modifier.fillMaxWidth().height(Dimen.ProgressBarHeight).clip(MaterialTheme.shapes.small))
-        Text(stringResource(R.string.checker_progress_format, count, LotofacilConstants.GAME_SIZE), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Column(
+        Modifier.fillMaxWidth().padding(horizontal = Dimen.SmallPadding),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)
+    ) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(stringResource(R.string.checker_progress_format, count, LotofacilConstants.GAME_SIZE), style = MaterialTheme.typography.labelLarge)
+            val percentage = (count.toFloat() / LotofacilConstants.GAME_SIZE * 100).toInt()
+            Text("$percentage%", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        LinearProgressIndicator(
+            progress = { count.toFloat() / LotofacilConstants.GAME_SIZE },
+            modifier = Modifier.fillMaxWidth().height(Dimen.ProgressBarHeight).clip(MaterialTheme.shapes.small),
+            trackColor = MaterialTheme.colorScheme.surfaceVariant
+        )
     }
 }
 
@@ -145,19 +162,42 @@ private fun BottomActionsBar(
     onCheck: () -> Unit,
     onSave: () -> Unit
 ) {
-    Surface(shadowElevation = Dimen.Elevation.Level4, tonalElevation = Dimen.Elevation.Level2) {
+    Surface(
+        // Atualizado: Level4 -> High
+        shadowElevation = Dimen.Elevation.High,
+        // Atualizado: Level2 -> Low (ajustado para visual cleaner)
+        tonalElevation = Dimen.Elevation.Low
+    ) {
         Row(
-            modifier = Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.navigationBars).padding(horizontal = Dimen.CardPadding, vertical = Dimen.MediumPadding),
+            modifier = Modifier
+                .fillMaxWidth()
+                .windowInsetsPadding(WindowInsets.navigationBars)
+                .padding(horizontal = Dimen.CardPadding, vertical = Dimen.MediumPadding),
             horizontalArrangement = Arrangement.spacedBy(Dimen.MediumPadding),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            OutlinedIconButton(onClick = onClear, enabled = selectedCount > 0 && !isLoading) {
+            // Atualizado: Border.Default -> Border.Thin
+            OutlinedIconButton(
+                onClick = onClear,
+                enabled = selectedCount > 0 && !isLoading,
+                border = BorderStroke(Dimen.Border.Thin, MaterialTheme.colorScheme.outline.copy(alpha=0.5f))
+            ) {
                 Icon(Icons.Default.Delete, stringResource(R.string.checker_clear_button_description))
             }
-            OutlinedIconButton(onClick = onSave, enabled = isButtonEnabled) {
+            // Atualizado: Border.Default -> Border.Thin
+            OutlinedIconButton(
+                onClick = onSave,
+                enabled = isButtonEnabled,
+                border = BorderStroke(Dimen.Border.Thin, MaterialTheme.colorScheme.outline.copy(alpha=0.5f))
+            ) {
                 Icon(Icons.Default.Save, stringResource(R.string.checker_save_button_description))
             }
-            PrimaryActionButton(modifier = Modifier.weight(1f).height(Dimen.LargeButtonHeight), enabled = isButtonEnabled, loading = isLoading, onClick = onCheck) {
+            PrimaryActionButton(
+                modifier = Modifier.weight(1f).height(Dimen.LargeButtonHeight),
+                enabled = isButtonEnabled,
+                loading = isLoading,
+                onClick = onCheck
+            ) {
                 Text(stringResource(R.string.checker_check_button))
             }
         }

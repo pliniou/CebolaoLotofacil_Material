@@ -45,6 +45,7 @@ turbine = "1.1.0"
 workTesting = "2.9.0"
 material = "1.13.0"
 roomKtx = "2.8.4"
+espressoCoreVersion = "3.7.0"
 
 [libraries]
 # AndroidX Core
@@ -105,6 +106,7 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 # Material Components (usado apenas para Widgets XML)
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomKtx" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCoreVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

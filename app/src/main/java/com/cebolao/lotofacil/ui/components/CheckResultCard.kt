@@ -41,7 +41,8 @@ fun CheckResultCard(
     SectionCard(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(Dimen.Elevation.Level1)
+            // Atualizado: Level1 -> Low
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(Dimen.Elevation.Low)
         ),
         contentSpacing = Dimen.MediumPadding
     ) {

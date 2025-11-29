@@ -21,7 +21,11 @@ fun PrimaryActionButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     loading: Boolean = false,
-    colors: ButtonColors = ButtonDefaults.buttonColors(),
+    colors: ButtonColors = ButtonDefaults.buttonColors(
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
+        disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+    ),
     onClick: () -> Unit,
     leading: (@Composable () -> Unit)? = null,
     trailing: (@Composable () -> Unit)? = null,
@@ -31,12 +35,12 @@ fun PrimaryActionButton(
         modifier = modifier,
         enabled = enabled && !loading,
         onClick = onClick,
-        shape = MaterialTheme.shapes.large,
+        shape = MaterialTheme.shapes.small, // Botão um pouco mais quadrado que os cards para distinção tátil
         colors = colors,
         elevation = ButtonDefaults.buttonElevation(
-            defaultElevation = Dimen.Elevation.Level2,
-            pressedElevation = Dimen.Elevation.Level1,
-            disabledElevation = Dimen.Elevation.Level0
+            defaultElevation = Dimen.Elevation.Low,
+            pressedElevation = Dimen.Elevation.None,
+            disabledElevation = Dimen.Elevation.None
         )
     ) {
         AnimatedContent(
@@ -45,23 +49,25 @@ fun PrimaryActionButton(
             contentAlignment = Alignment.Center
         ) { isLoading ->
             Row(
-                modifier = Modifier.padding(horizontal = Dimen.ExtraSmallPadding),
+                modifier = Modifier.padding(horizontal = Dimen.SmallPadding),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(Dimen.MediumIcon),
+                        modifier = Modifier.size(Dimen.SmallIcon),
                         color = MaterialTheme.colorScheme.onPrimary,
                         strokeWidth = Dimen.ProgressBarStroke
                     )
-                    Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                    Spacer(Modifier.width(Dimen.MediumPadding))
                 } else if (leading != null) {
                     leading()
-                    Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                    Spacer(Modifier.width(Dimen.SmallPadding))
                 }
+                
                 content()
+                
                 if (!isLoading && trailing != null) {
-                    Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                    Spacer(Modifier.width(Dimen.SmallPadding))
                     trailing()
                 }
             }

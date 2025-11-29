@@ -2,6 +2,7 @@ package com.cebolao.lotofacil.ui.screens
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -16,8 +17,8 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -46,7 +47,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
     val snackbarHostState = remember { SnackbarHostState() }
     val pullToRefreshState = rememberPullToRefreshState()
 
-    // Consolidação de Efeitos
+    // Efeitos colaterais isolados
     HomeScreenEffects(
         uiState = uiState,
         pullRefreshState = pullToRefreshState,
@@ -96,7 +97,7 @@ private fun HomeScreenEffects(
     snackbarHost: SnackbarHostState,
     viewModel: HomeViewModel
 ) {
-    val context = LocalContext.current
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     if (pullRefreshState.isRefreshing) {
         LaunchedEffect(true) { viewModel.forceSync() }
@@ -136,11 +137,11 @@ private fun HomeContent(uiState: HomeUiState, viewModel: HomeViewModel) {
                 )
             }
             is HomeScreenState.Success -> {
-                // Recursividade: Usa StandardPageLayout
+                // Layout Padrão com espaçamentos otimizados
                 StandardPageLayout {
                     item(key = "next_draw") {
                         AnimateOnEntry(delayMillis = AppConfig.Animation.DELAY_NEXT_DRAW) {
-                            state.nextDrawInfo?.let { NextContestCard(it) }
+                            state.nextDrawInfo?.let { NextContestHeroCard(it) }
                         }
                     }
                     item(key = "last_draw") {
@@ -150,7 +151,7 @@ private fun HomeContent(uiState: HomeUiState, viewModel: HomeViewModel) {
                                     lastDraw = it,
                                     winnerData = state.winnerData.toImmutableList(),
                                     simpleStats = state.lastDrawSimpleStats,
-                                    checkResult = state.lastDrawCheckResult
+                                    lastDrawCheckResult = state.lastDrawCheckResult
                                 )
                             }
                         }
@@ -189,36 +190,84 @@ private fun HomeContent(uiState: HomeUiState, viewModel: HomeViewModel) {
     }
 }
 
+/**
+ * Card "Hero" com gradiente de destaque para o próximo prêmio.
+ */
 @Composable
-private fun NextContestCard(info: NextDrawInfo) {
-    SectionCard {
-        TitleWithIcon(
-            text = stringResource(R.string.home_next_contest, info.contestNumber),
-            icon = Icons.Default.CalendarToday
+private fun NextContestHeroCard(info: NextDrawInfo) {
+    val gradient = Brush.horizontalGradient(
+        colors = listOf(
+            MaterialTheme.colorScheme.primaryContainer,
+            MaterialTheme.colorScheme.surface
         )
-        
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)
-        ) {
-            Text(info.formattedDate, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Spacer(Modifier.height(Dimen.SmallPadding))
-            Text(stringResource(R.string.home_prize_estimate), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(
-                text = info.formattedPrize,
-                style = MaterialTheme.typography.displayMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-                textAlign = TextAlign.Center
-            )
-            
-            AppDivider(Modifier.padding(vertical = Dimen.SmallPadding))
-            
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
-                Icon(Icons.Default.Star, null, tint = MaterialTheme.colorScheme.tertiary, modifier = Modifier.size(Dimen.SmallIcon))
-                Text(stringResource(R.string.home_accumulated_prize_final_five), style = MaterialTheme.typography.bodySmall)
-                Text(info.formattedPrizeFinalFive, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.tertiary)
+    )
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        elevation = CardDefaults.cardElevation(Dimen.Elevation.Medium),
+        // Fundo com gradiente sutil
+    ) {
+        Box(modifier = Modifier.background(gradient)) {
+            Column(
+                modifier = Modifier
+                    .padding(Dimen.LargePadding)
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.CalendarToday,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(Dimen.MediumIcon)
+                    )
+                    Spacer(Modifier.width(Dimen.SmallPadding))
+                    Text(
+                        stringResource(R.string.home_next_contest, info.contestNumber),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                Text(
+                    text = info.formattedPrize,
+                    style = MaterialTheme.typography.displayMedium,
+                    fontWeight = FontWeight.Black,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    textAlign = TextAlign.Center
+                )
+
+                Text(
+                    text = info.formattedDate,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                
+                // Divisor sutil
+                HorizontalDivider(modifier = Modifier.padding(vertical = Dimen.SmallPadding), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(Icons.Default.Star, null, tint = MaterialTheme.colorScheme.tertiary, modifier = Modifier.size(Dimen.SmallIcon))
+                    Spacer(Modifier.width(Dimen.ExtraSmallPadding))
+                    Text(
+                        stringResource(R.string.home_accumulated_prize_final_five),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(Modifier.width(Dimen.SmallPadding))
+                    Text(
+                        info.formattedPrizeFinalFive,
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.tertiary
+                    )
+                }
             }
         }
     }
@@ -230,7 +279,7 @@ private fun LastDrawSection(
     lastDraw: HistoricalDraw,
     winnerData: ImmutableList<WinnerData>,
     simpleStats: ImmutableList<Pair<String, String>>,
-    checkResult: CheckResult?
+    lastDrawCheckResult: CheckResult?
 ) {
     val statsPagerState = rememberPagerState(pageCount = { 2 })
 
@@ -240,7 +289,6 @@ private fun LastDrawSection(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Recursividade: TitleWithIcon
             TitleWithIcon(
                 text = stringResource(R.string.home_last_contest_format, lastDraw.contestNumber),
                 icon = Icons.Default.History
@@ -250,6 +298,7 @@ private fun LastDrawSection(
             }
         }
 
+        // Bolas do sorteio
         FlowRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(Dimen.BallSpacing, Alignment.CenterHorizontally),
@@ -263,11 +312,12 @@ private fun LastDrawSection(
 
         AppDivider()
 
+        // Pager para Stats e Gráfico (Economia de espaço vertical)
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             HorizontalPager(state = statsPagerState) { page ->
                 when (page) {
-                    0 -> SimpleStatsCard(stats = simpleStats, modifier = Modifier.padding(Dimen.SmallPadding))
-                    1 -> checkResult?.let { BarChartCard(result = it, modifier = Modifier.padding(Dimen.SmallPadding)) }
+                    0 -> SimpleStatsCard(stats = simpleStats, modifier = Modifier.padding(Dimen.ExtraSmallPadding))
+                    1 -> lastDrawCheckResult?.let { BarChartCard(result = it, modifier = Modifier.padding(Dimen.ExtraSmallPadding)) }
                 }
             }
             Spacer(Modifier.height(Dimen.SmallPadding))
@@ -281,17 +331,37 @@ private fun LastDrawSection(
     }
 }
 
-// WinnerInfoSection e BarChartCard mantidos (apenas pequenos ajustes de imports)
 @Composable
 private fun WinnerInfoSection(winnerData: ImmutableList<WinnerData>) {
     val currencyFormat = rememberCurrencyFormatter()
     Column(verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)) {
-        Text(stringResource(R.string.home_winners_last_contest), style = MaterialTheme.typography.titleMedium)
+        Text(stringResource(R.string.home_winners_last_contest), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
         winnerData.forEach { winnerInfo ->
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Text(stringResource(R.string.home_hits_format, winnerInfo.hits), Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
-                Text(stringResource(if (winnerInfo.winnerCount == 1) R.string.home_winner_count_one else R.string.home_winner_count_other, winnerInfo.winnerCount), Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
-                Text(currencyFormat.format(winnerInfo.prize), Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.End)
+                // Descrição (Acertos)
+                Text(
+                    stringResource(R.string.home_hits_format, winnerInfo.hits), 
+                    modifier = Modifier.weight(0.8f), 
+                    style = MaterialTheme.typography.bodyMedium, 
+                    fontWeight = FontWeight.Medium
+                )
+                // Ganhadores
+                Text(
+                    stringResource(if (winnerInfo.winnerCount == 1) R.string.home_winner_count_one else R.string.home_winner_count_other, winnerInfo.winnerCount), 
+                    modifier = Modifier.weight(1.2f), 
+                    style = MaterialTheme.typography.bodySmall, 
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                // Prêmio
+                Text(
+                    currencyFormat.format(winnerInfo.prize), 
+                    modifier = Modifier.weight(1.5f), 
+                    style = MaterialTheme.typography.bodyMedium, 
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary, 
+                    textAlign = TextAlign.End
+                )
             }
         }
     }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -61,6 +62,7 @@ fun FiltersScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // Observa eventos de navegação e snackbar
     LaunchedEffect(key1 = true) {
         viewModel.events.collectLatest { event ->
             when (event) {
@@ -71,11 +73,31 @@ fun FiltersScreen(
                         restoreState = true
                     }
                 }
-                is NavigationEvent.ShowSnackbar -> snackbarHostState.showSnackbar(event.message)
+                is NavigationEvent.ShowSnackbar -> {
+                    // Agora resolvemos o ID da string aqui na UI se necessário,
+                    // mas o evento refatorado já traz o ID.
+                    // Nota: O evento foi definido como NavigationEvent.ShowSnackbar(@StringRes val messageRes: Int)
+                    // Precisamos garantir que estamos extraindo a string corretamente.
+                    // Como estamos num contexto de coroutine, precisamos do contexto ou helper.
+                    // SIMPLIFICAÇÃO: O evento pode ter mudado. Vamos assumir a versão da Fase 3.
+                }
             }
         }
     }
 
+    // Tratamento separado para Snackbar com String Resource (da refatoração Fase 3)
+    // Precisamos de um contexto composable para stringResource, mas LaunchedEffect roda em coroutine.
+    // Solução: Mapear o ID para texto dentro do LaunchedEffect usando o context.
+    val context = androidx.compose.ui.platform.LocalContext.current
+    LaunchedEffect(true) {
+        viewModel.events.collectLatest { event ->
+            if (event is NavigationEvent.ShowSnackbar) {
+                snackbarHostState.showSnackbar(context.getString(event.messageRes))
+            }
+        }
+    }
+
+    // Diálogos
     if (uiState.showResetDialog) {
         AppConfirmationDialog(
             title = R.string.filters_reset_dialog_title,
@@ -117,7 +139,7 @@ fun FiltersScreen(
 private fun FiltersContent(
     uiState: FiltersScreenState,
     viewModel: FiltersViewModel,
-    paddingValues: androidx.compose.foundation.layout.PaddingValues
+    paddingValues: PaddingValues
 ) {
     StandardPageLayout(contentPadding = paddingValues) {
         item {
@@ -154,7 +176,6 @@ private fun FilterPresetSelector(
     onPresetSelected: (FilterPreset) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Usando SectionCard sem background para um look mais "limpo" no carrossel horizontal
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = Dimen.ExtraSmallPadding),
@@ -168,7 +189,7 @@ private fun FilterPresetSelector(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        
+
         LazyRow(horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
             items(filterPresets) { preset ->
                 Card(
@@ -191,13 +212,13 @@ private fun FilterPresetSelector(
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            preset.name, 
-                            style = MaterialTheme.typography.titleSmall, 
+                            preset.name,
+                            style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            preset.description, 
+                            preset.description,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 3,

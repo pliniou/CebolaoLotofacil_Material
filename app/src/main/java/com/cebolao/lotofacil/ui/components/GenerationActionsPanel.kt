@@ -53,9 +53,7 @@ fun GenerationActionsPanel(
 
     Surface(
         modifier = modifier.fillMaxWidth(),
-        // Atualizado: Level4 -> High
         shadowElevation = Dimen.Elevation.High,
-        // Atualizado: Level2 -> Medium
         tonalElevation = Dimen.Elevation.Medium
     ) {
         Row(
@@ -101,32 +99,25 @@ fun GenerationActionsPanel(
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         onCancel()
                     }) {
-                        Icon(
-                            imageVector = Icons.Filled.Cancel,
-                            contentDescription = stringResource(R.string.filters_button_cancel_description)
-                        )
+                        Icon(Icons.Filled.Cancel, stringResource(R.string.filters_button_cancel_description))
                     }
                 }
 
                 PrimaryActionButton(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(Dimen.LargeButtonHeight),
+                    modifier = Modifier.weight(1f).height(Dimen.LargeButtonHeight),
                     enabled = !isLoading,
                     loading = isLoading,
                     onClick = {
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         onGenerate(quantity)
                     },
-                    leading = {
-                        if (!isLoading) Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null)
-                    }
+                    leading = { if (!isLoading) Icon(Icons.AutoMirrored.Filled.Send, null) }
                 ) {
                     AnimatedContent(targetState = generationState, label = "generateButton") { state ->
                         if (state is GenerationUiState.Loading) {
                             val text = when {
                                 state.total > 0 -> stringResource(R.string.filters_button_generating_progress, state.progress, state.total)
-                                else -> state.message
+                                else -> stringResource(state.messageRes)
                             }
                             Text(text = text, style = MaterialTheme.typography.labelLarge)
                         } else {
@@ -153,15 +144,11 @@ private fun QuantitySelector(
 ) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Dimen.ExtraSmallPadding)) {
         IconButton(onClick = onDecrement, enabled = isDecrementEnabled) {
-            Icon(imageVector = Icons.Filled.Remove, contentDescription = stringResource(R.string.filters_quantity_decrease))
+            Icon(Icons.Filled.Remove, stringResource(R.string.filters_quantity_decrease))
         }
-        Text(
-            text = quantity.toString(),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
-        )
+        Text(text = quantity.toString(), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
         IconButton(onClick = onIncrement, enabled = isIncrementEnabled) {
-            Icon(imageVector = Icons.Filled.Add, contentDescription = stringResource(R.string.filters_quantity_increase))
+            Icon(Icons.Filled.Add, stringResource(R.string.filters_quantity_increase))
         }
     }
 }

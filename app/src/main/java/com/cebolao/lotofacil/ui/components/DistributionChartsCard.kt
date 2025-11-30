@@ -26,43 +26,19 @@ fun DistributionChartsCard(
     onPatternSelected: (StatisticPattern) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Lógica extraída para função pura fora do escopo composable
     val chartData = remember(selectedPattern, stats) {
-        val dataMap: Map<Int, Int> = when (selectedPattern) {
-            StatisticPattern.SUM -> {
-                val sumData = stats.sumDistribution
-                val minRange = AppConfig.UI.SUM_MIN_RANGE
-                val maxRange = AppConfig.UI.SUM_MAX_RANGE
-                val step = AppConfig.UI.SUM_STEP
-                val buckets = (minRange..maxRange step step).associateWith { 0 }.toMutableMap()
-
-                sumData.forEach { (value, count) ->
-                    val bucketStart = (value / step) * step
-                    if (buckets.containsKey(bucketStart)) {
-                        buckets[bucketStart] = (buckets[bucketStart] ?: 0) + count
-                    }
-                }
-                buckets
-            }
-            StatisticPattern.EVENS -> stats.evenDistribution
-            StatisticPattern.PRIMES -> stats.primeDistribution
-            StatisticPattern.FRAME -> stats.frameDistribution
-            StatisticPattern.PORTRAIT -> stats.portraitDistribution
-            StatisticPattern.FIBONACCI -> stats.fibonacciDistribution
-            StatisticPattern.MULTIPLES_OF_3 -> stats.multiplesOf3Distribution
-        }
-
-        // Mapeamento explícito para List<Pair<String, Int>> para resolver ambiguidade
-        dataMap.entries
-            .map { entry -> entry.key.toString() to entry.value }
-            .sortedBy { it.first.toIntOrNull() ?: 0 }
+        prepareChartData(stats, selectedPattern)
     }
 
-    // Resolvendo ambiguidade do maxOfOrNull
-    val maxValue = chartData.maxOfOrNull { it.second } ?: 0
+    val maxValue = remember(chartData) { chartData.maxOfOrNull { it.second } ?: 0 }
 
     SectionCard(modifier = modifier) {
         Column(verticalArrangement = Arrangement.spacedBy(Dimen.CardPadding)) {
-            Text(text = "Distribuição de Padrões", style = MaterialTheme.typography.titleLarge)
+            TitleWithIcon(
+                text = "Distribuição de Padrões", 
+                icon = selectedPattern.icon
+            )
 
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
@@ -73,7 +49,11 @@ fun DistributionChartsCard(
                         selected = selectedPattern == pattern,
                         onClick = { onPatternSelected(pattern) },
                         label = { Text(pattern.title) },
-                        leadingIcon = { Icon(imageVector = pattern.icon, contentDescription = null) }
+                        leadingIcon = { 
+                            if (selectedPattern == pattern) {
+                                Icon(imageVector = pattern.icon, contentDescription = null)
+                            }
+                        }
                     )
                 }
             }
@@ -81,10 +61,44 @@ fun DistributionChartsCard(
             BarChart(
                 data = chartData.toImmutableList(),
                 maxValue = maxValue,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(Dimen.BarChartHeight)
+                modifier = Modifier.fillMaxWidth().height(Dimen.BarChartHeight)
             )
         }
+    }
+}
+
+private fun prepareChartData(
+    stats: StatisticsReport,
+    pattern: StatisticPattern
+): List<Pair<String, Int>> {
+    val rawMap: Map<Int, Int> = when (pattern) {
+        StatisticPattern.SUM -> stats.sumDistribution
+        StatisticPattern.EVENS -> stats.evenDistribution
+        StatisticPattern.PRIMES -> stats.primeDistribution
+        StatisticPattern.FRAME -> stats.frameDistribution
+        StatisticPattern.PORTRAIT -> stats.portraitDistribution
+        StatisticPattern.FIBONACCI -> stats.fibonacciDistribution
+        StatisticPattern.MULTIPLES_OF_3 -> stats.multiplesOf3Distribution
+    }
+
+    return if (pattern == StatisticPattern.SUM) {
+        val min = AppConfig.UI.SUM_MIN_RANGE
+        val max = AppConfig.UI.SUM_MAX_RANGE
+        val step = AppConfig.UI.SUM_STEP
+        val buckets = (min..max step step).associateWith { 0 }.toMutableMap()
+
+        rawMap.forEach { (value, count) ->
+            val bucket = (value / step) * step
+            if (buckets.containsKey(bucket)) {
+                buckets[bucket] = (buckets[bucket] ?: 0) + count
+            }
+        }
+        buckets.entries
+            .map { it.key.toString() to it.value }
+            .sortedBy { it.first.toIntOrNull() ?: 0 }
+    } else {
+        rawMap.entries
+            .map { it.key.toString() to it.value }
+            .sortedBy { it.first.toIntOrNull() ?: 0 }
     }
 }

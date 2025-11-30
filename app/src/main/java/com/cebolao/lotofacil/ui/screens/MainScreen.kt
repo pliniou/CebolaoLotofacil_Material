@@ -45,8 +45,10 @@ fun MainScreen(
     val startDestination by mainViewModel.startDestination.collectAsStateWithLifecycle()
     val themeMode by mainViewModel.themeMode.collectAsStateWithLifecycle()
     val accentPaletteName by mainViewModel.accentPalette.collectAsStateWithLifecycle()
+
+    // Correção: DEFAULT -> AZUL
     val accentPalette = remember(accentPaletteName) {
-        AccentPalette.entries.find { it.name == accentPaletteName } ?: AccentPalette.DEFAULT
+        AccentPalette.entries.find { it.name == accentPaletteName } ?: AccentPalette.AZUL
     }
 
     val bottomBarVisible by remember(currentDestination) {

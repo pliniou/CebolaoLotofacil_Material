@@ -32,6 +32,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
@@ -40,7 +42,7 @@ import javax.inject.Inject
 @Stable
 sealed interface HomeScreenState {
     data object Loading : HomeScreenState
-    data class Error(@param:StringRes val messageResId: Int) : HomeScreenState
+    data class Error(@StringRes val messageResId: Int) : HomeScreenState
     data class Success(
         val lastDraw: HistoricalDraw?,
         val lastDrawSimpleStats: ImmutableList<Pair<String, String>>,
@@ -64,7 +66,7 @@ data class HomeUiState(
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val historyRepository: HistoryRepository, // Direto, sem ObserveSyncStatusUseCase
+    private val historyRepository: HistoryRepository,
     private val getHomeScreenDataUseCase: GetHomeScreenDataUseCase,
     private val getAnalyzedStatsUseCase: GetAnalyzedStatsUseCase,
     private val getGameSimpleStatsUseCase: GetGameSimpleStatsUseCase,
@@ -77,52 +79,72 @@ class HomeViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     private var analysisJob: Job? = null
+    // Job separado para o carregamento inicial para não ser cancelado por mudanças de UI
+    private var dataLoadJob: Job? = null
 
     init {
-        observeSync()
-        loadData()
+        observeSyncStatus()
+        // Carrega dados imediatamente na inicialização
+        loadHomeData()
         scheduleWidgetUpdate()
     }
 
-    private fun observeSync() {
-        viewModelScope.launch {
-            historyRepository.syncStatus.collect { status ->
-                _uiState.update { 
-                    it.copy(
-                        isSyncing = status is SyncStatus.Syncing,
-                        showSyncFailedMessage = status is SyncStatus.Failed,
-                        showSyncSuccessMessage = status is SyncStatus.Success
-                    ) 
-                }
-                if (status is SyncStatus.Success) loadData()
+    private fun observeSyncStatus() {
+        historyRepository.syncStatus.onEach { status ->
+            _uiState.update { current ->
+                current.copy(
+                    isSyncing = status is SyncStatus.Syncing,
+                    showSyncFailedMessage = status is SyncStatus.Failed,
+                    showSyncSuccessMessage = status is SyncStatus.Success
+                )
             }
-        }
+            if (status is SyncStatus.Success) {
+                loadHomeData()
+            }
+        }.launchIn(viewModelScope)
     }
 
-    private fun loadData() {
-        viewModelScope.launch(dispatcher) {
-            _uiState.update { it.copy(isStatsLoading = true) } // Mantém loading visual dos stats
+    private fun loadHomeData() {
+        // Se já existe um job rodando, não cancela, deixa terminar.
+        if (dataLoadJob?.isActive == true) return
 
-            getHomeScreenDataUseCase().collect { result ->
-                result.onSuccess { data ->
-                    val simpleStats = data.lastDraw?.let { getGameSimpleStatsUseCase(it).first().getOrNull() } ?: persistentListOf()
-                    val checkResult = data.lastDraw?.let { checkGameUseCase(it.numbers).first().getOrNull() }
+        dataLoadJob = viewModelScope.launch(dispatcher) {
+            val isInitialLoad = _uiState.value.screenState !is HomeScreenState.Success
+            
+            if (isInitialLoad) {
+                _uiState.update { it.copy(screenState = HomeScreenState.Loading) }
+            }
 
-                    _uiState.update {
-                        it.copy(
-                            screenState = HomeScreenState.Success(
-                                lastDraw = data.lastDraw,
-                                lastDrawSimpleStats = simpleStats,
-                                lastDrawCheckResult = checkResult,
-                                nextDrawInfo = data.nextDrawInfo,
-                                winnerData = data.winnerData
-                            ),
-                            statistics = data.initialStats,
-                            isStatsLoading = false
-                        )
+            try {
+                // Collect apenas do primeiro valor ou catch de erros
+                getHomeScreenDataUseCase().collect { result ->
+                    result.onSuccess { data ->
+                        val simpleStats = data.lastDraw?.let { getGameSimpleStatsUseCase(it).first().getOrNull() } 
+                            ?: persistentListOf()
+                        val checkResult = data.lastDraw?.let { checkGameUseCase(it.numbers).first().getOrNull() }
+
+                        _uiState.update {
+                            it.copy(
+                                screenState = HomeScreenState.Success(
+                                    lastDraw = data.lastDraw,
+                                    lastDrawSimpleStats = simpleStats,
+                                    lastDrawCheckResult = checkResult,
+                                    nextDrawInfo = data.nextDrawInfo,
+                                    winnerData = data.winnerData
+                                ),
+                                statistics = data.initialStats,
+                                isStatsLoading = false
+                            )
+                        }
+                    }.onFailure { e ->
+                        if (isInitialLoad) {
+                            _uiState.update { it.copy(screenState = HomeScreenState.Error(R.string.error_load_data_failed)) }
+                        }
                     }
-                }.onFailure {
-                    _uiState.update { it.copy(screenState = HomeScreenState.Error(R.string.error_load_data_failed), isStatsLoading = false) }
+                }
+            } catch (e: Exception) {
+                if (isInitialLoad) {
+                    _uiState.update { it.copy(screenState = HomeScreenState.Error(R.string.error_load_data_failed)) }
                 }
             }
         }
@@ -135,7 +157,12 @@ class HomeViewModel @Inject constructor(
 
     fun onSyncMessageShown() = _uiState.update { it.copy(showSyncFailedMessage = false) }
     fun onSyncSuccessMessageShown() = _uiState.update { it.copy(showSyncSuccessMessage = false) }
-    fun retryInitialLoad() = loadData()
+    
+    fun retryInitialLoad() {
+        // Força recriação do job se falhou
+        dataLoadJob?.cancel()
+        loadHomeData()
+    }
     
     fun forceSync() {
         if (!_uiState.value.isSyncing) historyRepository.syncHistory()

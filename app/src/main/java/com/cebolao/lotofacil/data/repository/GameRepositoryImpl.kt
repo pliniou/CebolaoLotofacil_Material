@@ -13,6 +13,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -36,22 +37,22 @@ class GameRepositoryImpl @Inject constructor(
     private val mutex = Mutex()
     private val _allGames = MutableStateFlow<List<LotofacilGame>>(emptyList())
 
-    // Comparador otimizado: Pinned primeiro, depois mais recentes
+    // Comparador: Pinned primeiro, depois mais recentes
     private val gameComparator = compareByDescending<LotofacilGame> { it.isPinned }
         .thenByDescending { it.creationTimestamp }
 
     override val pinnedGames: StateFlow<ImmutableList<LotofacilGame>> = _allGames
         .map { list -> list.filter { it.isPinned }.toImmutableList() }
+        .distinctUntilChanged()
         .stateIn(scope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), persistentListOf())
 
     override val unpinnedGames: StateFlow<ImmutableList<LotofacilGame>> = _allGames
         .map { list -> list.filter { !it.isPinned }.toImmutableList() }
+        .distinctUntilChanged()
         .stateIn(scope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), persistentListOf())
 
     init {
-        scope.launch {
-            loadPinnedGames()
-        }
+        scope.launch { loadPinnedGames() }
     }
 
     private suspend fun loadPinnedGames() {
@@ -87,12 +88,16 @@ class GameRepositoryImpl @Inject constructor(
         mutex.withLock {
             val oldList = _allGames.value
             val newList = transform(oldList)
-            _allGames.value = newList
             
-            // Persistir apenas se a lista de fixados mudou
-            if (oldList.count { it.isPinned } != newList.count { it.isPinned } || 
-                newList.any { it.isPinned && !oldList.contains(it) }) {
-                persistPinned(newList.filter { it.isPinned })
+            if (oldList != newList) {
+                _allGames.value = newList
+                
+                // Otimização: Persistir apenas se a lista de fixados foi alterada
+                val oldPinned = oldList.filter { it.isPinned }
+                val newPinned = newList.filter { it.isPinned }
+                if (oldPinned != newPinned) {
+                    persistPinned(newPinned)
+                }
             }
         }
     }

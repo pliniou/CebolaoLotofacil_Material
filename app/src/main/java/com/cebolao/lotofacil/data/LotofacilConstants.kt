@@ -17,13 +17,16 @@ object LotofacilConstants {
     /** Número máximo do volante */
     const val MAX_NUMBER = 25
 
+    /** Pontuação mínima para obter premiação */
+    const val MIN_PRIZE_SCORE = 11
+
     /** Faixa de números válidos no volante */
     val NUMBER_RANGE = MIN_NUMBER..MAX_NUMBER
 
     /** Alias para `NUMBER_RANGE` para clareza em validações */
     val VALID_NUMBER_RANGE = NUMBER_RANGE
 
-    /** Todos os números possíveis no volante, como uma lista */
+    /** Todos os números possíveis no volante, como uma lista imutável */
     val ALL_NUMBERS: List<Int> = NUMBER_RANGE.toList()
 
     /** Custo de uma aposta simples (15 números) */
@@ -53,5 +56,4 @@ object LotofacilConstants {
 
     /** Múltiplos de 3 até 25 */
     val MULTIPLOS_DE_3: Set<Int> = setOf(3, 6, 9, 12, 15, 18, 21, 24)
-
 }

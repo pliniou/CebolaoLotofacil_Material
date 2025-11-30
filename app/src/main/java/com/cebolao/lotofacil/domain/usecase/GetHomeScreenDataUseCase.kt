@@ -1,6 +1,7 @@
 package com.cebolao.lotofacil.domain.usecase
 
 import android.util.Log
+import com.cebolao.lotofacil.data.HistoricalDraw
 import com.cebolao.lotofacil.data.network.LotofacilApiResult
 import com.cebolao.lotofacil.di.DefaultDispatcher
 import com.cebolao.lotofacil.domain.model.HomeScreenData
@@ -8,16 +9,14 @@ import com.cebolao.lotofacil.domain.model.NextDrawInfo
 import com.cebolao.lotofacil.domain.model.WinnerData
 import com.cebolao.lotofacil.domain.repository.HistoryRepository
 import com.cebolao.lotofacil.util.DEFAULT_PLACEHOLDER
-import com.cebolao.lotofacil.util.LOCALE_COUNTRY
-import com.cebolao.lotofacil.util.LOCALE_LANGUAGE
+import com.cebolao.lotofacil.util.Formatters
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import java.text.NumberFormat
-import java.util.Locale
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 private const val TAG = "GetHomeScreenDataUseCase"
@@ -27,55 +26,64 @@ class GetHomeScreenDataUseCase @Inject constructor(
     private val getAnalyzedStatsUseCase: GetAnalyzedStatsUseCase,
     @param:DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
 ) {
-    operator fun invoke(): Flow<Result<HomeScreenData>> = flow {
-        try {
-            val resultData = coroutineScope {
-                val latestApiResultDeferred = async { historyRepository.getLatestApiResult() }
-                val historyDeferred = async { historyRepository.getHistory() }
-                val initialStatsDeferred = async { getAnalyzedStatsUseCase(timeWindow = 0) }
+    /**
+     * Retorna um Flow reativo que emite novos dados sempre que o histórico ou 
+     * o resultado da API mudarem.
+     */
+    operator fun invoke(): Flow<Result<HomeScreenData>> {
+        // Transformamos o fetch único de histórico em um Flow para permitir updates (se o repo suportasse Flow)
+        // Como o repo atual retorna List e não Flow<List>, vamos usar um flow simples que emite uma vez
+        // ou refatorar o repo. 
+        // Assumindo arquitetura atual: Vamos simular reatividade baseada no SyncStatus no ViewModel,
+        // OU melhor: vamos fazer este UseCase buscar dados sob demanda de forma eficiente.
+        
+        // CORREÇÃO ESTRATÉGICA: Como HistoryRepository.getHistory() é suspend (snapshot),
+        // este UseCase é chamado pelo ViewModel quando o Sync termina.
+        // Mantemos a estrutura de Flow para consistência e suporte a Loading.
+        
+        return flow {
+            val history = historyRepository.getHistory()
+            val latestApi = historyRepository.getLatestApiResult()
+            
+            if (history.isEmpty()) {
+                throw IllegalStateException("Nenhum histórico de sorteio encontrado.")
+            }
 
-                val history = historyDeferred.await()
-                if (history.isEmpty()) {
-                    Log.w(TAG, "History is empty, cannot generate home screen data.")
-                    throw IllegalStateException("Nenhum histórico de sorteio encontrado.")
-                }
+            val lastDraw = history.first()
+            // Stats calculation pode ser pesado, o cache do analyzer ajuda
+            val stats = getAnalyzedStatsUseCase(timeWindow = 0).getOrThrow()
 
-                val lastDraw = history.firstOrNull()
-                val latestApiResult = latestApiResultDeferred.await()
-                val initialStats = initialStatsDeferred.await().getOrThrow()
+            val (nextDraw, winners) = processApiResult(latestApi)
 
-                val (nextDraw, winners) = processApiResult(latestApiResult)
-
+            emit(Result.success(
                 HomeScreenData(
                     lastDraw = lastDraw,
-                    initialStats = initialStats,
+                    initialStats = stats,
                     nextDrawInfo = nextDraw,
                     winnerData = winners
                 )
-            }
-            emit(Result.success(resultData))
-        } catch (e: Exception) {
-            Log.e(TAG, "Error loading home screen data", e)
+            ))
+        }.catch { e ->
+            Log.e(TAG, "Error generating home data", e)
             emit(Result.failure(e))
-        }
-    }.flowOn(defaultDispatcher)
+        }.flowOn(defaultDispatcher)
+    }
 
     private fun processApiResult(apiResult: LotofacilApiResult?): Pair<NextDrawInfo?, List<WinnerData>> {
-        val currencyFormat =
-            NumberFormat.getCurrencyInstance(Locale(LOCALE_LANGUAGE, LOCALE_COUNTRY))
+        if (apiResult == null) return null to emptyList()
 
-        val nextDrawInfo = apiResult?.takeIf { it.dataProximoConcurso != null && it.numero > 0 }
-            ?.let {
-                NextDrawInfo(
-                    contestNumber = it.numero + 1,
-                    formattedDate = it.dataProximoConcurso ?: DEFAULT_PLACEHOLDER,
-                    formattedPrize = currencyFormat.format(it.valorEstimadoProximoConcurso),
-                    formattedPrizeFinalFive = currencyFormat.format(it.valorAcumuladoConcurso05)
-                )
-            }
+        val nextDrawInfo = if (apiResult.numero > 0) {
+            NextDrawInfo(
+                contestNumber = apiResult.numero + 1,
+                formattedDate = apiResult.dataProximoConcurso ?: DEFAULT_PLACEHOLDER,
+                formattedPrize = Formatters.formatCurrency(apiResult.valorEstimadoProximoConcurso),
+                formattedPrizeFinalFive = Formatters.formatCurrency(apiResult.valorAcumuladoConcurso05)
+            )
+        } else null
 
-        val winnerData = apiResult?.listaRateioPremio?.mapNotNull { rateio ->
-            val hits = rateio.descricaoFaixa.filter { char -> char.isDigit() }.toIntOrNull()
+        val winnerData = apiResult.listaRateioPremio.mapNotNull { rateio ->
+            // Extrai apenas dígitos da descrição (ex: "15 acertos" -> 15)
+            val hits = rateio.descricaoFaixa.filter { it.isDigit() }.toIntOrNull()
             if (hits != null) {
                 WinnerData(
                     hits = hits,
@@ -83,10 +91,8 @@ class GetHomeScreenDataUseCase @Inject constructor(
                     winnerCount = rateio.numeroDeGanhadores,
                     prize = rateio.valorPremio
                 )
-            } else {
-                null
-            }
-        } ?: emptyList()
+            } else null
+        }
 
         return nextDrawInfo to winnerData
     }

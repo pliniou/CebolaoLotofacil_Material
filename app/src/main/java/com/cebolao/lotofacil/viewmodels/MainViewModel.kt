@@ -44,8 +44,9 @@ class MainViewModel @Inject constructor(
     val themeMode: StateFlow<String> = userPreferencesRepository.themeMode
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), THEME_MODE_LIGHT)
 
+    // Correção: DEFAULT -> AZUL
     val accentPalette: StateFlow<String> = userPreferencesRepository.accentPalette
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), AccentPalette.DEFAULT.name)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), AccentPalette.AZUL.name)
 
     fun onOnboardingComplete() = viewModelScope.launch { userPreferencesRepository.setHasCompletedOnboarding(true) }
     fun setThemeMode(mode: String) = viewModelScope.launch { userPreferencesRepository.setThemeMode(mode) }

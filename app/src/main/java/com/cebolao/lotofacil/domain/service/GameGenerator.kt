@@ -1,13 +1,10 @@
 package com.cebolao.lotofacil.domain.service
 
-import android.content.Context
-import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.data.FilterState
 import com.cebolao.lotofacil.data.FilterType
 import com.cebolao.lotofacil.data.LotofacilConstants
 import com.cebolao.lotofacil.data.LotofacilGame
 import com.cebolao.lotofacil.domain.repository.HistoryRepository
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -21,7 +18,6 @@ private const val MIN_HISTORY_FOR_HEURISTIC = 50
 private const val HISTORY_LOOKUP_SIZE = 200
 
 class GameGenerator @Inject constructor(
-    @param:ApplicationContext private val context: Context,
     private val historyRepository: HistoryRepository
 ) {
     fun generate(quantity: Int, filters: List<FilterState>): Flow<GenerationProgress> = flow {
@@ -31,24 +27,23 @@ class GameGenerator @Inject constructor(
         
         // Caminho rápido: Geração aleatória se não houver filtros
         if (activeFilters.isEmpty()) {
-            emit(GenerationProgress.step(context.getString(R.string.game_generator_random_start), 0, quantity))
+            emit(GenerationProgress.step(GenerationStep.RANDOM_START, 0, quantity))
             val randomGames = generateRandomGames(quantity)
             emit(GenerationProgress.finished(randomGames))
             return@flow
         }
 
-        // Carregar histórico
+        // Carregar histórico para filtros baseados em estatística
         val history = historyRepository.getHistory().take(HISTORY_LOOKUP_SIZE)
         val lastDrawNumbers = history.firstOrNull()?.numbers
 
         if (history.size < MIN_HISTORY_FOR_HEURISTIC || lastDrawNumbers == null) {
-            emit(GenerationProgress.failed(context.getString(R.string.game_generator_failure_no_history)))
+            emit(GenerationProgress.failed(GenerationFailureReason.NO_HISTORY))
             return@flow
         }
 
-        emit(GenerationProgress.step(context.getString(R.string.game_generator_heuristic_start), 0, quantity))
+        emit(GenerationProgress.step(GenerationStep.HEURISTIC_START, 0, quantity))
 
-        // Prepara frequências para heurística
         val numberFrequencies = history.flatMap { it.numbers }
             .groupingBy { it }
             .eachCount()
@@ -56,13 +51,13 @@ class GameGenerator @Inject constructor(
             .sortedByDescending { it.second }
             .map { it.first }
 
-        val generatedGames = mutableSetOf<LotofacilGame>()
+        val generatedGames = LinkedHashSet<LotofacilGame>(quantity) // LinkedHashSet mantém ordem de inserção
         var attempts = 0
 
-        // Loop de geração
         while (generatedGames.size < quantity && attempts < MAX_GENERATION_ATTEMPTS) {
             if (!currentCoroutineContext().isActive) return@flow
 
+            // Gera lote de candidatos e filtra
             val candidates = generateCandidates(numberFrequencies)
             for (candidate in candidates) {
                 if (validateGame(candidate, activeFilters, lastDrawNumbers)) {
@@ -72,19 +67,19 @@ class GameGenerator @Inject constructor(
                     }
                 }
             }
-            attempts++
+            attempts += HEURISTIC_CANDIDATES_PER_BATCH
         }
 
-        // Fallback se não conseguiu gerar o suficiente
+        // Fallback: Completa com aleatórios se a heurística foi muito restritiva
         if (generatedGames.size < quantity) {
-            emit(GenerationProgress.step(context.getString(R.string.game_generator_random_fallback), generatedGames.size, quantity))
+            emit(GenerationProgress.step(GenerationStep.RANDOM_FALLBACK, generatedGames.size, quantity))
             val remainingNeeded = quantity - generatedGames.size
             generatedGames.addAll(generateRandomGames(remainingNeeded, generatedGames))
             emit(GenerationProgress.attempt(quantity, quantity))
         }
 
         if (generatedGames.isEmpty()) {
-            emit(GenerationProgress.failed(context.getString(R.string.game_generator_failure_generic)))
+            emit(GenerationProgress.failed(GenerationFailureReason.GENERIC_ERROR))
         } else {
             emit(GenerationProgress.finished(generatedGames.toList()))
         }
@@ -92,9 +87,9 @@ class GameGenerator @Inject constructor(
 
     private fun generateCandidates(frequencies: List<Int>): List<LotofacilGame> {
         return List(HEURISTIC_CANDIDATES_PER_BATCH) {
-            // Heurística: Pega entre 8 e 12 números dos mais frequentes, completa com o resto
             val hotCount = Random.nextInt(8, 13)
-            val hotNumbers = frequencies.take(15).shuffled().take(hotCount)
+            // Otimização: Evitar recriação de listas complexas dentro do loop
+            val hotNumbers = frequencies.subList(0, 15).shuffled().take(hotCount)
             val coldNumbers = (LotofacilConstants.ALL_NUMBERS - hotNumbers.toSet()).shuffled()
                 .take(LotofacilConstants.GAME_SIZE - hotCount)
             
@@ -104,9 +99,9 @@ class GameGenerator @Inject constructor(
 
     private fun generateRandomGames(quantity: Int, exclude: Set<LotofacilGame> = emptySet()): List<LotofacilGame> {
         val games = exclude.toMutableSet()
-        val initialSize = games.size
+        val targetSize = games.size + quantity
         
-        while (games.size < initialSize + quantity) {
+        while (games.size < targetSize) {
             val numbers = LotofacilConstants.ALL_NUMBERS.shuffled().take(LotofacilConstants.GAME_SIZE).toSet()
             games.add(LotofacilGame(numbers))
         }
@@ -114,7 +109,8 @@ class GameGenerator @Inject constructor(
     }
 
     private fun validateGame(game: LotofacilGame, filters: List<FilterState>, lastDrawNumbers: Set<Int>): Boolean {
-        return filters.all { filter ->
+        // inline para evitar alocação de iterador se possível, ou loop clássico para performance crítica
+        for (filter in filters) {
             val value = when (filter.type) {
                 FilterType.SOMA_DEZENAS -> game.sum
                 FilterType.PARES -> game.evens
@@ -125,7 +121,8 @@ class GameGenerator @Inject constructor(
                 FilterType.MULTIPLOS_DE_3 -> game.multiplesOf3
                 FilterType.REPETIDAS_CONCURSO_ANTERIOR -> game.repeatedFrom(lastDrawNumbers)
             }
-            filter.containsValue(value)
+            if (!filter.containsValue(value)) return false
         }
+        return true
     }
 }

@@ -15,25 +15,20 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import com.cebolao.lotofacil.ui.theme.Dimen
 
-/**
- * Card base para o app. Implementa o estilo "Modern Surface":
- * - Baixa elevação padrão
- * - Borda sutil para definição
- * - Padding interno generoso
- */
 @Composable
 fun SectionCard(
     modifier: Modifier = Modifier,
     shape: Shape = MaterialTheme.shapes.large,
-    // Superfície padrão agora usa a cor Surface (Branca/Cinza escuro) ao invés de SurfaceVariant
-    // Isso cria um contraste melhor com o Background (Off-white/Preto)
+    // Superfície agora é Surface (Branca no Light, Dark Grey no Dark) para contraste com o Background
     colors: CardColors = CardDefaults.cardColors(
         containerColor = MaterialTheme.colorScheme.surface
     ),
+    // Elevação reduzida para look mais moderno/flat
     elevation: CardElevation = CardDefaults.cardElevation(defaultElevation = Dimen.Elevation.Low),
+    // Borda sutil para definição
     border: BorderStroke? = BorderStroke(
-        width = Dimen.Border.Hairline, 
-        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+        width = Dimen.Border.Hairline,
+        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
     ),
     contentSpacing: Dp = Dimen.CardPadding,
     content: @Composable () -> Unit

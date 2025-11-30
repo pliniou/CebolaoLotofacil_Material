@@ -51,7 +51,9 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     override val pinnedGames: Flow<Set<String>> = getValue(Keys.PINNED, emptySet())
     override val themeMode: Flow<String> = getValue(Keys.THEME, THEME_MODE_LIGHT)
     override val hasCompletedOnboarding: Flow<Boolean> = getValue(Keys.ONBOARDING, false)
-    override val accentPalette: Flow<String> = getValue(Keys.PALETTE, AccentPalette.DEFAULT.name)
+
+    // Correção: DEFAULT -> AZUL
+    override val accentPalette: Flow<String> = getValue(Keys.PALETTE, AccentPalette.AZUL.name)
 
     override suspend fun savePinnedGames(games: Set<String>) = setValue(Keys.PINNED, games)
     override suspend fun setThemeMode(mode: String) = setValue(Keys.THEME, mode)
@@ -77,7 +79,6 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         }
     }
 
-    // Helper genérico para ler Flows do DataStore
     private fun <T> getValue(key: Preferences.Key<T>, default: T): Flow<T> = dataStore.data
         .catch { e ->
             if (e is IOException) Log.e(TAG, "Error reading prefs", e) else throw e
@@ -85,7 +86,6 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         }
         .map { it[key] ?: default }
 
-    // Helper genérico para escrita segura
     private suspend fun <T> setValue(key: Preferences.Key<T>, value: T) = withContext(ioDispatcher) {
         safeEdit { it[key] = value }
     }

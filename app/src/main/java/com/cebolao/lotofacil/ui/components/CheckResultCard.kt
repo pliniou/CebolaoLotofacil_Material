@@ -27,7 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.data.CheckResult
-import com.cebolao.lotofacil.domain.usecase.MIN_SCORE_FOR_PRIZE
+import com.cebolao.lotofacil.data.LotofacilConstants
 import com.cebolao.lotofacil.ui.theme.AppConfig
 import com.cebolao.lotofacil.ui.theme.Dimen
 import com.cebolao.lotofacil.util.DEFAULT_PLACEHOLDER
@@ -41,7 +41,6 @@ fun CheckResultCard(
     SectionCard(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            // Atualizado: Level1 -> Low
             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(Dimen.Elevation.Low)
         ),
         contentSpacing = Dimen.MediumPadding
@@ -100,7 +99,7 @@ private fun ResultHeader(totalWins: Int, contestsChecked: Int) {
 private fun ScoreBreakdown(scoreCounts: ImmutableMap<Int, Int>) {
     Column(verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
         scoreCounts.entries.sortedByDescending { it.key }.forEach { (score, count) ->
-            if (score >= MIN_SCORE_FOR_PRIZE) {
+            if (score >= LotofacilConstants.MIN_PRIZE_SCORE) {
                 val animated by animateIntAsState(
                     targetValue = count,
                     animationSpec = tween(AppConfig.Animation.LONG_DURATION),

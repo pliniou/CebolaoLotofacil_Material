@@ -42,9 +42,8 @@ object AppModule {
     @Provides
     @Singleton
     fun provideGameGenerator(
-        @ApplicationContext context: Context,
         historyRepository: HistoryRepository
-    ): GameGenerator = GameGenerator(context, historyRepository)
+    ): GameGenerator = GameGenerator(historyRepository)
 
     @Provides
     @Singleton

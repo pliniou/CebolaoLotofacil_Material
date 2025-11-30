@@ -22,7 +22,6 @@ class StatisticsAnalyzer @Inject constructor(
     @param:DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
 ) {
 
-    // LruCache é thread-safe e lida com a remoção de itens antigos automaticamente
     private val analysisCache = LruCache<String, StatisticsReport>(CACHE_SIZE)
 
     suspend fun analyze(draws: List<HistoricalDraw>, timeWindow: Int = ALL_CONTESTS_WINDOW): StatisticsReport =
@@ -35,7 +34,6 @@ class StatisticsAnalyzer @Inject constructor(
             val cacheKey = generateCacheKey(drawsToAnalyze)
             analysisCache.get(cacheKey)?.let { return@withContext it }
 
-            // Cálculos sequenciais são eficientes o suficiente aqui, evitando overhead de contexto
             val distributions = calculateAllDistributions(drawsToAnalyze)
             
             val report = StatisticsReport(
@@ -59,9 +57,10 @@ class StatisticsAnalyzer @Inject constructor(
 
     private fun calculateMostFrequent(draws: List<HistoricalDraw>): List<NumberFrequency> {
         val frequencies = IntArray(LotofacilConstants.MAX_NUMBER + 1)
-        draws.flatMap { it.numbers }.forEach { number ->
-             if (number in LotofacilConstants.VALID_NUMBER_RANGE) frequencies[number]++
-        }
+        draws.asSequence()
+            .flatMap { it.numbers }
+            .filter { it in LotofacilConstants.VALID_NUMBER_RANGE }
+            .forEach { frequencies[it]++ }
 
         return (LotofacilConstants.MIN_NUMBER..LotofacilConstants.MAX_NUMBER)
             .map { NumberFrequency(it, frequencies[it]) }
@@ -73,22 +72,25 @@ class StatisticsAnalyzer @Inject constructor(
         if (draws.isEmpty()) return emptyList()
 
         val lastContestNumber = draws.first().contestNumber
-        // Mapa: Número -> Último concurso visto
-        val lastSeenMap = mutableMapOf<Int, Int>()
-        
-        // Itera reverso (do mais antigo pro mais novo) ou verifica existência
-        // Como 'draws' está ordenado decrescente, o primeiro encontro é o mais recente
+        val lastSeenMap = HashMap<Int, Int>(LotofacilConstants.MAX_NUMBER)
+        val foundCount = 0
+
+        // Otimização: Itera até encontrar todos os números ou acabar o histórico
+        // Assume que 'draws' está ordenado decrescente (mais recente primeiro)
         for (draw in draws) {
             for (number in draw.numbers) {
-                lastSeenMap.putIfAbsent(number, draw.contestNumber)
+                if (!lastSeenMap.containsKey(number)) {
+                    lastSeenMap[number] = draw.contestNumber
+                }
             }
             if (lastSeenMap.size == LotofacilConstants.MAX_NUMBER) break
         }
 
         return (LotofacilConstants.MIN_NUMBER..LotofacilConstants.MAX_NUMBER)
             .map { number ->
-                val lastSeen = lastSeenMap[number] ?: 0
-                NumberFrequency(number, if(lastSeen == 0) -1 else lastContestNumber - lastSeen)
+                val lastSeen = lastSeenMap[number] ?: -1
+                val delay = if (lastSeen == -1) -1 else lastContestNumber - lastSeen
+                NumberFrequency(number, delay)
             }
             .sortedByDescending { it.frequency }
             .take(TOP_NUMBERS_COUNT)
@@ -118,14 +120,13 @@ class StatisticsAnalyzer @Inject constructor(
 
     private fun calculateAverageSum(draws: List<HistoricalDraw>): Float {
         if (draws.isEmpty()) return 0f
-        // mapToInt evita autoboxing no sum()
-        return draws.stream().mapToInt { it.sum }.average().orElse(0.0).toFloat()
+        return draws.map { it.sum }.average().toFloat()
     }
 
     private fun generateCacheKey(draws: List<HistoricalDraw>): String {
         val first = draws.firstOrNull()?.contestNumber ?: 0
         val last = draws.lastOrNull()?.contestNumber ?: 0
-        return "$first-$last-${draws.size}"
+        return "range_${first}_to_${last}_size_${draws.size}"
     }
 
     private data class DistributionResults(

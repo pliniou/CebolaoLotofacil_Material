@@ -8,6 +8,8 @@ import com.cebolao.lotofacil.di.IoDispatcher
 import com.cebolao.lotofacil.domain.repository.UserPreferencesRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -27,27 +29,23 @@ class HistoryLocalDataSourceImpl @Inject constructor(
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : HistoryLocalDataSource {
 
-    // Cache simples em memória para evitar IO repetitivo nos Assets
-    private val assetCache = mutableListOf<HistoricalDraw>()
+    private val cacheMutex = Mutex()
+    // Cache em memória é vital pois o parse de texto é caro, 
+    // mas só carregamos se necessário.
+    private var assetCache: List<HistoricalDraw>? = null
 
     override suspend fun getLocalHistory(): List<HistoricalDraw> = withContext(ioDispatcher) {
-        try {
-            if (assetCache.isEmpty()) {
-                assetCache.addAll(loadFromAssets())
-            }
+        val prefsHistory = loadFromPreferences()
+        val staticHistory = getOrLoadAssetCache()
 
-            val savedHistoryStrings = userPreferencesRepository.getHistory()
-            val savedDraws = savedHistoryStrings.mapNotNull { HistoryParser.parseLine(it) }
-
-            (savedDraws + assetCache)
+        // Combina e remove duplicatas (priorizando prefs que podem ter updates)
+        // Otimização: Se prefs estiver vazio, retorna direto o assetCache
+        if (prefsHistory.isEmpty()) {
+            staticHistory
+        } else {
+            (prefsHistory + staticHistory)
                 .distinctBy { it.contestNumber }
                 .sortedByDescending { it.contestNumber }
-                .also {
-                    Log.d(TAG, "Loaded ${it.size} contests (Assets: ${assetCache.size}, Prefs: ${savedDraws.size})")
-                }
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to load local history", e)
-            emptyList()
         }
     }
 
@@ -61,13 +59,25 @@ class HistoryLocalDataSourceImpl @Inject constructor(
         }
     }
 
+    private suspend fun loadFromPreferences(): List<HistoricalDraw> {
+        val savedHistoryStrings = userPreferencesRepository.getHistory()
+        return savedHistoryStrings.mapNotNull { HistoryParser.parseLine(it) }
+    }
+
+    private suspend fun getOrLoadAssetCache(): List<HistoricalDraw> {
+        return cacheMutex.withLock {
+            assetCache ?: loadFromAssets().also { assetCache = it }
+        }
+    }
+
     private fun loadFromAssets(): List<HistoricalDraw> {
         return try {
             context.assets.open(ASSET_FILENAME).bufferedReader().use { reader ->
+                // useLines é preguiçoso (Sequence), economiza memória durante a leitura
                 reader.lineSequence()
                     .filter { it.isNotBlank() }
                     .mapNotNull { HistoryParser.parseLine(it) }
-                    .toList()
+                    .toList() // Materializa a lista apenas no final
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error reading assets file", e)

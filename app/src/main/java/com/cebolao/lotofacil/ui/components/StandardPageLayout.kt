@@ -22,7 +22,7 @@ fun StandardPageLayout(
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(
-            top = contentPadding.calculateTopPadding() + Dimen.CardPadding,
+            top = contentPadding.calculateTopPadding() + Dimen.MediumPadding, // Reduzido levemente para evitar buracos grandes
             bottom = contentPadding.calculateBottomPadding() + Dimen.BottomBarOffset,
             start = Dimen.ScreenPadding,
             end = Dimen.ScreenPadding

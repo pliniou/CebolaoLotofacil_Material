@@ -49,18 +49,19 @@ class MainActivity : ComponentActivity() {
             val uiState by mainViewModel.uiState.collectAsStateWithLifecycle()
             val themeMode by mainViewModel.themeMode.collectAsStateWithLifecycle()
             val accentPaletteName by mainViewModel.accentPalette.collectAsStateWithLifecycle()
+
+            // Correção: Fallback para AZUL se o nome não for encontrado (ou DEFAULT se preferir)
             val accentPalette = remember(accentPaletteName) {
-                AccentPalette.entries.find { it.name == accentPaletteName } ?: AccentPalette.DEFAULT
+                AccentPalette.entries.find { it.name == accentPaletteName } ?: AccentPalette.AZUL
             }
 
             splash.setKeepOnScreenCondition { !uiState.isReady }
 
-            // Refatorado: Lógica simplificada. "Sistema" foi removido.
             val useDarkTheme = themeMode == THEME_MODE_DARK
 
+            // Correção: Removido 'dynamicColor' que causava erro de compilação
             CebolaoLotofacilTheme(
                 darkTheme = useDarkTheme,
-                dynamicColor = false,
                 accentPalette = accentPalette
             ) {
                 Surface(

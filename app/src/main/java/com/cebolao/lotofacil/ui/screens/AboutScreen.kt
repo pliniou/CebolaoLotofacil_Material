@@ -11,22 +11,22 @@ import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Policy
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.ui.components.AnimateOnEntry
-import com.cebolao.lotofacil.ui.components.ColorPaletteCard
 import com.cebolao.lotofacil.ui.components.FormattedText
 import com.cebolao.lotofacil.ui.components.InfoDialog
 import com.cebolao.lotofacil.ui.components.InfoListCard
@@ -35,10 +35,12 @@ import com.cebolao.lotofacil.ui.components.SectionCard
 import com.cebolao.lotofacil.ui.components.StandardPageLayout
 import com.cebolao.lotofacil.ui.components.StudioHero
 import com.cebolao.lotofacil.ui.components.ThemeSettingsCard
-import com.cebolao.lotofacil.ui.components.TitleWithIcon
 import com.cebolao.lotofacil.ui.theme.AccentPalette
 import com.cebolao.lotofacil.ui.theme.Dimen
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 
+@Immutable
 private data class InfoItem(
     val title: String,
     val subtitle: String,
@@ -60,8 +62,9 @@ fun AboutScreen(
         InfoDialog(
             onDismissRequest = { dialogContent = null },
             dialogTitle = item.title,
-            icon = item.icon
-        ) { item.content() }
+            icon = item.icon,
+            content = item.content
+        )
     }
 
     AppScreen(
@@ -74,13 +77,13 @@ fun AboutScreen(
 
             item {
                 AnimateOnEntry {
-                    SectionCard {
-                        Column(verticalArrangement = Arrangement.spacedBy(Dimen.CardPadding)) {
-                            TitleWithIcon(stringResource(R.string.about_personalization_title), Icons.Default.Palette)
-                            ThemeSettingsCard(currentTheme, onThemeChange)
-                            ColorPaletteCard(currentPalette, onPaletteChange)
-                        }
-                    }
+                    // Refatorado: Um único card para todas as configurações de tema
+                    ThemeSettingsCard(
+                        currentTheme = currentTheme,
+                        currentPalette = currentPalette,
+                        onThemeChange = onThemeChange,
+                        onPaletteChange = onPaletteChange
+                    )
                 }
             }
 
@@ -103,20 +106,20 @@ fun AboutScreen(
 }
 
 @Composable
-private fun rememberInfoItems(): List<InfoItem> {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    return remember {
+private fun rememberInfoItems(): ImmutableList<InfoItem> {
+    val context = LocalContext.current
+    return remember(context) {
         listOf(
             InfoItem(context.getString(R.string.about_purpose_title), context.getString(R.string.about_purpose_subtitle), Icons.Default.Lightbulb) { AboutPurposeContent() },
             InfoItem(context.getString(R.string.about_rules_title), context.getString(R.string.about_rules_subtitle), Icons.Default.Gavel) { AboutRulesContent() },
             InfoItem(context.getString(R.string.about_bolao_title), context.getString(R.string.about_bolao_subtitle), Icons.Default.Group) { AboutBolaoContent() },
             InfoItem(context.getString(R.string.about_privacy_title), context.getString(R.string.about_privacy_subtitle), Icons.Default.Lock) { AboutPrivacyContent() },
             InfoItem(context.getString(R.string.about_legal_title), context.getString(R.string.about_legal_subtitle), Icons.Default.Policy) { AboutLegalContent() }
-        )
+        ).toImmutableList()
     }
 }
 
-// Conteúdos estáticos simplificados para brevidade, usando os novos componentes
+// Conteúdos estáticos
 @Composable private fun AboutPurposeContent() {
     Column(verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)) {
         FormattedText(stringResource(R.string.about_purpose_desc_body))

@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.util.Collections
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -30,9 +30,14 @@ class HistoryRepositoryImpl @Inject constructor(
     @param:ApplicationScope private val scope: CoroutineScope
 ) : HistoryRepository {
 
-    private val cacheMutex = Mutex()
-    private val historyCache = Collections.synchronizedMap(mutableMapOf<Int, HistoricalDraw>())
-    @Volatile private var latestApiResult: LotofacilApiResult? = null
+    // Mutex para controlar acesso exclusivo durante sincronização pesada
+    private val syncMutex = Mutex()
+    
+    // ConcurrentHashMap permite leituras concorrentes sem lock e sem synchronized
+    private val historyCache = ConcurrentHashMap<Int, HistoricalDraw>()
+    
+    @Volatile 
+    private var latestApiResult: LotofacilApiResult? = null
 
     private val _syncStatus = MutableStateFlow<SyncStatus>(SyncStatus.Idle)
     override val syncStatus: StateFlow<SyncStatus> = _syncStatus.asStateFlow()
@@ -47,16 +52,20 @@ class HistoryRepositoryImpl @Inject constructor(
     override suspend fun getHistory(): List<HistoricalDraw> {
         if (historyCache.isEmpty()) loadLocalHistoryToCache()
         
-        return cacheMutex.withLock {
-            historyCache.values.sortedByDescending { it.contestNumber }
-        }
+        // Retorna snapshot ordenado. Operação O(N log N) mas segura.
+        // Se a performance for crítica, manter uma lista ordenada separada e atualizada na escrita.
+        return historyCache.values.sortedByDescending { it.contestNumber }
     }
 
     override suspend fun getLastDraw(): HistoricalDraw? {
+        // Tenta pegar do resultado da API primeiro (mais recente em tempo real)
         latestApiResult?.let { apiResult ->
             HistoricalDraw.fromApiResult(apiResult)?.let { return it }
         }
-        return getHistory().firstOrNull()
+        
+        // Fallback para o cache local
+        val maxContest = historyCache.keys().asSequence().maxOrNull() ?: return null
+        return historyCache[maxContest]
     }
 
     override suspend fun getLatestApiResult(): LotofacilApiResult? {
@@ -68,10 +77,13 @@ class HistoryRepositoryImpl @Inject constructor(
     override fun syncHistory(): Job = scope.launch {
         if (_syncStatus.value is SyncStatus.Syncing) return@launch
         
-        _syncStatus.value = SyncStatus.Syncing
-        
+        // Evita múltiplas syncs simultâneas
+        if (!syncMutex.tryLock()) return@launch
+
         try {
-            val localMax = historyCache.keys.maxOrNull() ?: 0
+            _syncStatus.value = SyncStatus.Syncing
+            
+            val localMax = historyCache.keys().asSequence().maxOrNull() ?: 0
             val remoteResult = remoteDataSource.getLatestDraw() 
                 ?: throw IllegalStateException("Failed to fetch latest draw")
             
@@ -90,6 +102,8 @@ class HistoryRepositoryImpl @Inject constructor(
             if (e is CancellationException) throw e
             Log.e(TAG, "Sync failed", e)
             _syncStatus.value = SyncStatus.Failed(e)
+        } finally {
+            syncMutex.unlock()
         }
     }
 
@@ -98,10 +112,8 @@ class HistoryRepositoryImpl @Inject constructor(
         updateCache(local)
     }
 
-    private suspend fun updateCache(draws: List<HistoricalDraw>) {
+    private fun updateCache(draws: List<HistoricalDraw>) {
         if (draws.isEmpty()) return
-        cacheMutex.withLock {
-            draws.forEach { historyCache[it.contestNumber] = it }
-        }
+        draws.forEach { historyCache[it.contestNumber] = it }
     }
 }

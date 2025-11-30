@@ -2,40 +2,48 @@ package com.cebolao.lotofacil.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Paleta Base Refinada - Focada em contraste e suavidade visual
+// --- PALETA BASE (Baseada na imagem fornecida) ---
 
-// Light Theme - Fundo "Off-White" para reduzir cansaço visual comparado ao #FFFFFF puro
-val LightBackground = Color(0xFFF7F9FC) 
-val LightOnBackground = Color(0xFF1A1C1E)
+// Cores Primárias/Fortes
+val BrandAzul = Color(0xFF465EFF)       // Pantone 2387 C
+val BrandAmarelo = Color(0xFFFCFC30)    // Pantone 3945 C
+val BrandAzulEscuro = Color(0xFF3333BD) // Pantone 2736 C
 
-val LightSurface = Color(0xFFFFFFFF) // Surface pura para Cards se destacarem no background off-white
-val LightOnSurface = Color(0xFF1A1C1E)
+// Cores Claras/Pastéis
+val BrandBranco = Color(0xFFFFFFFF)     // Branco Puro
+val BrandRoxoClaro = Color(0xFFBDB6FF)  // Pantone 2645 C
+val BrandVerdeClaro = Color(0xFF83FFEA) // Pantone 319 C
+val BrandRosaClaro = Color(0xFFFFA7D3)  // Pantone 210 C
+val BrandAzulClaro = Color(0xFF54DCFC)  // Pantone 292 C
+val BrandAmareloClaro = Color(0xFFFFF7B5) // Pantone 100 C
 
-val LightSurfaceVariant = Color(0xFFE1E4E8) // Um cinza azulado sutil
-val LightOnSurfaceVariant = Color(0xFF43474E)
+// Cores Escuras/Saturadas
+val BrandRoxoEscuro = Color(0xFF735CC6) // Pantone 2089 C
+val BrandVerdeEscuro = Color(0xFF00EBD3) // Pantone 3265 C (Ajustado levemente para hex válido)
+val BrandRosaEscuro = Color(0xFFFF6E91) // Pantone 190 C
 
-val LightOutline = Color(0xFF73777F)
-val LightOutlineVariant = Color(0xFFC3C7CF)
+// --- NEUTROS & SISTEMA (Material Design 3 Adaptation) ---
 
-val LightError = Color(0xFFBA1A1A)
-val LightOnError = Color(0xFFFFFFFF)
+// Light Theme Neutrals
+val LightBackground = Color(0xFFF2F5F9) // Um off-white levemente azulado para modernidade
+val LightOnBackground = Color(0xFF1A1B23)
+val LightSurface = BrandBranco
+val LightOnSurface = Color(0xFF1A1B23)
+val LightSurfaceVariant = Color(0xFFE0E5ED)
+val LightOnSurfaceVariant = Color(0xFF44474F)
+val LightOutline = Color(0xFF74777F)
+val LightOutlineVariant = Color(0xFFC4C7CF)
 
-// Dark Theme - "Dark Grey" ao invés de preto absoluto para melhor profundidade (OLED friendly mas suave)
-val DarkBackground = Color(0xFF121212) // Fundo real
+// Dark Theme Neutrals
+val DarkBackground = Color(0xFF0F1115) // Quase preto, levemente azulado
 val DarkOnBackground = Color(0xFFE2E2E6)
-
-val DarkSurface = Color(0xFF1E1E1E) // Ligeiramente mais claro que o fundo
+val DarkSurface = Color(0xFF1A1C21)
 val DarkOnSurface = Color(0xFFE2E2E6)
-
-val DarkSurfaceVariant = Color(0xFF43474E)
-val DarkOnSurfaceVariant = Color(0xFFC3C7CF)
-
+val DarkSurfaceVariant = Color(0xFF44474F)
+val DarkOnSurfaceVariant = Color(0xFFC4C7CF)
 val DarkOutline = Color(0xFF8D9199)
-val DarkOutlineVariant = Color(0xFF43474E)
+val DarkOutlineVariant = Color(0xFF44474F)
 
+// Errors
+val LightError = Color(0xFFBA1A1A)
 val DarkError = Color(0xFFFFB4AB)
-val DarkOnError = Color(0xFF690005)
-
-// Cores de Marca / Acentos fixos (usados nos temas personalizados)
-val CyanDark = Color(0xFF00838F)
-val TealLight = Color(0xFF00BFA5)

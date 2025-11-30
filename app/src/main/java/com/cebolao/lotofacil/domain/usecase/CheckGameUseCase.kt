@@ -3,6 +3,7 @@ package com.cebolao.lotofacil.domain.usecase
 import android.util.Log
 import com.cebolao.lotofacil.data.CheckResult
 import com.cebolao.lotofacil.data.HistoricalDraw
+import com.cebolao.lotofacil.data.LotofacilConstants
 import com.cebolao.lotofacil.di.DefaultDispatcher
 import com.cebolao.lotofacil.domain.repository.HistoryRepository
 import kotlinx.collections.immutable.toImmutableList
@@ -15,7 +16,6 @@ import javax.inject.Inject
 
 private const val TAG = "CheckGameUseCase"
 private const val RECENT_HITS_WINDOW = 15
-const val MIN_SCORE_FOR_PRIZE = 11
 
 class CheckGameUseCase @Inject constructor(
     private val historyRepository: HistoryRepository,
@@ -33,21 +33,21 @@ class CheckGameUseCase @Inject constructor(
     }.flowOn(defaultDispatcher)
 
     private fun calculateResult(gameNumbers: Set<Int>, history: List<HistoricalDraw>): CheckResult {
-        // Otimização: Mapeia apenas hits relevantes para evitar processamento extra
+        // Mapeia hits apenas para histórico relevante (onde houve acertos mínimos de prêmio) para contagem
         val hitsPerContest = history.map { draw -> 
             draw.contestNumber to draw.numbers.intersect(gameNumbers).size 
         }
 
         val scoreCounts = hitsPerContest
-            .filter { it.second >= MIN_SCORE_FOR_PRIZE }
+            .filter { it.second >= LotofacilConstants.MIN_PRIZE_SCORE }
             .groupingBy { it.second }
             .eachCount()
             .toImmutableMap()
 
-        val lastHit = hitsPerContest.firstOrNull { it.second >= MIN_SCORE_FOR_PRIZE }
+        val lastHit = hitsPerContest.firstOrNull { it.second >= LotofacilConstants.MIN_PRIZE_SCORE }
 
         val recentHits = hitsPerContest.take(RECENT_HITS_WINDOW)
-            .reversed() // Exibir do mais antigo para o mais recente no gráfico
+            .reversed()
             .toImmutableList()
 
         return CheckResult(

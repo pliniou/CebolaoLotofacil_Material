@@ -1,15 +1,19 @@
 package com.cebolao.lotofacil.viewmodels
 
 import android.util.Log
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.data.FilterPreset
 import com.cebolao.lotofacil.data.FilterState
 import com.cebolao.lotofacil.data.FilterType
 import com.cebolao.lotofacil.domain.service.FilterSuccessCalculator
+import com.cebolao.lotofacil.domain.service.GenerationFailureReason
 import com.cebolao.lotofacil.domain.service.GenerationProgress
 import com.cebolao.lotofacil.domain.service.GenerationProgressType
+import com.cebolao.lotofacil.domain.service.GenerationStep
 import com.cebolao.lotofacil.domain.usecase.GenerateGamesUseCase
 import com.cebolao.lotofacil.domain.usecase.GetLastDrawUseCase
 import com.cebolao.lotofacil.domain.usecase.SaveGeneratedGamesUseCase
@@ -35,7 +39,7 @@ private const val TAG = "FiltersViewModel"
 @Stable
 sealed interface NavigationEvent {
     data object NavigateToGeneratedGames : NavigationEvent
-    data class ShowSnackbar(val message: String) : NavigationEvent
+    data class ShowSnackbar(@StringRes val messageRes: Int) : NavigationEvent
 }
 
 @Stable
@@ -53,7 +57,7 @@ sealed interface GenerationUiState {
     data object Idle : GenerationUiState
 
     data class Loading(
-        val message: String,
+        @StringRes val messageRes: Int,
         val progress: Int = 0,
         val total: Int = 0
     ) : GenerationUiState
@@ -67,9 +71,7 @@ class FiltersViewModel @Inject constructor(
     private val getLastDrawUseCase: GetLastDrawUseCase
 ) : ViewModel() {
 
-    private val _filterStates = MutableStateFlow(
-        FilterType.entries.map { FilterState(type = it) }
-    )
+    private val _filterStates = MutableStateFlow(FilterType.entries.map { FilterState(type = it) })
     private val _generationState = MutableStateFlow<GenerationUiState>(GenerationUiState.Idle)
     private val _lastDraw = MutableStateFlow<Set<Int>?>(null)
     private val _showResetDialog = MutableStateFlow(false)
@@ -81,11 +83,7 @@ class FiltersViewModel @Inject constructor(
     private var generationJob: Job? = null
 
     val uiState: StateFlow<FiltersScreenState> = combine(
-        _filterStates,
-        _generationState,
-        _lastDraw,
-        _showResetDialog,
-        _filterInfoToShow
+        _filterStates, _generationState, _lastDraw, _showResetDialog, _filterInfoToShow
     ) { filters, generation, lastDraw, showReset, infoToShow ->
         val activeFilters = filters.filter { it.isEnabled }
         FiltersScreenState(
@@ -96,11 +94,7 @@ class FiltersViewModel @Inject constructor(
             showResetDialog = showReset,
             filterInfoToShow = infoToShow
         )
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS),
-        FiltersScreenState()
-    )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), FiltersScreenState())
 
     init {
         loadLastDraw()
@@ -110,9 +104,7 @@ class FiltersViewModel @Inject constructor(
         viewModelScope.launch {
             getLastDrawUseCase()
                 .onSuccess { _lastDraw.value = it?.numbers }
-                .onFailure {
-                    Log.e(TAG, "Error loading last draw numbers", it)
-                }
+                .onFailure { Log.e(TAG, "Error loading last draw numbers", it) }
         }
     }
 
@@ -120,9 +112,8 @@ class FiltersViewModel @Inject constructor(
         _filterStates.update {
             FilterType.entries.map { type ->
                 val presetSetting = preset.settings[type]
-                val isEnabled = presetSetting != null
                 val range = presetSetting ?: type.defaultRange
-                FilterState(type = type, isEnabled = isEnabled, selectedRange = range)
+                FilterState(type = type, isEnabled = presetSetting != null, selectedRange = range)
             }
         }
     }
@@ -137,11 +128,7 @@ class FiltersViewModel @Inject constructor(
         val snappedRange = newRange.snapToStep(type.fullRange)
         _filterStates.update { currentStates ->
             currentStates.map {
-                if (it.type == type && it.selectedRange != snappedRange) {
-                    it.copy(selectedRange = snappedRange)
-                } else {
-                    it
-                }
+                if (it.type == type && it.selectedRange != snappedRange) it.copy(selectedRange = snappedRange) else it
             }
         }
     }
@@ -164,13 +151,20 @@ class FiltersViewModel @Inject constructor(
     private suspend fun handleGenerationProgress(progress: GenerationProgress) {
         when (val type = progress.progressType) {
             is GenerationProgressType.Started -> {
-                _generationState.value = GenerationUiState.Loading("", 0, progress.total)
+                _generationState.value = GenerationUiState.Loading(R.string.general_loading, 0, progress.total)
             }
             is GenerationProgressType.Step -> {
-                _generationState.value = GenerationUiState.Loading(type.message, progress.current, progress.total)
+                val msgRes = when(type.step) {
+                    GenerationStep.RANDOM_START -> R.string.game_generator_random_start
+                    GenerationStep.HEURISTIC_START -> R.string.game_generator_heuristic_start
+                    GenerationStep.RANDOM_FALLBACK -> R.string.game_generator_random_fallback
+                }
+                _generationState.value = GenerationUiState.Loading(msgRes, progress.current, progress.total)
             }
             is GenerationProgressType.Attempt -> {
-                _generationState.value = GenerationUiState.Loading("", progress.current, progress.total)
+                // Mantém mensagem anterior, atualiza apenas números
+                val currentMsg = (_generationState.value as? GenerationUiState.Loading)?.messageRes ?: R.string.general_loading
+                _generationState.value = GenerationUiState.Loading(currentMsg, progress.current, progress.total)
             }
             is GenerationProgressType.Finished -> {
                 saveGeneratedGamesUseCase(type.games)
@@ -178,7 +172,11 @@ class FiltersViewModel @Inject constructor(
                 _generationState.value = GenerationUiState.Idle
             }
             is GenerationProgressType.Failed -> {
-                _eventFlow.emit(NavigationEvent.ShowSnackbar(type.reason))
+                val errorRes = when(type.reason) {
+                    GenerationFailureReason.NO_HISTORY -> R.string.game_generator_failure_no_history
+                    GenerationFailureReason.GENERIC_ERROR -> R.string.game_generator_failure_generic
+                }
+                _eventFlow.emit(NavigationEvent.ShowSnackbar(errorRes))
                 _generationState.value = GenerationUiState.Idle
             }
         }
@@ -189,34 +187,18 @@ class FiltersViewModel @Inject constructor(
         _generationState.value = GenerationUiState.Idle
     }
 
-    fun requestResetFilters() {
-        _showResetDialog.value = true
-    }
-
+    fun requestResetFilters() { _showResetDialog.value = true }
     fun confirmResetFilters() {
         _filterStates.value = FilterType.entries.map { FilterState(type = it) }
         _showResetDialog.value = false
     }
-
-    fun dismissResetDialog() {
-        _showResetDialog.value = false
-    }
-
-    fun showFilterInfo(type: FilterType) {
-        _filterInfoToShow.value = type
-    }
-
-    fun dismissFilterInfo() {
-        _filterInfoToShow.value = null
-    }
+    fun dismissResetDialog() { _showResetDialog.value = false }
+    fun showFilterInfo(type: FilterType) { _filterInfoToShow.value = type }
+    fun dismissFilterInfo() { _filterInfoToShow.value = null }
 }
 
-private fun ClosedFloatingPointRange<Float>.snapToStep(
-    fullRange: ClosedFloatingPointRange<Float>
-): ClosedFloatingPointRange<Float> {
+private fun ClosedFloatingPointRange<Float>.snapToStep(fullRange: ClosedFloatingPointRange<Float>): ClosedFloatingPointRange<Float> {
     val start = this.start.roundToInt().toFloat()
     val end = this.endInclusive.roundToInt().toFloat()
-    val coercedStart = start.coerceIn(fullRange.start, fullRange.endInclusive)
-    val coercedEnd = end.coerceIn(fullRange.start, fullRange.endInclusive)
-    return coercedStart..coercedEnd
+    return start.coerceIn(fullRange.start, fullRange.endInclusive)..end.coerceIn(fullRange.start, fullRange.endInclusive)
 }

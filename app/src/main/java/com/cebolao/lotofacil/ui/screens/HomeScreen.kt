@@ -47,7 +47,6 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
     val snackbarHostState = remember { SnackbarHostState() }
     val pullToRefreshState = rememberPullToRefreshState()
 
-    // Efeitos colaterais isolados
     HomeScreenEffects(
         uiState = uiState,
         pullRefreshState = pullToRefreshState,
@@ -137,7 +136,6 @@ private fun HomeContent(uiState: HomeUiState, viewModel: HomeViewModel) {
                 )
             }
             is HomeScreenState.Success -> {
-                // Layout Padrão com espaçamentos otimizados
                 StandardPageLayout {
                     item(key = "next_draw") {
                         AnimateOnEntry(delayMillis = AppConfig.Animation.DELAY_NEXT_DRAW) {
@@ -190,14 +188,12 @@ private fun HomeContent(uiState: HomeUiState, viewModel: HomeViewModel) {
     }
 }
 
-/**
- * Card "Hero" com gradiente de destaque para o próximo prêmio.
- */
 @Composable
 private fun NextContestHeroCard(info: NextDrawInfo) {
-    val gradient = Brush.horizontalGradient(
+    // Gradiente sutil usando Primary Container
+    val gradient = Brush.verticalGradient(
         colors = listOf(
-            MaterialTheme.colorScheme.primaryContainer,
+            MaterialTheme.colorScheme.primaryContainer.copy(alpha=0.6f),
             MaterialTheme.colorScheme.surface
         )
     )
@@ -205,8 +201,8 @@ private fun NextContestHeroCard(info: NextDrawInfo) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
-        elevation = CardDefaults.cardElevation(Dimen.Elevation.Medium),
-        // Fundo com gradiente sutil
+        elevation = CardDefaults.cardElevation(Dimen.Elevation.Low),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Box(modifier = Modifier.background(gradient)) {
             Column(
@@ -236,7 +232,7 @@ private fun NextContestHeroCard(info: NextDrawInfo) {
                     text = info.formattedPrize,
                     style = MaterialTheme.typography.displayMedium,
                     fontWeight = FontWeight.Black,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Center
                 )
 
@@ -246,14 +242,13 @@ private fun NextContestHeroCard(info: NextDrawInfo) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 
-                // Divisor sutil
                 HorizontalDivider(modifier = Modifier.padding(vertical = Dimen.SmallPadding), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    Icon(Icons.Default.Star, null, tint = MaterialTheme.colorScheme.tertiary, modifier = Modifier.size(Dimen.SmallIcon))
+                    Icon(Icons.Default.Star, null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(Dimen.SmallIcon))
                     Spacer(Modifier.width(Dimen.ExtraSmallPadding))
                     Text(
                         stringResource(R.string.home_accumulated_prize_final_five),
@@ -265,7 +260,7 @@ private fun NextContestHeroCard(info: NextDrawInfo) {
                         info.formattedPrizeFinalFive,
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.tertiary
+                        color = MaterialTheme.colorScheme.secondary
                     )
                 }
             }
@@ -298,7 +293,6 @@ private fun LastDrawSection(
             }
         }
 
-        // Bolas do sorteio
         FlowRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(Dimen.BallSpacing, Alignment.CenterHorizontally),
@@ -312,7 +306,6 @@ private fun LastDrawSection(
 
         AppDivider()
 
-        // Pager para Stats e Gráfico (Economia de espaço vertical)
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             HorizontalPager(state = statsPagerState) { page ->
                 when (page) {
@@ -338,14 +331,12 @@ private fun WinnerInfoSection(winnerData: ImmutableList<WinnerData>) {
         Text(stringResource(R.string.home_winners_last_contest), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
         winnerData.forEach { winnerInfo ->
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                // Descrição (Acertos)
                 Text(
                     stringResource(R.string.home_hits_format, winnerInfo.hits), 
                     modifier = Modifier.weight(0.8f), 
                     style = MaterialTheme.typography.bodyMedium, 
                     fontWeight = FontWeight.Medium
                 )
-                // Ganhadores
                 Text(
                     stringResource(if (winnerInfo.winnerCount == 1) R.string.home_winner_count_one else R.string.home_winner_count_other, winnerInfo.winnerCount), 
                     modifier = Modifier.weight(1.2f), 
@@ -353,7 +344,6 @@ private fun WinnerInfoSection(winnerData: ImmutableList<WinnerData>) {
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                // Prêmio
                 Text(
                     currencyFormat.format(winnerInfo.prize), 
                     modifier = Modifier.weight(1.5f), 

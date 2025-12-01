@@ -9,11 +9,13 @@ plugins {
 
 android {
     namespace = "com.cebolao.lotofacil"
+    //noinspection GradleDependency
     compileSdk = 34
 
     defaultConfig {
         applicationId = "com.cebolao.lotofacil"
         minSdk = 26
+        //noinspection OldTargetApi
         targetSdk = 34
         versionCode = 1
         versionName = "1.0.0"

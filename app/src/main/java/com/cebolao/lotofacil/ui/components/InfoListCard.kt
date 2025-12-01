@@ -20,7 +20,7 @@ import com.cebolao.lotofacil.ui.theme.Dimen
 
 sealed interface IconSource {
     data class Vector(val imageVector: ImageVector) : IconSource
-    data class Resource(@DrawableRes val resId: Int) : IconSource
+    data class Resource(@param:DrawableRes val resId: Int) : IconSource
 }
 
 @Composable

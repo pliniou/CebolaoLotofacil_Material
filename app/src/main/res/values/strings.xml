@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Cebolão Lotofácil</string>
 
     <!-- General -->
@@ -12,7 +12,7 @@
     <string name="general_error_title">O Universo falhou</string>
     <string name="general_failed_to_load_data">Não conseguimos os dados. Talvez seja um sinal para economizar.</string>
     <string name="general_analysis_failed_snackbar">Análise falhou. Tente mais tarde.</string>
-    <string name="general_percentage_format">%1$d%%</string>
+    <string name="general_percentage_format" tools:keep="@string/general_percentage_format">%1$d%%</string>
 
     <!-- Home Screen -->
     <string name="home_title">Cebolão</string>
@@ -21,9 +21,9 @@
     <string name="home_prize_estimate">Estimativa de Ilusão (Prêmio)</string>
     <string name="home_last_contest_format">Concurso Anterior: %1$d</string>
     <string name="home_winners_last_contest">Distribuição de Fortuna</string>
-    <string name="home_hits_format">%1$d acertos</string>
-    <string name="home_winner_count_one">%1$d sortudo</string>
-    <string name="home_winner_count_other">%1$d sortudos</string>
+    <string name="home_hits_format" tools:ignore="PluralsCandidate">%1$d acertos</string>
+    <string name="home_winner_count_one" tools:ignore="PluralsCandidate">%1$d sortudo</string>
+    <string name="home_winner_count_other" tools:ignore="PluralsCandidate">%1$d sortudos</string>
     <string name="home_sync_failed_message">Sincronização falhou. Estamos usando dados antigos.</string>
     <string name="home_sync_success_message">Base de dados atualizada. Suas chances continuam as mesmas.</string>
     <string name="home_sync_button_description">Atualizar</string>
@@ -126,7 +126,7 @@
     <!-- Checker Screen -->
     <string name="checker_title">Simulador</string>
     <string name="checker_subtitle">Teste de Realidade</string>
-    <string name="checker_progress_format">%1$d / %2$d Selecionados</string>
+    <string name="checker_progress_format" tools:ignore="PluralsCandidate">%1$d / %2$d Selecionados</string>
     <string name="checker_clear_button_description">Limpar Mesa</string>
     <string name="checker_save_button_description">Salvar Jogo</string>
     <string name="checker_check_button">Rodar Simulação</string>
@@ -134,8 +134,8 @@
     <string name="checker_save_success_message">Jogo salvo na sua coleção.</string>
     <string name="checker_results_header_wins">Já teria ganho!</string>
     <string name="checker_results_header_no_wins">Nunca premiou (Ainda)</string>
-    <string name="checker_results_analysis_in_contests">Analisado contra %1$d concursos históricos</string>
-    <string name="checker_score_breakdown_hits_format">%1$d pontos</string>
+    <string name="checker_results_analysis_in_contests" tools:ignore="PluralsCandidate">Analisado contra %1$d concursos históricos</string>
+    <string name="checker_score_breakdown_hits_format" tools:ignore="PluralsCandidate">%1$d pontos</string>
     <string name="checker_score_breakdown_times_format_one">vez</string>
     <string name="checker_score_breakdown_times_format_other">vezes</string>
     <string name="checker_last_hit_info">Visto por último em: #%1$s (%2$s pts)</string>

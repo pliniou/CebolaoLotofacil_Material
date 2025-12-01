@@ -1,5 +1,6 @@
 package com.cebolao.lotofacil.data
 
+import android.annotation.SuppressLint
 import android.util.Log
 import com.cebolao.lotofacil.util.DEFAULT_NUMBER_FORMAT
 
@@ -21,7 +22,7 @@ object HistoryParser {
             if (dashIndex == -1) return null
 
             // Extrai número do concurso
-            val contestPart = line.substring(0, dashIndex).trim()
+            val contestPart = line.take(dashIndex).trim()
             val contestNumber = contestPart.toIntOrNull() ?: return null
 
             // Extrai números
@@ -72,6 +73,7 @@ object HistoryParser {
                numbers.all { it in LotofacilConstants.NUMBER_RANGE }
     }
 
+    @SuppressLint("DefaultLocale")
     fun formatLine(draw: HistoricalDraw): String = buildString {
         append(draw.contestNumber)
         append(" - ")

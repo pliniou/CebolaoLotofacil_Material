@@ -115,9 +115,9 @@ class StatisticsAnalyzer @Inject constructor(
     }
 
     private fun createFrequencyList(
-        counts: IntArray?, 
-        lastSeen: IntArray?, 
-        limit: Int, 
+        counts: IntArray?,
+        lastSeen: IntArray?,
+        @Suppress("SameParameterValue") limit: Int,
         currentContest: Int = 0
     ): List<NumberFrequency> {
         return (1..LotofacilConstants.MAX_NUMBER)

@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Paleta Base (Brand) -->
-    <color name="brand_azul">#465EFF</color>
-    <color name="brand_amarelo">#FCFC30</color>
+    <color name="brand_azul" tools:keep="@color/brand_azul">#465EFF</color>
+    <color name="brand_amarelo" tools:keep="@color/brand_amarelo">#FCFC30</color>
 
     <!-- Light Theme Tokens -->
     <color name="light_background">#F9F9FF</color>
-    <color name="light_surface">#F9F9FF</color>
+    <color name="light_surface" tools:keep="@color/light_surface">#F9F9FF</color>
     <color name="light_surface_container">#EDEDF4</color>
     <color name="light_text_primary">#1A1B1F</color>
     <color name="light_text_secondary">#44474F</color>
 
     <!-- Dark Theme Tokens -->
     <color name="dark_background">#111318</color>
-    <color name="dark_surface">#111318</color>
+    <color name="dark_surface" tools:keep="@color/dark_surface">#111318</color>
     <color name="dark_surface_container">#1D2024</color>
     <color name="dark_text_primary">#E2E2E6</color>
     <color name="dark_text_secondary">#C4C6D0</color>
@@ -22,7 +22,7 @@
     <!-- Define a cor padrão (Light) para o widget -->
     <color name="widget_background_light">@color/light_surface_container</color>
     <!-- Define a cor escura para referência direta se necessário -->
-    <color name="widget_background_dark">@color/dark_surface_container</color>
+    <color name="widget_background_dark" tools:keep="@color/widget_background_dark">@color/dark_surface_container</color>
     
     <!-- Splash Screen -->
     <color name="splash_background">@color/light_background</color>

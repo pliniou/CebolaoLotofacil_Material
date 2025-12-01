@@ -1,5 +1,6 @@
 package com.cebolao.lotofacil.ui.components
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
@@ -45,7 +46,7 @@ fun FilterCard(
     onRangeChange: (ClosedFloatingPointRange<Float>) -> Unit,
     onInfoClick: () -> Unit,
     lastDrawNumbers: Set<Int>? = null, // Usado para determinar disponibilidade
-    modifier: Modifier = Modifier
+    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
     // Lógica simples de UI derivada (rápida, sem recomposição pesada)
     val isDataMissing by remember(filterState.type, lastDrawNumbers) {

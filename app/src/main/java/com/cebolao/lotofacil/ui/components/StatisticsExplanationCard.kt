@@ -18,19 +18,21 @@ fun StatisticsExplanationCard(
         Column(verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)) {
             TitleWithIcon(
                 text = stringResource(R.string.home_understanding_stats),
-                icon = Icons.AutoMirrored.Outlined.HelpOutline
+                iconVector = Icons.AutoMirrored.Outlined.HelpOutline
             )
             AppDivider()
-            Column(verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
+            
+            Column(verticalArrangement = Arrangement.spacedBy(Dimen.ExtraSmallPadding)) {
                 InfoPoint(
-                    title = stringResource(R.string.about_purpose_item1_title),
-                    description = stringResource(R.string.home_overdue_hot_numbers_desc)
+                    title = stringResource(R.string.edu_hot_cold_title),
+                    description = stringResource(R.string.edu_hot_cold_desc)
                 )
             }
-            Column(verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
+            
+            Column(verticalArrangement = Arrangement.spacedBy(Dimen.ExtraSmallPadding)) {
                 InfoPoint(
-                    title = stringResource(R.string.about_purpose_item2_title),
-                    description = stringResource(R.string.home_distribution_charts_desc)
+                    title = stringResource(R.string.edu_distribution_title),
+                    description = stringResource(R.string.edu_distribution_desc)
                 )
             }
         }

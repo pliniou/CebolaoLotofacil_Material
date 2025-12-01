@@ -2,16 +2,13 @@ package com.cebolao.lotofacil.ui.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.Gavel
-import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Lightbulb
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Policy
+import androidx.compose.material.icons.filled.PrivacyTip
+import androidx.compose.material.icons.filled.WorkspacePremium
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -26,17 +23,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.cebolao.lotofacil.R
-import com.cebolao.lotofacil.ui.components.AnimateOnEntry
 import com.cebolao.lotofacil.ui.components.FormattedText
 import com.cebolao.lotofacil.ui.components.InfoDialog
 import com.cebolao.lotofacil.ui.components.InfoListCard
-import com.cebolao.lotofacil.ui.components.InfoPoint
-import com.cebolao.lotofacil.ui.components.SectionCard
 import com.cebolao.lotofacil.ui.components.StandardPageLayout
 import com.cebolao.lotofacil.ui.components.StudioHero
 import com.cebolao.lotofacil.ui.components.ThemeSettingsCard
 import com.cebolao.lotofacil.ui.theme.AccentPalette
-import com.cebolao.lotofacil.ui.theme.Dimen
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
@@ -58,11 +51,12 @@ fun AboutScreen(
     var dialogContent by remember { mutableStateOf<InfoItem?>(null) }
     val infoItems = rememberInfoItems()
 
+    // Dialog de Detalhes
     dialogContent?.let { item ->
         InfoDialog(
             onDismissRequest = { dialogContent = null },
             dialogTitle = item.title,
-            icon = item.icon,
+            icon = item.icon, // Ícone contextualizado
             content = item.content
         )
     }
@@ -70,36 +64,36 @@ fun AboutScreen(
     AppScreen(
         title = stringResource(R.string.about_title),
         subtitle = stringResource(R.string.about_subtitle),
-        navigationIcon = { Icon(Icons.Default.Info, stringResource(R.string.about_title), tint = MaterialTheme.colorScheme.primary) }
+        navigationIcon = { Icon(Icons.Default.Info, null, tint = MaterialTheme.colorScheme.primary) }
     ) { innerPadding ->
-        StandardPageLayout(contentPadding = innerPadding) {
+        StandardPageLayout(scaffoldPadding = innerPadding) {
+            
+            // Hero Section (Logo e Slogan)
             item { StudioHero() }
-
+            
+            // Configurações de Tema
             item {
-                AnimateOnEntry {
-                    // Refatorado: Um único card para todas as configurações de tema
-                    ThemeSettingsCard(
-                        currentTheme = currentTheme,
-                        currentPalette = currentPalette,
-                        onThemeChange = onThemeChange,
-                        onPaletteChange = onPaletteChange
-                    )
-                }
+                ThemeSettingsCard(
+                    currentTheme = currentTheme,
+                    currentPalette = currentPalette,
+                    onThemeChange = onThemeChange,
+                    onPaletteChange = onPaletteChange
+                )
             }
-
-            items(infoItems, key = { it.title }) { info ->
-                AnimateOnEntry {
-                    InfoListCard(
-                        title = info.title,
-                        subtitle = info.subtitle,
-                        icon = info.icon,
-                        modifier = Modifier.clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = rememberRipple(),
-                            onClick = { dialogContent = info }
-                        )
+            
+            // Lista de Informações
+            items(infoItems.size) { index ->
+                val info = infoItems[index]
+                InfoListCard(
+                    title = info.title,
+                    subtitle = info.subtitle,
+                    icon = info.icon,
+                    modifier = Modifier.clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = rememberRipple(), // Ripple padrão é ok aqui
+                        onClick = { dialogContent = info }
                     )
-                }
+                )
             }
         }
     }
@@ -110,51 +104,51 @@ private fun rememberInfoItems(): ImmutableList<InfoItem> {
     val context = LocalContext.current
     return remember(context) {
         listOf(
-            InfoItem(context.getString(R.string.about_purpose_title), context.getString(R.string.about_purpose_subtitle), Icons.Default.Lightbulb) { AboutPurposeContent() },
-            InfoItem(context.getString(R.string.about_rules_title), context.getString(R.string.about_rules_subtitle), Icons.Default.Gavel) { AboutRulesContent() },
-            InfoItem(context.getString(R.string.about_bolao_title), context.getString(R.string.about_bolao_subtitle), Icons.Default.Group) { AboutBolaoContent() },
-            InfoItem(context.getString(R.string.about_privacy_title), context.getString(R.string.about_privacy_subtitle), Icons.Default.Lock) { AboutPrivacyContent() },
-            InfoItem(context.getString(R.string.about_legal_title), context.getString(R.string.about_legal_subtitle), Icons.Default.Policy) { AboutLegalContent() }
+            InfoItem(
+                context.getString(R.string.about_purpose_title),
+                context.getString(R.string.about_purpose_subtitle),
+                Icons.Default.Calculate
+            ) { AboutPurposeContent() },
+            
+            InfoItem(
+                context.getString(R.string.about_rules_title),
+                context.getString(R.string.about_rules_subtitle),
+                Icons.Default.WorkspacePremium
+            ) { AboutRulesContent() },
+            
+            InfoItem(
+                context.getString(R.string.about_bolao_title),
+                context.getString(R.string.about_bolao_subtitle),
+                Icons.Default.Groups
+            ) { AboutBolaoContent() },
+            
+            InfoItem(
+                context.getString(R.string.about_privacy_title),
+                context.getString(R.string.about_privacy_subtitle),
+                Icons.Default.PrivacyTip
+            ) { AboutPrivacyContent() },
+            
+            InfoItem(
+                context.getString(R.string.about_legal_title),
+                context.getString(R.string.about_legal_subtitle),
+                Icons.Default.Gavel
+            ) { AboutLegalContent() }
         ).toImmutableList()
     }
 }
 
-// Conteúdos estáticos
 @Composable private fun AboutPurposeContent() {
-    Column(verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)) {
-        FormattedText(stringResource(R.string.about_purpose_desc_body))
-        InfoPoint(stringResource(R.string.about_purpose_item1_title), stringResource(R.string.about_purpose_item1_desc))
-        InfoPoint(stringResource(R.string.about_purpose_item2_title), stringResource(R.string.about_purpose_item2_desc))
-        InfoPoint(stringResource(R.string.about_purpose_item3_title), stringResource(R.string.about_purpose_item3_desc))
-        FormattedText(stringResource(R.string.about_purpose_desc_footer))
-    }
+    FormattedText(stringResource(R.string.about_purpose_desc_body))
 }
 @Composable private fun AboutRulesContent() {
-    Column(verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)) {
-        InfoPoint("1.", stringResource(R.string.about_rules_item1))
-        InfoPoint("2.", stringResource(R.string.about_rules_item2))
-        InfoPoint("3.", stringResource(R.string.about_rules_item3))
-    }
+    FormattedText(stringResource(R.string.about_rules_item1))
 }
 @Composable private fun AboutBolaoContent() {
-    Column(verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)) {
-        FormattedText(stringResource(R.string.about_bolao_desc_body))
-        FormattedText(stringResource(R.string.about_bolao_desc_footer))
-    }
+    FormattedText(stringResource(R.string.about_bolao_desc_body))
 }
 @Composable private fun AboutPrivacyContent() {
-    Column(verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)) {
-        FormattedText(stringResource(R.string.about_privacy_desc_body))
-        InfoPoint("•", stringResource(R.string.about_privacy_item1))
-        InfoPoint("•", stringResource(R.string.about_privacy_item2))
-        InfoPoint("•", stringResource(R.string.about_privacy_item3))
-    }
+    FormattedText(stringResource(R.string.about_privacy_desc_body))
 }
 @Composable private fun AboutLegalContent() {
-    Column(verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)) {
-        InfoPoint("•", stringResource(R.string.about_legal_item1))
-        InfoPoint("•", stringResource(R.string.about_legal_item2))
-        InfoPoint("•", stringResource(R.string.about_legal_item3))
-        FormattedText(stringResource(R.string.about_legal_footer))
-    }
+    FormattedText(stringResource(R.string.about_legal_footer))
 }

@@ -1,14 +1,17 @@
 package com.cebolao.lotofacil.ui.components
 
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import com.cebolao.lotofacil.R
+import com.cebolao.lotofacil.ui.theme.Dimen
 
 @Composable
 fun InfoDialog(
@@ -22,18 +25,28 @@ fun InfoDialog(
         icon = {
             Icon(
                 imageVector = icon,
-                contentDescription = stringResource(R.string.general_info_icon_description),
-                tint = MaterialTheme.colorScheme.primary
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(Dimen.LargeIcon)
             )
         },
         title = {
-            Text(text = dialogTitle, style = MaterialTheme.typography.titleLarge)
+            Text(
+                text = dialogTitle, 
+                style = MaterialTheme.typography.headlineSmall
+            )
         },
         text = { content() },
         confirmButton = {
             TextButton(onClick = onDismissRequest) {
-                Text(stringResource(R.string.general_close))
+                Text(
+                    stringResource(R.string.general_close),
+                    style = MaterialTheme.typography.labelLarge
+                )
             }
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
+        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant
     )
 }

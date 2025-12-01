@@ -34,18 +34,40 @@ object WidgetUtils {
     }
 
     fun showLoading(context: Context, providerClass: Class<out AppWidgetProvider>, appWidgetId: Int) {
-        val layoutId = when (providerClass) {
-            LastDrawWidgetProvider::class.java -> R.layout.widget_last_draw
-            NextContestWidgetProvider::class.java -> R.layout.widget_next_contest
-            PinnedGameWidgetProvider::class.java -> R.layout.widget_pinned_game
+        val layoutId: Int
+        val contentViewId: Int
+
+        // Mapeia o Layout e o Container de Conteúdo baseado no Widget
+        when (providerClass) {
+            LastDrawWidgetProvider::class.java -> {
+                layoutId = R.layout.widget_last_draw
+                contentViewId = R.id.widget_numbers_container
+            }
+            NextContestWidgetProvider::class.java -> {
+                layoutId = R.layout.widget_next_contest
+                contentViewId = R.id.widget_content
+            }
+            PinnedGameWidgetProvider::class.java -> {
+                layoutId = R.layout.widget_pinned_game
+                contentViewId = R.id.widget_numbers_container
+            }
             else -> return
         }
 
         val views = RemoteViews(context.packageName, layoutId).apply {
+            // Estado de Loading: Mostra texto, esconde conteúdo principal
             setViewVisibility(R.id.widget_loading_text, View.VISIBLE)
-            setViewVisibility(R.id.widget_content, View.GONE)
+            setViewVisibility(contentViewId, View.GONE)
+            
             setTextViewText(R.id.widget_loading_text, context.getString(R.string.general_loading))
+            
+            // Re-bind do botão de refresh para garantir que funcione mesmo no estado de loading
+            setOnClickPendingIntent(
+                R.id.widget_refresh_button,
+                getRefreshPendingIntent(context, providerClass, appWidgetId)
+            )
         }
+        
         val appWidgetManager = AppWidgetManager.getInstance(context)
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }

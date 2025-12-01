@@ -54,7 +54,6 @@ fun ColorPaletteCard(
     val palettes = AccentPalette.entries
     val isDarkTheme = isSystemInDarkTheme()
 
-    // Otimização: Memoização dos esquemas de cores
     val previewColorSchemes = remember(isDarkTheme, palettes) {
         palettes.associateWith {
             if (isDarkTheme) darkColorSchemeFor(it) else lightColorSchemeFor(it)
@@ -63,15 +62,15 @@ fun ColorPaletteCard(
 
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
         Text(
-            "Cores de Destaque", 
-            style = MaterialTheme.typography.titleSmall, 
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            "Paleta de Cores", 
+            style = MaterialTheme.typography.titleLarge, // Aumentado
+            color = MaterialTheme.colorScheme.onSurface
         )
         
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding),
-            contentPadding = PaddingValues(end = Dimen.ScreenPadding) // Espaço para scroll
+            horizontalArrangement = Arrangement.spacedBy(Dimen.MediumPadding),
+            contentPadding = PaddingValues(end = Dimen.ScreenPadding)
         ) {
             items(palettes) { palette ->
                 val colorScheme = previewColorSchemes[palette]!!
@@ -102,8 +101,8 @@ private fun PalettePreviewCard(
 
     Card(
         modifier = modifier
-            .width(Dimen.PaletteCardWidth)
-            .height(Dimen.PaletteCardHeight)
+            .width(Dimen.PaletteCardWidth) // 120dp
+            .height(Dimen.PaletteCardHeight) // 100dp
             .clickable { onClick() },
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
@@ -133,8 +132,8 @@ private fun PalettePreviewCard(
             ) {
                 Text(
                     text = name,
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                     color = colorScheme.onSurface,
                     maxLines = 1
                 )
@@ -143,7 +142,7 @@ private fun PalettePreviewCard(
                         imageVector = Icons.Filled.CheckCircle,
                         contentDescription = stringResource(R.string.general_selected),
                         tint = colorScheme.primary,
-                        modifier = Modifier.size(14.dp)
+                        modifier = Modifier.size(16.dp)
                     )
                 }
             }
@@ -155,13 +154,13 @@ private fun PalettePreviewCard(
 private fun ColorSwatch(color: Color, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
-            .height(20.dp)
-            .clip(MaterialTheme.shapes.small)
+            .height(24.dp) // Swatch maior
+            .clip(MaterialTheme.shapes.extraSmall)
             .background(color)
             .border(
                 width = Dimen.Border.Hairline,
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
-                shape = MaterialTheme.shapes.small
+                shape = MaterialTheme.shapes.extraSmall
             )
     )
 }

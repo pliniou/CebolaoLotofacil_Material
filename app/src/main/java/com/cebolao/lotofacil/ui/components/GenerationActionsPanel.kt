@@ -1,22 +1,22 @@
 package com.cebolao.lotofacil.ui.components
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -31,6 +31,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.data.LotofacilConstants
 import com.cebolao.lotofacil.ui.theme.AppConfig.UI.GAME_QUANTITY_OPTIONS
@@ -51,19 +52,22 @@ fun GenerationActionsPanel(
     val currencyFormat = rememberCurrencyFormatter()
     val isLoading = generationState is GenerationUiState.Loading
 
+    // Container elevado (Tonal Elevation) típico de Bottom Sheets/Bars MD3
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shadowElevation = Dimen.Elevation.High,
-        tonalElevation = Dimen.Elevation.Medium
+        shadowElevation = 4.dp, // Sombra suave
+        tonalElevation = 3.dp,  // Cor tonal baseada no Primary
+        color = MaterialTheme.colorScheme.surface
     ) {
         Row(
             modifier = Modifier
                 .windowInsetsPadding(WindowInsets.navigationBars)
-                .padding(horizontal = Dimen.CardPadding, vertical = Dimen.SmallPadding)
+                .padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.MediumPadding)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)
+            horizontalArrangement = Arrangement.spacedBy(Dimen.LargePadding)
         ) {
+            // Seletor de Quantidade
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 QuantitySelector(
                     quantity = quantity,
@@ -84,51 +88,49 @@ fun GenerationActionsPanel(
                 )
                 Text(
                     text = currencyFormat.format(LotofacilConstants.GAME_COST.multiply(quantity.toBigDecimal())),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
+            // Ações Principais
             Row(
                 modifier = Modifier.weight(1f),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)
             ) {
                 if (isLoading) {
-                    IconButton(onClick = {
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        onCancel()
-                    }) {
+                    FilledIconButton(
+                        onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onCancel()
+                        },
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    ) {
                         Icon(Icons.Filled.Cancel, stringResource(R.string.filters_button_cancel_description))
                     }
                 }
 
-                PrimaryActionButton(
-                    modifier = Modifier.weight(1f).height(Dimen.LargeButtonHeight),
-                    enabled = !isLoading,
-                    loading = isLoading,
-                    onClick = {
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        onGenerate(quantity)
-                    },
-                    leading = { if (!isLoading) Icon(Icons.AutoMirrored.Filled.Send, null) }
-                ) {
-                    AnimatedContent(targetState = generationState, label = "generateButton") { state ->
-                        if (state is GenerationUiState.Loading) {
-                            val text = when {
-                                state.total > 0 -> stringResource(R.string.filters_button_generating_progress, state.progress, state.total)
-                                else -> stringResource(state.messageRes)
-                            }
-                            Text(text = text, style = MaterialTheme.typography.labelLarge)
-                        } else {
-                            Text(
-                                text = stringResource(R.string.filters_button_generate),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        }
-                    }
+                val buttonText = if (isLoading) {
+                    if (generationState.total > 0) 
+                        stringResource(R.string.filters_button_generating_progress, generationState.progress, generationState.total)
+                    else 
+                        stringResource(generationState.messageRes)
+                } else {
+                    stringResource(R.string.filters_button_generate)
                 }
+
+                PrimaryActionButton(
+                    text = buttonText,
+                    modifier = Modifier.weight(1f),
+                    enabled = !isLoading,
+                    isLoading = isLoading,
+                    onClick = { onGenerate(quantity) },
+                    icon = { if (!isLoading) Icon(Icons.AutoMirrored.Filled.Send, null) }
+                )
             }
         }
     }
@@ -142,13 +144,35 @@ private fun QuantitySelector(
     isDecrementEnabled: Boolean,
     isIncrementEnabled: Boolean
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Dimen.ExtraSmallPadding)) {
-        IconButton(onClick = onDecrement, enabled = isDecrementEnabled) {
-            Icon(Icons.Filled.Remove, stringResource(R.string.filters_quantity_decrease))
+    Row(
+        verticalAlignment = Alignment.CenterVertically, 
+        horizontalArrangement = Arrangement.spacedBy(4.dp) // Mais compacto
+    ) {
+        // Botões menores para o seletor
+        FilledIconButton(
+            onClick = onDecrement, 
+            enabled = isDecrementEnabled,
+            modifier = Modifier.size(32.dp),
+            colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+        ) {
+            Icon(Icons.Filled.Remove, stringResource(R.string.filters_quantity_decrease), modifier = Modifier.size(16.dp))
         }
-        Text(text = quantity.toString(), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-        IconButton(onClick = onIncrement, enabled = isIncrementEnabled) {
-            Icon(Icons.Filled.Add, stringResource(R.string.filters_quantity_increase))
+        
+        Text(
+            text = quantity.toString(), 
+            style = MaterialTheme.typography.headlineLarge, // Numérico Grande
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(horizontal = 8.dp)
+        )
+        
+        FilledIconButton(
+            onClick = onIncrement, 
+            enabled = isIncrementEnabled,
+            modifier = Modifier.size(32.dp),
+            colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+        ) {
+            Icon(Icons.Filled.Add, stringResource(R.string.filters_quantity_increase), modifier = Modifier.size(16.dp))
         }
     }
 }

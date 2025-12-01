@@ -2,32 +2,40 @@ package com.cebolao.lotofacil.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import com.cebolao.lotofacil.ui.theme.Dimen
 
-/**
- * Layout padrão recursivo para telas baseadas em lista.
- * Garante consistência de espaçamento e padding em toda a app.
- */
 @Composable
 fun StandardPageLayout(
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(),
+    // Padding vindo do Scaffold (TopBar)
+    scaffoldPadding: PaddingValues = PaddingValues(),
+    // Se deve adicionar espaço extra no fim (para BottomBar/FAB)
+    addBottomSpace: Boolean = true,
     content: LazyListScope.() -> Unit
 ) {
+    val layoutDirection = LocalLayoutDirection.current
+    val navBarsPadding = WindowInsets.navigationBars.asPaddingValues()
+    
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(
-            top = contentPadding.calculateTopPadding() + Dimen.MediumPadding, // Reduzido levemente para evitar buracos grandes
-            bottom = contentPadding.calculateBottomPadding() + Dimen.BottomBarOffset,
-            start = Dimen.ScreenPadding,
-            end = Dimen.ScreenPadding
+            top = scaffoldPadding.calculateTopPadding() + Dimen.ExtraLargePadding,
+            start = Dimen.ScreenPadding + scaffoldPadding.calculateStartPadding(layoutDirection),
+            end = Dimen.ScreenPadding + scaffoldPadding.calculateEndPadding(layoutDirection),
+            bottom = if (addBottomSpace) Dimen.BottomContentPadding else navBarsPadding.calculateBottomPadding() + Dimen.ExtraLargePadding
         ),
-        verticalArrangement = Arrangement.spacedBy(Dimen.CardSpacing),
+        verticalArrangement = Arrangement.spacedBy(Dimen.SectionSpacing),
         content = content
     )
 }

@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -26,7 +25,6 @@ fun DistributionChartsCard(
     onPatternSelected: (StatisticPattern) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Lógica extraída para função pura fora do escopo composable
     val chartData = remember(selectedPattern, stats) {
         prepareChartData(stats, selectedPattern)
     }
@@ -35,9 +33,10 @@ fun DistributionChartsCard(
 
     SectionCard(modifier = modifier) {
         Column(verticalArrangement = Arrangement.spacedBy(Dimen.CardPadding)) {
+            // Correção: icon -> iconVector
             TitleWithIcon(
                 text = "Distribuição de Padrões", 
-                icon = selectedPattern.icon
+                iconVector = selectedPattern.icon
             )
 
             LazyRow(
@@ -61,7 +60,9 @@ fun DistributionChartsCard(
             BarChart(
                 data = chartData.toImmutableList(),
                 maxValue = maxValue,
-                modifier = Modifier.fillMaxWidth().height(Dimen.BarChartHeight)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(Dimen.BarChartHeight)
             )
         }
     }

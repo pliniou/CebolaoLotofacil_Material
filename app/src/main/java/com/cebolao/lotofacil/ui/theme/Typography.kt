@@ -5,111 +5,113 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// Refatorado: Fontes reduzidas para melhorar a densidade da informação.
 val Typography = Typography(
+    // Display: Números grandes, telas de sucesso, splash
     displayLarge = TextStyle(
-        fontFamily = Gabarito,
-        fontWeight = FontWeight.Bold,
-        fontSize = 24.sp, // Era 26.sp
-        lineHeight = 32.sp, // Era 34.sp
-        letterSpacing = 0.sp
+        fontFamily = FontFamilyDisplay,
+        fontWeight = FontWeight.Black,
+        fontSize = 57.sp,
+        lineHeight = 64.sp,
+        letterSpacing = (-0.25).sp
     ),
     displayMedium = TextStyle(
-        fontFamily = Gabarito,
+        fontFamily = FontFamilyDisplay,
         fontWeight = FontWeight.Bold,
-        fontSize = 22.sp, // Era 24.sp
-        lineHeight = 30.sp, // Era 32.sp
-        letterSpacing = 0.sp
+        fontSize = 45.sp,
+        lineHeight = 52.sp
     ),
     displaySmall = TextStyle(
-        fontFamily = Gabarito,
+        fontFamily = FontFamilyDisplay,
         fontWeight = FontWeight.Bold,
-        fontSize = 20.sp, // Era 22.sp
-        lineHeight = 28.sp, // Era 30.sp
-        letterSpacing = 0.sp
+        fontSize = 36.sp,
+        lineHeight = 44.sp
     ),
+
+    // Headline: Títulos de páginas
     headlineLarge = TextStyle(
-        fontFamily = Gabarito,
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 19.sp, // Era 20.sp
-        lineHeight = 27.sp, // Era 28.sp
-        letterSpacing = 0.sp
+        fontFamily = FontFamilyBody,
+        fontWeight = FontWeight.Bold,
+        fontSize = 32.sp,
+        lineHeight = 40.sp
     ),
     headlineMedium = TextStyle(
-        fontFamily = Gabarito,
-        fontWeight = FontWeight.Medium,
-        fontSize = 16.sp, // Era 17.sp
-        lineHeight = 24.sp, // Era 25.sp
-        letterSpacing = 0.sp
+        fontFamily = FontFamilyBody,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 28.sp,
+        lineHeight = 36.sp
     ),
     headlineSmall = TextStyle(
-        fontFamily = Gabarito,
-        fontWeight = FontWeight.Medium,
-        fontSize = 14.sp, // Era 15.sp
-        lineHeight = 22.sp, // Era 23.sp
-        letterSpacing = 0.sp
+        fontFamily = FontFamilyBody,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 24.sp,
+        lineHeight = 32.sp
     ),
+
+    // Title: Subtítulos de cartões
     titleLarge = TextStyle(
-        fontFamily = Gabarito,
+        fontFamily = FontFamilyBody,
         fontWeight = FontWeight.Medium,
-        fontSize = 17.sp, // Era 18.sp
-        lineHeight = 25.sp, // Era 26.sp
-        letterSpacing = 0.sp
+        fontSize = 22.sp,
+        lineHeight = 28.sp
     ),
     titleMedium = TextStyle(
-        fontFamily = Roboto,
+        fontFamily = FontFamilyBody,
         fontWeight = FontWeight.Medium,
-        fontSize = 14.sp, // Era 15.sp
-        lineHeight = 20.sp, // Era 22.sp
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
         letterSpacing = 0.15.sp
     ),
     titleSmall = TextStyle(
-        fontFamily = Roboto,
+        fontFamily = FontFamilyBody,
         fontWeight = FontWeight.Medium,
-        fontSize = 12.sp, // Era 13.sp
-        lineHeight = 16.sp, // Era 18.sp
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
         letterSpacing = 0.1.sp
     ),
+
+    // Body: Texto corrido
     bodyLarge = TextStyle(
-        fontFamily = Roboto,
+        fontFamily = FontFamilyBody,
         fontWeight = FontWeight.Normal,
-        fontSize = 14.sp, // Era 15.sp
-        lineHeight = 20.sp, // Era 22.sp
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
         letterSpacing = 0.5.sp
     ),
     bodyMedium = TextStyle(
-        fontFamily = Roboto,
+        fontFamily = FontFamilyBody,
         fontWeight = FontWeight.Normal,
-        fontSize = 12.sp, // Era 13.sp
-        lineHeight = 16.sp, // Era 18.sp
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
         letterSpacing = 0.25.sp
     ),
     bodySmall = TextStyle(
-        fontFamily = Roboto,
+        fontFamily = FontFamilyBody,
         fontWeight = FontWeight.Normal,
-        fontSize = 10.sp, // Era 11.sp
-        lineHeight = 14.sp, // Era 15.sp
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
         letterSpacing = 0.4.sp
     ),
+
+    // Label: Botões, Chips, Tags (Usa fonte Numérica/Técnica para distinção)
     labelLarge = TextStyle(
-        fontFamily = Roboto,
-        fontWeight = FontWeight.Medium,
-        fontSize = 12.sp, // Era 13.sp
-        lineHeight = 16.sp, // Era 18.sp
+        fontFamily = FontFamilyNumeric,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
         letterSpacing = 0.1.sp
     ),
     labelMedium = TextStyle(
-        fontFamily = Roboto,
+        fontFamily = FontFamilyNumeric,
         fontWeight = FontWeight.Medium,
-        fontSize = 10.sp, // Era 11.sp
-        lineHeight = 14.sp, // Era 15.sp
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
         letterSpacing = 0.5.sp
     ),
     labelSmall = TextStyle(
-        fontFamily = Roboto,
+        fontFamily = FontFamilyNumeric,
         fontWeight = FontWeight.Medium,
-        fontSize = 9.sp, // Era 10.sp
-        lineHeight = 14.sp, // Era 15.sp
+        fontSize = 11.sp,
+        lineHeight = 16.sp,
         letterSpacing = 0.5.sp
     )
 )

@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="app_background_color">#121212</color>
+    <!-- No modo escuro, o background da Splash usa a cor escura -->
+    <color name="splash_background">@color/dark_background</color>
+    
+    <!-- No modo escuro, a cor "widget_background_light" (usada no layout)
+         é redirecionada para usar o container escuro -->
+    <color name="widget_background_light">@color/dark_surface_container</color>
 </resources>

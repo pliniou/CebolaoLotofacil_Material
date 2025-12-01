@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -15,14 +16,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import com.cebolao.lotofacil.ui.theme.Dimen
 
 @Composable
 fun MessageState(
-    modifier: Modifier = Modifier,
     icon: ImageVector,
     title: String,
     message: String,
+    modifier: Modifier = Modifier,
     actionLabel: String? = null,
     onActionClick: (() -> Unit)? = null,
     iconTint: Color = MaterialTheme.colorScheme.primary
@@ -37,22 +39,32 @@ fun MessageState(
         Icon(
             imageVector = icon,
             contentDescription = title,
-            tint = iconTint
+            tint = iconTint,
+            modifier = Modifier.size(64.dp)
         )
-        Spacer(Modifier.height(Dimen.CardPadding))
-        Text(title, style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center)
+        Spacer(Modifier.height(Dimen.LargePadding))
+        Text(
+            text = title, 
+            style = MaterialTheme.typography.headlineMedium, 
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onBackground
+        )
         Spacer(Modifier.height(Dimen.SmallPadding))
         Text(
-            message,
-            style = MaterialTheme.typography.bodyMedium,
+            text = message,
+            style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
         if (actionLabel != null && onActionClick != null) {
-            Spacer(Modifier.height(Dimen.LargePadding))
-            PrimaryActionButton(onClick = onActionClick) {
-                Text(actionLabel, style = MaterialTheme.typography.titleMedium)
-            }
+            Spacer(Modifier.height(Dimen.SectionSpacing))
+            
+            // Correção da chamada do PrimaryActionButton
+            PrimaryActionButton(
+                text = actionLabel,
+                onClick = onActionClick,
+                isFullWidth = false
+            )
         }
     }
 }

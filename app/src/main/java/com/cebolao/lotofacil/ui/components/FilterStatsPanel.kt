@@ -3,6 +3,8 @@ package com.cebolao.lotofacil.ui.components
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -10,8 +12,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.data.FilterState
 import com.cebolao.lotofacil.data.RestrictivenessCategory
@@ -24,21 +28,27 @@ fun FilterStatsPanel(
     successProbability: Float,
     modifier: Modifier = Modifier
 ) {
-    Card(
+    // Outlined Card para distinção semântica (Painel de Info vs. Botão)
+    OutlinedCard(
         modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        // Atualizado: Level1 -> Low
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(Dimen.Elevation.Low)),
-        // Atualizado: Level1 -> Low
-        elevation = CardDefaults.cardElevation(Dimen.Elevation.Low)
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Column(
-            modifier = Modifier.padding(Dimen.CardPadding),
+            modifier = Modifier.padding(Dimen.CardContentPadding),
             verticalArrangement = Arrangement.spacedBy(Dimen.CardPadding)
         ) {
-            Text(stringResource(R.string.filters_analysis_title), style = MaterialTheme.typography.titleLarge)
+            Text(
+                text = stringResource(R.string.filters_analysis_title), 
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            
             FilterRestrictiveness(probability = successProbability)
-            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = AppConfig.UI.ALPHA_BORDER_DEFAULT))
+            
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            
             FilterStatistics(activeFilters)
         }
     }
@@ -52,10 +62,11 @@ private fun FilterRestrictiveness(probability: Float) {
         label = "probabilityAnimation"
     )
 
+    val colorScheme = MaterialTheme.colorScheme
     val (progressColor, textColor) = when {
-        animatedProbability < 0.2f -> MaterialTheme.colorScheme.error to MaterialTheme.colorScheme.error
-        animatedProbability < 0.5f -> MaterialTheme.colorScheme.tertiary to MaterialTheme.colorScheme.tertiary
-        else -> MaterialTheme.colorScheme.primary to MaterialTheme.colorScheme.primary
+        animatedProbability < 0.2f -> colorScheme.error to colorScheme.error
+        animatedProbability < 0.5f -> colorScheme.tertiary to colorScheme.tertiary
+        else -> colorScheme.primary to colorScheme.primary
     }
 
     val animatedProgressColor by animateColorAsState(targetValue = progressColor, label = "progressColor")
@@ -67,11 +78,15 @@ private fun FilterRestrictiveness(probability: Float) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(stringResource(R.string.filters_success_chance), style = MaterialTheme.typography.bodyMedium)
+            Text(
+                stringResource(R.string.filters_success_chance), 
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
             Text(
                 text = "${(animatedProbability * 100).toInt()}%",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Medium,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
                 color = animatedTextColor
             )
         }
@@ -82,19 +97,19 @@ private fun FilterRestrictiveness(probability: Float) {
                 .height(Dimen.ProgressBarHeight)
                 .clip(MaterialTheme.shapes.small),
             color = animatedProgressColor,
-            trackColor = animatedProgressColor.copy(alpha = AppConfig.UI.ALPHA_BORDER_DEFAULT)
+            trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
         )
     }
 }
 
 @Composable
 private fun FilterStatistics(filters: List<FilterState>) {
-    Column(verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)) {
+    Column(verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
         if (filters.isEmpty()) {
             Text(
                 stringResource(R.string.filters_no_active_filters),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
             )
         } else {
             filters.forEach { filter ->
@@ -111,18 +126,23 @@ private fun FilterStatRow(filter: FilterState) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(filter.type.title, style = MaterialTheme.typography.bodyMedium)
+        Text(
+            text = stringResource(filter.type.titleRes), 
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
         RestrictivenessChip(filter.restrictivenessCategory)
     }
 }
 
 @Composable
 private fun RestrictivenessChip(category: RestrictivenessCategory) {
-    val color = when (category) {
-        RestrictivenessCategory.VERY_TIGHT, RestrictivenessCategory.TIGHT -> MaterialTheme.colorScheme.error
-        RestrictivenessCategory.MODERATE -> MaterialTheme.colorScheme.tertiary
-        RestrictivenessCategory.LOOSE, RestrictivenessCategory.VERY_LOOSE -> MaterialTheme.colorScheme.primary
-        RestrictivenessCategory.DISABLED -> MaterialTheme.colorScheme.outline
+    val colorScheme = MaterialTheme.colorScheme
+    val (containerColor, contentColor) = when (category) {
+        RestrictivenessCategory.VERY_TIGHT, RestrictivenessCategory.TIGHT -> colorScheme.errorContainer to colorScheme.onErrorContainer
+        RestrictivenessCategory.MODERATE -> colorScheme.tertiaryContainer to colorScheme.onTertiaryContainer
+        RestrictivenessCategory.LOOSE, RestrictivenessCategory.VERY_LOOSE -> colorScheme.secondaryContainer to colorScheme.onSecondaryContainer
+        RestrictivenessCategory.DISABLED -> colorScheme.surfaceContainer to colorScheme.onSurfaceVariant
     }
 
     val textRes = when (category) {
@@ -135,14 +155,17 @@ private fun RestrictivenessChip(category: RestrictivenessCategory) {
     }
 
     Surface(
-        color = color.copy(alpha = AppConfig.UI.ALPHA_DISABLED),
-        shape = MaterialTheme.shapes.small
+        color = containerColor,
+        shape = MaterialTheme.shapes.extraSmall,
+        modifier = Modifier.height(24.dp), // Chip compacto
     ) {
-        Text(
-            text = stringResource(textRes),
-            style = MaterialTheme.typography.labelSmall,
-            color = color,
-            modifier = Modifier.padding(horizontal = Dimen.SmallPadding, vertical = Dimen.ExtraSmallPadding)
-        )
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(horizontal = 8.dp)) {
+            Text(
+                text = stringResource(textRes),
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = contentColor
+            )
+        }
     }
 }

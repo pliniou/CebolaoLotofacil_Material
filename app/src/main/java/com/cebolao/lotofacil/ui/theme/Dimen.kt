@@ -1,73 +1,80 @@
 package com.cebolao.lotofacil.ui.theme
 
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
-/**
- * Dimensões refatoradas para um design mais "Airy" (arejado) e moderno.
- * Aumentamos o padding padrão e o raio das bordas.
- */
 object Dimen {
+    // --- Grid System (Base 4dp/8dp) ---
+    val ExtraSmallPadding = 2.dp
+    val SmallPadding = 4.dp
+    val MediumPadding = 8.dp
+    val LargePadding = 12.dp
+    val ExtraLargePadding = 16.dp
+    val CardPadding = 16.dp
 
-    //region Espaçamentos (Padding & Margins)
-    val ScreenPadding = 20.dp // Aumentado de 16dp para dar mais respiro nas bordas
-    val LargePadding = 24.dp
-    val CardPadding = 20.dp   // Cards com mais espaço interno
-    val MediumPadding = 12.dp
-    val SmallPadding = 8.dp
-    val ExtraSmallPadding = 4.dp
-    
-    val SectionSpacing = 32.dp // Maior separação entre seções verticais
-    val CardSpacing = 16.dp    // Espaço entre cards em uma lista
-    val BallSpacing = 8.dp     // Espaço entre as bolas
-    
-    val BottomBarOffset = 120.dp // Espaço extra para FAB ou BottomBar flutuante
-    //endregion
+    // --- Semantic Aliases ---
+    val ScreenPadding = ExtraLargePadding
+    val CardContentPadding = ExtraLargePadding
+    val SectionSpacing = 24.dp
+    val ItemSpacing = LargePadding
+    val ListSpacing = MediumPadding
+    val BottomContentPadding = 80.dp
 
-    //region Tamanhos (Sizes)
-    val LargeButtonHeight = 56.dp // Botões mais altos (padrão moderno touch)
-    
-    // Bolas ligeiramente maiores para melhor toque e leitura
-    val NumberBall = 46.dp
-    val NumberBallSmall = 40.dp
-    val NumberBallDialog = 36.dp
+    // --- Component Tokens ---
 
-    val SmallIcon = 20.dp
+    // Buttons
+    val ButtonHeight = 48.dp
+    val LargeButtonHeight = 56.dp
+    val IconButtonSize = 48.dp // Touch target mínimo
+
+    // Cards
+    val CardCornerRadius = 16.dp
+    val FilterCardCorner = 24.dp
+    val PaletteCardWidth = 150.dp
+    val PaletteCardHeight = 200.dp
+
+    // Icons
+    val SmallIcon = 18.dp
     val MediumIcon = 24.dp
     val LargeIcon = 32.dp
+    val Logo = 120.dp
 
-    val Logo = 72.dp
-    
-    val ProgressBarHeight = 8.dp // Barra de progresso mais visível
-    val ProgressBarStroke = 2.dp
-    
+    // Progress Indicators
+    val ProgressBarHeight = 8.dp
+    val ProgressBarStroke = 4.dp
+    val LoaderSize = 36.dp
+
+    // Charts
     val BarChartHeight = 220.dp
-    val BarChartYAxisLabelWidth = 36.dp
-    val BarChartXAxisLabelHeight = 40.dp
+    val ChartHeight = 220.dp
+    val MiniChartHeight = 120.dp
 
-    val PaletteCardWidth = 110.dp
-    val PaletteCardHeight = 90.dp
-    //endregion
+    // Lotofácil Specifics (Balls)
+    val BallSizeLarge = 48.dp
+    val BallSizeMedium = 40.dp
+    val BallSizeSmall = 32.dp
+    val BallSpacing = MediumPadding
 
-    //region Elevações (Elevation)
-    object Elevation {
-        val None = 0.dp
-        val Low = 2.dp
-        val Medium = 4.dp
-        val High = 8.dp
-    }
+    val BallTextLarge = 20.sp
+    val BallTextMedium = 16.sp
+    val BallTextSmall = 12.sp
 
-    //region Bordas (Border)
+    // Widget Specifics
+    val WidgetCornerRadius = 24.dp
+    val WidgetContentPadding = 16.dp
+
+    // Borders
     object Border {
         val Hairline = 0.5.dp
-        val Thin = 1.dp
-        val Regular = 1.5.dp
-        val Thick = 2.dp
+        val BorderThin = 1.dp
+        val Regular = 2.dp
+        val Thick = 3.dp
     }
-    //endregion
 
-    //region Onboarding
-    val ActiveIndicatorWidth = 24.dp
-    val IndicatorHeight = 8.dp
-    val IndicatorSpacing = 6.dp
-    //endregion
+    // Elevations
+    object Elevation {
+        val Low = 1.dp
+        val Medium = 3.dp
+        val High = 6.dp
+    }
 }

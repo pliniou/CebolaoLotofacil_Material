@@ -17,16 +17,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.Dp
-import com.cebolao.lotofacil.ui.theme.Dimen
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun PagerIndicator(
     pageCount: Int,
     currentPage: Int,
     modifier: Modifier = Modifier,
-    activeIndicatorWidth: Dp = Dimen.ActiveIndicatorWidth,
-    indicatorHeight: Dp = Dimen.IndicatorHeight,
-    indicatorSpacing: Dp = Dimen.IndicatorSpacing
+    activeIndicatorWidth: Dp = 32.dp, // Aumentado
+    indicatorHeight: Dp = 10.dp,      // Aumentado
+    indicatorSpacing: Dp = 8.dp
 ) {
     Row(
         modifier = modifier,
@@ -46,7 +46,7 @@ fun PagerIndicator(
 
             Box(
                 modifier = Modifier
-                    .padding(horizontal = indicatorSpacing)
+                    .padding(horizontal = indicatorSpacing / 2)
                     .height(indicatorHeight)
                     .width(width)
                     .clip(CircleShape)

@@ -6,27 +6,32 @@ import java.math.BigDecimal
 import java.text.NumberFormat
 import java.util.Locale
 
-/**
- * Utilitários centralizados para formatação.
- */
 object Formatters {
     
-    // NumberFormat não é thread-safe, então usamos uma função factory ou ThreadLocal se fosse crítico.
-    // Para chamadas simples, criar a instância é barato o suficiente no Android moderno.
-    private fun getCurrencyInstance(): NumberFormat = 
-        NumberFormat.getCurrencyInstance(Locale(LOCALE_LANGUAGE, LOCALE_COUNTRY))
+    // Locale constante
+    private val appLocale = Locale(LOCALE_LANGUAGE, LOCALE_COUNTRY)
 
-    fun formatCurrency(value: Double): String = getCurrencyInstance().format(value)
+    // Cache Thread-Safe para evitar recriação custosa do NumberFormat
+    private val currencyFormatCache = ThreadLocal.withInitial {
+        NumberFormat.getCurrencyInstance(appLocale)
+    }
+
+    fun formatCurrency(value: Double): String {
+        return currencyFormatCache.get()?.format(value) ?: "R$ 0,00"
+    }
     
-    fun formatCurrency(value: BigDecimal): String = getCurrencyInstance().format(value)
+    fun formatCurrency(value: BigDecimal): String {
+        return currencyFormatCache.get()?.format(value) ?: "R$ 0,00"
+    }
+        
+    fun getLocale(): Locale = appLocale
 }
 
-/**
- * Retorna uma instância memorizada para uso em Composables (evita recriação na recomposição).
- */
 @Composable
 fun rememberCurrencyFormatter(): NumberFormat {
+    // Como a UI roda na Main Thread, podemos usar o Formatters.getLocale()
+    // Mas para composição, o ideal é lembrar da instância.
     return remember {
-        NumberFormat.getCurrencyInstance(Locale(LOCALE_LANGUAGE, LOCALE_COUNTRY))
+        NumberFormat.getCurrencyInstance(Formatters.getLocale())
     }
 }

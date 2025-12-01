@@ -1,10 +1,10 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.hilt)
-    alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.compose) // Plugin oficial K2 Compose
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -15,8 +15,9 @@ android {
         applicationId = "com.cebolao.lotofacil"
         minSdk = 26
         targetSdk = 34
-        versionCode = 2
-        versionName = "2.0"
+        versionCode = 1
+        versionName = "1.0.0"
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
@@ -25,13 +26,6 @@ android {
     }
 
     buildTypes {
-        debug {
-            applicationIdSuffix = ".debug"
-            versionNameSuffix = "-debug"
-            isDebuggable = true
-            isMinifyEnabled = false
-            isShrinkResources = false
-        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -40,12 +34,16 @@ android {
                 "proguard-rules.pro"
             )
         }
+        debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-DEBUG"
+        }
     }
 
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -62,67 +60,40 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
-
-    lint {
-        abortOnError = false
-        warningsAsErrors = false
-        checkReleaseBuilds = true
-        disable += listOf("MissingTranslation", "ExtraTranslation")
-    }
 }
 
 dependencies {
-    implementation(libs.androidx.room.ktx)
-    implementation(libs.androidx.espresso.core)
-    implementation(libs.play.services.drive)
-    // Core Library Desugaring
+    // Platform & Desugaring
+    implementation(platform(libs.androidx.compose.bom))
     coreLibraryDesugaring(libs.android.desugarJdkLibs)
 
-    // AndroidX Core & Activity
+    // Bundles (definidos em libs.versions.toml)
+    implementation(libs.bundles.compose)
+    implementation(libs.bundles.networking)
+
+    // Android Core & Utils
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.bundles.androidx.lifecycle)
-    implementation(libs.material)
+    implementation(libs.google.material) // Para temas legados e cores dinâmicas
 
-    // WorkManager for background tasks
+    // WorkManager
     implementation(libs.androidx.work.runtime.ktx)
 
-    // Compose BOM and dependencies
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.bundles.androidx.compose)
-
-    // Kotlin libs
-    implementation(libs.kotlinx.collections.immutable)
-    implementation(libs.kotlinx.serialization.json)
-
-    // DataStore for persistence
+    // Data Storage
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.collections.immutable)
 
-    // Hilt for dependency injection
+    // Hilt (Dependency Injection)
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     implementation(libs.hilt.work)
     ksp(libs.hilt.compiler)
-    ksp(libs.hilt.compiler.androidx)
+    ksp(libs.androidx.hilt.compiler)
 
-    // Networking
-    implementation(libs.bundles.networking)
-
-    // Utilities
-    implementation(libs.androidx.interpolator)
-    implementation(libs.androidx.navigation.compose)
-
-    // Testing - Unit Tests
-    testImplementation(libs.bundles.testing.unit)
-    kspTest(libs.hilt.compiler)
-
-    // Testing - Android Tests
-    androidTestImplementation(libs.bundles.testing.android)
+    // Testing
+    testImplementation(libs.bundles.testing)
     androidTestImplementation(platform(libs.androidx.compose.bom))
-    kspAndroidTest(libs.hilt.compiler)
-
-    // Debug Tools
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+    androidTestImplementation(libs.bundles.testing)
+    debugImplementation(libs.bundles.debug.testing)
 }

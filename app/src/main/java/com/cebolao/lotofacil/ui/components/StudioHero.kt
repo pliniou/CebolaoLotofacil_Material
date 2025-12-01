@@ -26,12 +26,13 @@ fun StudioHero(modifier: Modifier = Modifier) {
             Image(
                 painter = painterResource(id = R.drawable.ic_splash_logo),
                 contentDescription = stringResource(R.string.studio_name),
-                modifier = Modifier.size(Dimen.Logo)
+                modifier = Modifier.size(Dimen.Logo) // 96dp agora
             )
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = stringResource(id = R.string.studio_name),
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.displaySmall, // Fonte de impacto
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = stringResource(id = R.string.studio_slogan),

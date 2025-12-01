@@ -17,7 +17,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -30,6 +29,7 @@ import com.cebolao.lotofacil.data.CheckResult
 import com.cebolao.lotofacil.data.LotofacilConstants
 import com.cebolao.lotofacil.ui.theme.AppConfig
 import com.cebolao.lotofacil.ui.theme.Dimen
+import com.cebolao.lotofacil.ui.theme.StackSans
 import com.cebolao.lotofacil.util.DEFAULT_PLACEHOLDER
 import kotlinx.collections.immutable.ImmutableMap
 
@@ -40,9 +40,8 @@ fun CheckResultCard(
 ) {
     SectionCard(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(Dimen.Elevation.Low)
-        ),
+        // Destaque sutil para o resultado
+        backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
         contentSpacing = Dimen.MediumPadding
     ) {
         val totalWins = result.scoreCounts.values.sum()
@@ -62,34 +61,33 @@ fun CheckResultCard(
 
 @Composable
 private fun ResultHeader(totalWins: Int, contestsChecked: Int) {
-    val icon = if (totalWins > 0) Icons.Filled.Celebration else Icons.Filled.Analytics
-    val color =
-        if (totalWins > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+    val colorScheme = MaterialTheme.colorScheme
+    val hasWins = totalWins > 0
+    val icon = if (hasWins) Icons.Filled.Celebration else Icons.Filled.Analytics
+    val color = if (hasWins) colorScheme.primary else colorScheme.onSurfaceVariant
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)
+        horizontalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
             tint = color,
-            modifier = Modifier.size(Dimen.MediumIcon)
+            modifier = Modifier.size(Dimen.LargeIcon)
         )
         Column {
             Text(
-                text = if (totalWins > 0) stringResource(R.string.checker_results_header_wins)
+                text = if (hasWins) stringResource(R.string.checker_results_header_wins)
                 else stringResource(R.string.checker_results_header_no_wins),
-                style = MaterialTheme.typography.titleMedium,
-                color = color
+                style = MaterialTheme.typography.headlineSmall,
+                color = color,
+                fontWeight = FontWeight.Bold
             )
             Text(
-                text = stringResource(
-                    R.string.checker_results_analysis_in_contests,
-                    contestsChecked
-                ),
+                text = stringResource(R.string.checker_results_analysis_in_contests, contestsChecked),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = colorScheme.onSurfaceVariant
             )
         }
     }
@@ -98,35 +96,47 @@ private fun ResultHeader(totalWins: Int, contestsChecked: Int) {
 @Composable
 private fun ScoreBreakdown(scoreCounts: ImmutableMap<Int, Int>) {
     Column(verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
-        scoreCounts.entries.sortedByDescending { it.key }.forEach { (score, count) ->
+        val scores = scoreCounts.entries.sortedByDescending { it.key }
+        
+        scores.forEach { (score, count) ->
             if (score >= LotofacilConstants.MIN_PRIZE_SCORE) {
-                val animated by animateIntAsState(
-                    targetValue = count,
-                    animationSpec = tween(AppConfig.Animation.LONG_DURATION),
-                    label = "scoreCount-$score"
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.checker_score_breakdown_hits_format, score),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Text(
-                        text = "$animated ${
-                            if (animated == 1) stringResource(R.string.checker_score_breakdown_times_format_one) else stringResource(
-                                R.string.checker_score_breakdown_times_format_other
-                            )
-                        }",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
+                ScoreRow(score = score, count = count)
             }
+        }
+    }
+}
+
+@Composable
+private fun ScoreRow(score: Int, count: Int) {
+    val animatedCount by animateIntAsState(
+        targetValue = count,
+        animationSpec = tween(AppConfig.Animation.LONG_DURATION),
+        label = "scoreCount-$score"
+    )
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.checker_score_breakdown_hits_format, score),
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Medium
+        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = "$animatedCount",
+                style = MaterialTheme.typography.titleLarge,
+                fontFamily = StackSans,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = " ${if (animatedCount == 1) stringResource(R.string.checker_score_breakdown_times_format_one) else stringResource(R.string.checker_score_breakdown_times_format_other)}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
@@ -140,7 +150,7 @@ private fun LastHitInfo(result: CheckResult) {
         Icon(
             imageVector = Icons.Filled.CheckCircle,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.secondary,
+            tint = MaterialTheme.colorScheme.tertiary, // Cor secundária de destaque
             modifier = Modifier.size(Dimen.SmallIcon)
         )
         Text(
@@ -149,7 +159,7 @@ private fun LastHitInfo(result: CheckResult) {
                 result.lastHitContest?.toString() ?: DEFAULT_PLACEHOLDER,
                 result.lastHitScore?.toString() ?: DEFAULT_PLACEHOLDER
             ),
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
@@ -167,15 +177,15 @@ private fun NoWinsMessage() {
         Icon(
             imageVector = Icons.Outlined.ErrorOutline,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(Dimen.SmallIcon)
+            tint = MaterialTheme.colorScheme.error,
+            modifier = Modifier.size(Dimen.MediumIcon)
         )
         Text(
             text = stringResource(R.string.checker_no_wins_message),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(start = Dimen.SmallPadding)
+            modifier = Modifier.padding(start = Dimen.MediumPadding)
         )
     }
 }

@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +22,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -31,12 +35,11 @@ import androidx.navigation.compose.rememberNavController
 import com.cebolao.lotofacil.navigation.Screen
 import com.cebolao.lotofacil.navigation.bottomNavItems
 import com.cebolao.lotofacil.ui.theme.AccentPalette
+import com.cebolao.lotofacil.ui.theme.Outfit
 import com.cebolao.lotofacil.viewmodels.MainViewModel
 
 @Composable
-fun MainScreen(
-    mainViewModel: MainViewModel = hiltViewModel()
-) {
+fun MainScreen(mainViewModel: MainViewModel = hiltViewModel()) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -46,15 +49,12 @@ fun MainScreen(
     val themeMode by mainViewModel.themeMode.collectAsStateWithLifecycle()
     val accentPaletteName by mainViewModel.accentPalette.collectAsStateWithLifecycle()
 
-    // Correção: DEFAULT -> AZUL
     val accentPalette = remember(accentPaletteName) {
         AccentPalette.entries.find { it.name == accentPaletteName } ?: AccentPalette.AZUL
     }
 
     val bottomBarVisible by remember(currentDestination) {
-        derivedStateOf {
-            bottomNavItems.any { it.baseRoute == currentDestination?.route?.substringBefore('?') }
-        }
+        derivedStateOf { bottomNavItems.any { it.baseRoute == currentDestination?.route?.substringBefore('?') } }
     }
 
     Scaffold(
@@ -64,37 +64,43 @@ fun MainScreen(
                 enter = slideInVertically { it },
                 exit = slideOutVertically { it }
             ) {
-                NavigationBar {
+                NavigationBar(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    tonalElevation = 0.dp // Flat design
+                ) {
                     bottomNavItems.forEach { screen ->
-                        val selected = currentDestination?.hierarchy?.any {
-                            it.route?.substringBefore('?') == screen.baseRoute
-                        } == true
+                        val selected = currentDestination?.hierarchy?.any { it.route?.substringBefore('?') == screen.baseRoute } == true
                         NavigationBarItem(
                             selected = selected,
                             alwaysShowLabel = true,
                             onClick = {
                                 navController.navigate(screen.route) {
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
-                                    }
+                                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
                                     launchSingleTop = true
                                     restoreState = true
                                 }
                             },
                             icon = {
                                 val icon = if (selected) screen.selectedIcon else screen.unselectedIcon
-                                if (icon != null) {
-                                    Icon(
-                                        imageVector = icon,
-                                        contentDescription = screen.title
-                                    )
-                                }
+                                icon?.let { Icon(imageVector = it, contentDescription = screen.title) }
                             },
                             label = {
-                                if (screen.title != null) {
-                                    Text(text = screen.title)
+                                screen.title?.let { 
+                                    Text(
+                                        text = it, 
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontFamily = Outfit,
+                                        fontWeight = if(selected) FontWeight.Bold else FontWeight.Medium
+                                    ) 
                                 }
-                            }
+                            },
+                            colors = NavigationBarItemDefaults.colors(
+                                indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedTextColor = MaterialTheme.colorScheme.primary,
+                                unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         )
                     }
                 }
@@ -102,9 +108,7 @@ fun MainScreen(
         }
     ) { innerPadding ->
         if (!uiState.isReady) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
         } else {
             NavHost(
                 navController = navController,
@@ -116,22 +120,13 @@ fun MainScreen(
                 composable(Screen.Onboarding.route) {
                     OnboardingScreen(onOnboardingComplete = {
                         mainViewModel.onOnboardingComplete()
-                        navController.navigate(Screen.Home.route) {
-                            popUpTo(Screen.Onboarding.route) { inclusive = true }
-                        }
+                        navController.navigate(Screen.Home.route) { popUpTo(Screen.Onboarding.route) { inclusive = true } }
                     })
                 }
                 composable(Screen.Home.route) { HomeScreen() }
                 composable(Screen.Filters.route) { FiltersScreen(navController) }
-                composable(Screen.GeneratedGames.route) {
-                    GeneratedGamesScreen(navController = navController)
-                }
-                composable(
-                    route = Screen.Checker.route,
-                    arguments = Screen.Checker.arguments
-                ) {
-                    CheckerScreen()
-                }
+                composable(Screen.GeneratedGames.route) { GeneratedGamesScreen(navController = navController) }
+                composable(route = Screen.Checker.route, arguments = Screen.Checker.arguments) { CheckerScreen() }
                 composable(Screen.About.route) {
                     AboutScreen(
                         currentTheme = themeMode,

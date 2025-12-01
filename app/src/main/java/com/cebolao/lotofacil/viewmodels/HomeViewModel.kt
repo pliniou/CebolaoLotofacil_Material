@@ -11,7 +11,7 @@ import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.data.CheckResult
 import com.cebolao.lotofacil.data.HistoricalDraw
 import com.cebolao.lotofacil.data.StatisticsReport
-import com.cebolao.lotofacil.di.DefaultDispatcher
+import com.cebolao.lotofacil.domain.model.HomeScreenData
 import com.cebolao.lotofacil.domain.model.NextDrawInfo
 import com.cebolao.lotofacil.domain.model.StatisticPattern
 import com.cebolao.lotofacil.domain.model.WinnerData
@@ -21,6 +21,7 @@ import com.cebolao.lotofacil.domain.usecase.CheckGameUseCase
 import com.cebolao.lotofacil.domain.usecase.GetAnalyzedStatsUseCase
 import com.cebolao.lotofacil.domain.usecase.GetGameSimpleStatsUseCase
 import com.cebolao.lotofacil.domain.usecase.GetHomeScreenDataUseCase
+import com.cebolao.lotofacil.domain.usecase.SyncHistoryUseCase
 import com.cebolao.lotofacil.util.WIDGET_UPDATE_INTERVAL_HOURS
 import com.cebolao.lotofacil.util.WIDGET_UPDATE_WORK_NAME
 import com.cebolao.lotofacil.widget.WidgetUpdateWorker
@@ -28,10 +29,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -42,7 +48,7 @@ import javax.inject.Inject
 @Stable
 sealed interface HomeScreenState {
     data object Loading : HomeScreenState
-    data class Error(@StringRes val messageResId: Int) : HomeScreenState
+    data class Error(@param:StringRes val messageResId: Int) : HomeScreenState
     data class Success(
         val lastDraw: HistoricalDraw?,
         val lastDrawSimpleStats: ImmutableList<Pair<String, String>>,
@@ -60,127 +66,132 @@ data class HomeUiState(
     val isSyncing: Boolean = false,
     val selectedPattern: StatisticPattern = StatisticPattern.SUM,
     val selectedTimeWindow: Int = 0,
-    val showSyncFailedMessage: Boolean = false,
-    val showSyncSuccessMessage: Boolean = false
+    val syncMessageRes: Int? = null
 )
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val historyRepository: HistoryRepository,
+    historyRepository: HistoryRepository,
+    private val syncHistoryUseCase: SyncHistoryUseCase,
     private val getHomeScreenDataUseCase: GetHomeScreenDataUseCase,
     private val getAnalyzedStatsUseCase: GetAnalyzedStatsUseCase,
     private val getGameSimpleStatsUseCase: GetGameSimpleStatsUseCase,
     private val checkGameUseCase: CheckGameUseCase,
-    private val workManager: WorkManager,
-    @param:DefaultDispatcher private val dispatcher: CoroutineDispatcher
+    private val workManager: WorkManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState = _uiState.asStateFlow()
-
-    private var analysisJob: Job? = null
-    // Job separado para o carregamento inicial para não ser cancelado por mudanças de UI
-    private var dataLoadJob: Job? = null
+    
+    private val _timeWindow = MutableStateFlow(0)
 
     init {
-        observeSyncStatus()
-        // Carrega dados imediatamente na inicialização
-        loadHomeData()
+        setupSyncObserver(historyRepository)
+        setupDataLoad()
+        setupStatisticsObserver()
         scheduleWidgetUpdate()
     }
 
-    private fun observeSyncStatus() {
-        historyRepository.syncStatus.onEach { status ->
-            _uiState.update { current ->
-                current.copy(
+    private fun setupSyncObserver(repo: HistoryRepository) {
+        repo.syncStatus.onEach { status ->
+            _uiState.update { state ->
+                state.copy(
                     isSyncing = status is SyncStatus.Syncing,
-                    showSyncFailedMessage = status is SyncStatus.Failed,
-                    showSyncSuccessMessage = status is SyncStatus.Success
+                    syncMessageRes = when(status) {
+                        is SyncStatus.Success -> R.string.home_sync_success_message
+                        is SyncStatus.Failed -> R.string.home_sync_failed_message
+                        else -> null
+                    }
                 )
             }
             if (status is SyncStatus.Success) {
-                loadHomeData()
+                reloadHomeData()
             }
         }.launchIn(viewModelScope)
     }
 
-    private fun loadHomeData() {
-        // Se já existe um job rodando, não cancela, deixa terminar.
-        if (dataLoadJob?.isActive == true) return
+    private fun setupDataLoad() {
+        reloadHomeData()
+    }
 
-        dataLoadJob = viewModelScope.launch(dispatcher) {
-            val isInitialLoad = _uiState.value.screenState !is HomeScreenState.Success
+    private fun reloadHomeData() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(screenState = HomeScreenState.Loading) }
             
-            if (isInitialLoad) {
-                _uiState.update { it.copy(screenState = HomeScreenState.Loading) }
-            }
-
-            try {
-                // Collect apenas do primeiro valor ou catch de erros
-                getHomeScreenDataUseCase().collect { result ->
-                    result.onSuccess { data ->
-                        val simpleStats = data.lastDraw?.let { getGameSimpleStatsUseCase(it).first().getOrNull() } 
-                            ?: persistentListOf()
-                        val checkResult = data.lastDraw?.let { checkGameUseCase(it.numbers).first().getOrNull() }
-
-                        _uiState.update {
-                            it.copy(
-                                screenState = HomeScreenState.Success(
-                                    lastDraw = data.lastDraw,
-                                    lastDrawSimpleStats = simpleStats,
-                                    lastDrawCheckResult = checkResult,
-                                    nextDrawInfo = data.nextDrawInfo,
-                                    winnerData = data.winnerData
-                                ),
-                                statistics = data.initialStats,
-                                isStatsLoading = false
-                            )
-                        }
-                    }.onFailure { e ->
-                        if (isInitialLoad) {
-                            _uiState.update { it.copy(screenState = HomeScreenState.Error(R.string.error_load_data_failed)) }
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                if (isInitialLoad) {
-                    _uiState.update { it.copy(screenState = HomeScreenState.Error(R.string.error_load_data_failed)) }
-                }
-            }
+            getHomeScreenDataUseCase()
+                .collect { result -> processHomeDataResult(result) }
         }
+    }
+
+    private suspend fun processHomeDataResult(result: Result<HomeScreenData>) {
+        // Usando fold para evitar problemas com suspend functions dentro de blocos inline
+        result.fold(
+            onSuccess = { data ->
+                val lastDraw = data.lastDraw
+                
+                val simpleStats = lastDraw?.let { getGameSimpleStatsUseCase(it).first().getOrNull() } 
+                    ?: persistentListOf()
+                
+                val checkResult = lastDraw?.let { checkGameUseCase(it.numbers).first().getOrNull() }
+
+                _uiState.update { 
+                    it.copy(
+                        screenState = HomeScreenState.Success(
+                            lastDraw = lastDraw,
+                            lastDrawSimpleStats = simpleStats,
+                            lastDrawCheckResult = checkResult,
+                            nextDrawInfo = data.nextDrawInfo,
+                            winnerData = data.winnerData
+                        ),
+                        statistics = data.initialStats
+                    )
+                }
+            },
+            onFailure = {
+                _uiState.update { it.copy(screenState = HomeScreenState.Error(R.string.error_load_data_failed)) }
+            }
+        )
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun setupStatisticsObserver() {
+        _timeWindow
+            .flatMapLatest { window ->
+                _uiState.update { it.copy(isStatsLoading = true, selectedTimeWindow = window) }
+                kotlinx.coroutines.flow.flow { emit(getAnalyzedStatsUseCase(window)) }
+            }
+            .onEach { result ->
+                result.fold(
+                    onSuccess = { stats ->
+                        _uiState.update { it.copy(statistics = stats, isStatsLoading = false) }
+                    },
+                    onFailure = {
+                        _uiState.update { it.copy(isStatsLoading = false) }
+                    }
+                )
+            }
+            .launchIn(viewModelScope)
     }
 
     private fun scheduleWidgetUpdate() {
-        val request = PeriodicWorkRequestBuilder<WidgetUpdateWorker>(WIDGET_UPDATE_INTERVAL_HOURS, TimeUnit.HOURS).build()
-        workManager.enqueueUniquePeriodicWork(WIDGET_UPDATE_WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, request)
+        val request = PeriodicWorkRequestBuilder<WidgetUpdateWorker>(WIDGET_UPDATE_INTERVAL_HOURS, TimeUnit.HOURS)
+            .build()
+        workManager.enqueueUniquePeriodicWork(
+            WIDGET_UPDATE_WORK_NAME, 
+            ExistingPeriodicWorkPolicy.KEEP, 
+            request
+        )
     }
 
-    fun onSyncMessageShown() = _uiState.update { it.copy(showSyncFailedMessage = false) }
-    fun onSyncSuccessMessageShown() = _uiState.update { it.copy(showSyncSuccessMessage = false) }
-    
-    fun retryInitialLoad() {
-        // Força recriação do job se falhou
-        dataLoadJob?.cancel()
-        loadHomeData()
+    fun onMessageShown() {
+        _uiState.update { it.copy(syncMessageRes = null) }
     }
     
-    fun forceSync() {
-        if (!_uiState.value.isSyncing) historyRepository.syncHistory()
-    }
-
+    fun retryInitialLoad() = reloadHomeData()
+    fun forceSync() = syncHistoryUseCase()
+    
     fun onTimeWindowSelected(window: Int) {
-        if (_uiState.value.selectedTimeWindow == window) return
-        
-        analysisJob?.cancel()
-        analysisJob = viewModelScope.launch(dispatcher) {
-            _uiState.update { it.copy(isStatsLoading = true, selectedTimeWindow = window) }
-            
-            getAnalyzedStatsUseCase(window).onSuccess { stats ->
-                _uiState.update { it.copy(statistics = stats, isStatsLoading = false) }
-            }.onFailure {
-                _uiState.update { it.copy(isStatsLoading = false) }
-            }
-        }
+        _timeWindow.value = window
     }
 
     fun onPatternSelected(pattern: StatisticPattern) {

@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.data.StatisticsReport
 import com.cebolao.lotofacil.ui.theme.AppConfig
@@ -40,6 +41,7 @@ fun StatisticsPanel(
     SectionCard(modifier = modifier.fillMaxWidth()) {
         Box {
             Column(verticalArrangement = Arrangement.spacedBy(Dimen.CardPadding)) {
+                // Header com Loader opcional
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -47,13 +49,14 @@ fun StatisticsPanel(
                 ) {
                     Text(
                         text = stringResource(id = R.string.home_statistics_center),
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                     )
-                    // Indicador sutil de loading no header
                     if(isStatsLoading) {
                         CircularProgressIndicator(
-                            modifier = Modifier.size(Dimen.SmallIcon),
-                            strokeWidth = Dimen.ProgressBarStroke
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp
                         )
                     }
                 }
@@ -65,10 +68,9 @@ fun StatisticsPanel(
 
                 AppDivider()
 
-                // Conteúdo Animado
                 AnimatedContent(
                     targetState = stats,
-                    transitionSpec = { fadeIn(tween(AppConfig.Animation.MEDIUM_DURATION)) togetherWith fadeOut(tween(AppConfig.Animation.MEDIUM_DURATION)) },
+                    transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(300)) },
                     label = "StatsContent"
                 ) { targetStats ->
                     Column(verticalArrangement = Arrangement.spacedBy(Dimen.SectionSpacing)) {
@@ -87,8 +89,6 @@ fun StatisticsPanel(
                     }
                 }
             }
-            
-            // Overlay de carregamento desabilitado em favor do indicador no header para menos intrusão visual
         }
     }
 }
@@ -99,7 +99,11 @@ private fun TimeWindowSelector(
     onTimeWindowSelected: (Int) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
-        Text(stringResource(R.string.home_analysis_period), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            stringResource(R.string.home_analysis_period), 
+            style = MaterialTheme.typography.labelSmall, 
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
         LazyRow(horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
             items(AppConfig.UI.TIME_WINDOWS) { window ->
                 val label = if (window == 0) {

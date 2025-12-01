@@ -2,7 +2,6 @@ package com.cebolao.lotofacil.ui.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -27,7 +26,6 @@ import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.data.repository.THEME_MODE_DARK
 import com.cebolao.lotofacil.data.repository.THEME_MODE_LIGHT
 import com.cebolao.lotofacil.ui.theme.AccentPalette
-import com.cebolao.lotofacil.ui.theme.AppConfig
 import com.cebolao.lotofacil.ui.theme.Dimen
 
 @Composable
@@ -40,7 +38,7 @@ fun ThemeSettingsCard(
 ) {
     SectionCard(modifier = modifier) {
         Column(verticalArrangement = Arrangement.spacedBy(Dimen.LargePadding)) {
-            // Seção de Modo (Claro/Escuro)
+            // Seção de Tema (Dia/Noite)
             Column(verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
                 Text(
                     text = stringResource(R.string.about_theme_title),
@@ -51,7 +49,7 @@ fun ThemeSettingsCard(
 
             AppDivider()
 
-            // Seção de Paleta de Cores
+            // Seção de Cores (Paletas Dinâmicas)
             Column(verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)) {
                 Text(
                     text = stringResource(R.string.about_personalization_title),
@@ -95,18 +93,18 @@ private fun ThemeModeButton(
     modifier: Modifier = Modifier
 ) {
     val containerColor by animateColorAsState(
-        if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+        if (selected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest,
         label = "modeContainer"
     )
     val contentColor by animateColorAsState(
-        if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+        if (selected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
         label = "modeContent"
     )
 
     Surface(
         onClick = onClick,
-        modifier = modifier.height(56.dp),
-        shape = MaterialTheme.shapes.medium,
+        modifier = modifier.height(Dimen.LargeButtonHeight),
+        shape = MaterialTheme.shapes.small,
         color = containerColor,
     ) {
         Row(
@@ -123,8 +121,8 @@ private fun ThemeModeButton(
 @Composable
 private fun PaletteSelector(currentPalette: AccentPalette, onPaletteChange: (AccentPalette) -> Unit) {
     LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(Dimen.MediumPadding),
-        contentPadding = PaddingValues(horizontal = Dimen.ExtraSmallPadding) // Padding visual
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(horizontal = 4.dp)
     ) {
         items(AccentPalette.entries) { palette ->
             PaletteSwatch(
@@ -142,15 +140,21 @@ private fun PaletteSwatch(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val size by animateDpAsState(if (isSelected) 48.dp else 40.dp, label = "swatchSize")
-    val borderWidth = if (isSelected) 3.dp else 0.dp
+    val size by animateDpAsState(if (isSelected) 56.dp else 48.dp, label = "swatchSize")
     
+    // Cor do check depende da luminância da seed
+    val checkColor = if (palette == AccentPalette.AMARELO || palette == AccentPalette.VERDE) Color.Black else Color.White
+
     Box(
         modifier = Modifier
             .size(size)
             .clip(CircleShape)
-            .background(palette.primarySeed)
-            .border(borderWidth, MaterialTheme.colorScheme.onSurface, CircleShape)
+            .background(palette.seed)
+            .border(
+                width = if (isSelected) 3.dp else 0.dp, 
+                color = MaterialTheme.colorScheme.onSurface, 
+                shape = CircleShape
+            )
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -158,8 +162,8 @@ private fun PaletteSwatch(
             Icon(
                 imageVector = Icons.Default.Check,
                 contentDescription = null,
-                tint = if (palette == AccentPalette.AMARELO || palette == AccentPalette.VERDE) Color.Black else Color.White,
-                modifier = Modifier.size(20.dp)
+                tint = checkColor,
+                modifier = Modifier.size(24.dp)
             )
         }
     }

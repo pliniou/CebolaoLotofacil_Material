@@ -36,11 +36,11 @@ fun AnimateOnEntry(
         modifier = modifier,
         visible = isVisible,
         enter = slideInVertically(
-            // Cast explícito para Float para evitar ambiguidade e uso da constante correta
-            initialOffsetY = { fullHeight -> (fullHeight.toFloat() / AppConfig.UI.ANIMATE_ENTRY_OFFSET_DIVISOR).toInt() },
+            // Entrada suave de baixo para cima (5% da altura ou offset fixo pequeno)
+            initialOffsetY = { fullHeight -> (fullHeight * 0.05f).toInt() },
             animationSpec = spring(
-                dampingRatio = Spring.DampingRatioNoBouncy,
-                stiffness = Spring.StiffnessMedium
+                dampingRatio = Spring.DampingRatioLowBouncy,
+                stiffness = Spring.StiffnessLow
             )
         ) + fadeIn(animationSpec = tween(durationMillis)),
         exit = slideOutVertically() + fadeOut()

@@ -23,6 +23,8 @@ data class WinnerData(
     val prize: Double
 )
 
+@Stable
+@Immutable
 data class HomeScreenData(
     val lastDraw: HistoricalDraw?,
     val initialStats: StatisticsReport,

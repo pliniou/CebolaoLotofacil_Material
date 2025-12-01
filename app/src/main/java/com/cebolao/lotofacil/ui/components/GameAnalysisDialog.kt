@@ -16,9 +16,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.ui.theme.AppConfig
 import com.cebolao.lotofacil.ui.theme.Dimen
+import com.cebolao.lotofacil.ui.theme.StackSans
 import com.cebolao.lotofacil.util.DEFAULT_PLACEHOLDER
 import com.cebolao.lotofacil.viewmodels.GameAnalysisResult
 
@@ -30,7 +32,13 @@ fun GameAnalysisDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismissRequest,
-        title = { Text(stringResource(R.string.games_analysis_dialog_title), style = MaterialTheme.typography.titleLarge) },
+        containerColor = MaterialTheme.colorScheme.surface,
+        title = { 
+            Text(
+                stringResource(R.string.games_analysis_dialog_title), 
+                style = MaterialTheme.typography.headlineMedium 
+            ) 
+        },
         text = {
             Column(
                 modifier = Modifier
@@ -39,7 +47,10 @@ fun GameAnalysisDialog(
                 verticalArrangement = Arrangement.spacedBy(Dimen.CardPadding)
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
-                    Text(stringResource(R.string.games_analysis_combination_title), style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        stringResource(R.string.games_analysis_combination_title), 
+                        style = MaterialTheme.typography.titleMedium
+                    )
                     FlowRow(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(Dimen.ExtraSmallPadding, Alignment.CenterHorizontally),
@@ -47,10 +58,11 @@ fun GameAnalysisDialog(
                         maxItemsInEachRow = AppConfig.UI.NUMBER_GRID_ITEMS_PER_ROW
                     ) {
                         result.game.numbers.sorted().forEach {
+                            // Correção: Uso de sizeVariant em vez de size
                             NumberBall(
                                 number = it,
-                                size = Dimen.NumberBallDialog,
-                                variant = NumberBallVariant.Lotofacil
+                                sizeVariant = NumberBallSize.Medium, 
+                                variant = NumberBallVariant.Primary
                             )
                         }
                     }
@@ -59,8 +71,11 @@ fun GameAnalysisDialog(
                 SimpleStatsCard(stats = result.simpleStats)
 
                 SectionCard {
-                    Column(verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
-                        Text(stringResource(R.string.games_analysis_prize_summary_title), style = MaterialTheme.typography.titleMedium)
+                    Column(verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)) {
+                        Text(
+                            stringResource(R.string.games_analysis_prize_summary_title), 
+                            style = MaterialTheme.typography.titleMedium
+                        )
                         AppDivider()
                         val totalPremios = result.checkResult.scoreCounts.values.sum()
                         val ultimoConcurso = result.checkResult.lastHitContest?.toString() ?: DEFAULT_PLACEHOLDER
@@ -68,20 +83,28 @@ fun GameAnalysisDialog(
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(stringResource(R.string.games_analysis_total_label), style = MaterialTheme.typography.bodyMedium)
-                            Text("$totalPremios", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
+                            Text(
+                                "$totalPremios", 
+                                style = MaterialTheme.typography.headlineSmall, 
+                                fontFamily = StackSans,
+                                color = MaterialTheme.colorScheme.primary
+                            )
                         }
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(stringResource(R.string.games_analysis_last_prize_label), style = MaterialTheme.typography.bodyMedium)
                             Text(
                                 stringResource(R.string.games_analysis_last_prize_value, ultimoConcurso, ultimoAcerto),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.primary
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }
@@ -90,7 +113,10 @@ fun GameAnalysisDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismissRequest) {
-                Text(stringResource(id = R.string.general_close))
+                Text(
+                    stringResource(id = R.string.general_close),
+                    style = MaterialTheme.typography.labelLarge
+                )
             }
         }
     )

@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -30,11 +29,12 @@ class HistoryRepositoryImpl @Inject constructor(
     @param:ApplicationScope private val scope: CoroutineScope
 ) : HistoryRepository {
 
-    // Mutex para controlar acesso exclusivo durante sincronização pesada
-    private val syncMutex = Mutex()
+    private val writeMutex = Mutex()
     
-    // ConcurrentHashMap permite leituras concorrentes sem lock e sem synchronized
-    private val historyCache = ConcurrentHashMap<Int, HistoricalDraw>()
+    // Cache Volátil: A lista imutável ordenada é trocada atomicamente após atualizações.
+    // Isso permite leituras O(1) sem lock, ideal para UI.
+    @Volatile
+    private var cachedHistory: List<HistoricalDraw> = emptyList()
     
     @Volatile 
     private var latestApiResult: LotofacilApiResult? = null
@@ -44,28 +44,29 @@ class HistoryRepositoryImpl @Inject constructor(
 
     init {
         scope.launch {
-            loadLocalHistoryToCache()
+            // Carga inicial
+            val local = localDataSource.getLocalHistory()
+            updateCache(local)
             syncHistory()
         }
     }
 
     override suspend fun getHistory(): List<HistoricalDraw> {
-        if (historyCache.isEmpty()) loadLocalHistoryToCache()
-        
-        // Retorna snapshot ordenado. Operação O(N log N) mas segura.
-        // Se a performance for crítica, manter uma lista ordenada separada e atualizada na escrita.
-        return historyCache.values.sortedByDescending { it.contestNumber }
+        if (cachedHistory.isEmpty()) {
+            // Fallback síncrono se o init ainda não terminou ou falhou
+            writeMutex.withLock {
+                if (cachedHistory.isEmpty()) {
+                    updateCache(localDataSource.getLocalHistory())
+                }
+            }
+        }
+        return cachedHistory
     }
 
     override suspend fun getLastDraw(): HistoricalDraw? {
-        // Tenta pegar do resultado da API primeiro (mais recente em tempo real)
-        latestApiResult?.let { apiResult ->
-            HistoricalDraw.fromApiResult(apiResult)?.let { return it }
-        }
-        
-        // Fallback para o cache local
-        val maxContest = historyCache.keys().asSequence().maxOrNull() ?: return null
-        return historyCache[maxContest]
+        // Prioridade: API Recente > Cache Local > Null
+        val fromApi = latestApiResult?.let { HistoricalDraw.fromApiResult(it) }
+        return fromApi ?: cachedHistory.firstOrNull()
     }
 
     override suspend fun getLatestApiResult(): LotofacilApiResult? {
@@ -76,25 +77,28 @@ class HistoryRepositoryImpl @Inject constructor(
 
     override fun syncHistory(): Job = scope.launch {
         if (_syncStatus.value is SyncStatus.Syncing) return@launch
-        
-        // Evita múltiplas syncs simultâneas
-        if (!syncMutex.tryLock()) return@launch
+        // TryLock evita empilhamento de chamadas de sync (debounce natural)
+        if (!writeMutex.tryLock()) return@launch
 
         try {
             _syncStatus.value = SyncStatus.Syncing
             
-            val localMax = historyCache.keys().asSequence().maxOrNull() ?: 0
+            // Pega o cache atual (seguro pois temos o lock)
+            val currentMax = cachedHistory.firstOrNull()?.contestNumber ?: 0
+            
             val remoteResult = remoteDataSource.getLatestDraw() 
-                ?: throw IllegalStateException("Failed to fetch latest draw")
+                ?: throw IllegalStateException("Falha ao buscar último sorteio remoto")
             
             latestApiResult = remoteResult
             val remoteMax = remoteResult.numero
 
-            if (remoteMax > localMax) {
-                val newDraws = remoteDataSource.getDrawsInRange((localMax + 1)..remoteMax)
+            if (remoteMax > currentMax) {
+                // Busca apenas o delta
+                val newDraws = remoteDataSource.getDrawsInRange((currentMax + 1)..remoteMax)
                 if (newDraws.isNotEmpty()) {
                     localDataSource.saveNewContests(newDraws)
-                    updateCache(newDraws)
+                    // Reconstrói a lista ordenada
+                    updateCache(newDraws + cachedHistory)
                 }
             }
             _syncStatus.value = SyncStatus.Success
@@ -103,17 +107,14 @@ class HistoryRepositoryImpl @Inject constructor(
             Log.e(TAG, "Sync failed", e)
             _syncStatus.value = SyncStatus.Failed(e)
         } finally {
-            syncMutex.unlock()
+            writeMutex.unlock()
         }
     }
 
-    private suspend fun loadLocalHistoryToCache() {
-        val local = localDataSource.getLocalHistory()
-        updateCache(local)
-    }
-
-    private fun updateCache(draws: List<HistoricalDraw>) {
-        if (draws.isEmpty()) return
-        draws.forEach { historyCache[it.contestNumber] = it }
+    private fun updateCache(allDraws: List<HistoricalDraw>) {
+        // Ordenação única e atribuição atômica
+        cachedHistory = allDraws
+            .distinctBy { it.contestNumber }
+            .sortedByDescending { it.contestNumber }
     }
 }

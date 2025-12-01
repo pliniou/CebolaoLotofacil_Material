@@ -4,46 +4,35 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.FactCheck
-import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.res.stringResource
-import com.cebolao.lotofacil.R
+import androidx.compose.ui.unit.dp
 import com.cebolao.lotofacil.data.LotofacilGame
-import com.cebolao.lotofacil.ui.theme.AppConfig
 import com.cebolao.lotofacil.ui.theme.Dimen
 import kotlinx.collections.immutable.toImmutableList
-
-sealed class GameCardAction {
-    data object Analyze : GameCardAction()
-    data object Pin : GameCardAction()
-    data object Delete : GameCardAction()
-    data object Check : GameCardAction()
-    data object Share : GameCardAction()
-}
 
 @Composable
 fun GameCard(
@@ -51,123 +40,89 @@ fun GameCard(
     modifier: Modifier = Modifier,
     onAction: (GameCardAction) -> Unit
 ) {
-    val haptic = LocalHapticFeedback.current
     val isPinned = game.isPinned
+    val colorScheme = MaterialTheme.colorScheme
 
-    // Animação de elevação e borda quando fixado
     val elevation by animateDpAsState(
-        targetValue = if (isPinned) Dimen.Elevation.Medium else Dimen.Elevation.Low,
+        targetValue = if (isPinned) 4.dp else 1.dp,
         animationSpec = spring(stiffness = Spring.StiffnessMedium),
         label = "elevation"
     )
-    val borderColor by animateColorAsState(
-        targetValue = if (isPinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-        animationSpec = tween(AppConfig.Animation.MEDIUM_DURATION),
-        label = "borderColor"
-    )
+    
     val containerColor by animateColorAsState(
-        targetValue = if (isPinned) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surface,
-        animationSpec = tween(AppConfig.Animation.MEDIUM_DURATION),
+        targetValue = if (isPinned) colorScheme.surfaceContainerHigh else colorScheme.surface,
         label = "containerColor"
+    )
+    
+    val borderColor by animateColorAsState(
+        targetValue = if (isPinned) colorScheme.primary.copy(alpha=0.3f) else colorScheme.outlineVariant.copy(alpha=0.2f),
+        label = "borderColor"
     )
 
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
+        shape = MaterialTheme.shapes.medium,
         elevation = CardDefaults.cardElevation(defaultElevation = elevation),
-        border = BorderStroke(width = if(isPinned) Dimen.Border.Regular else Dimen.Border.Thin, color = borderColor),
+        border = BorderStroke(1.dp, borderColor),
         colors = CardDefaults.cardColors(containerColor = containerColor)
     ) {
         Column(
-            modifier = Modifier.padding(Dimen.CardPadding),
+            modifier = Modifier.padding(Dimen.CardContentPadding),
             verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)
         ) {
-            // Grid de Números Otimizado
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = if(isPinned) "Aposta Favorita" else "Aposta Gerada", 
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if(isPinned) colorScheme.primary else colorScheme.onSurfaceVariant
+                )
+                Icon(
+                    imageVector = if (isPinned) Icons.Filled.PushPin else Icons.Outlined.PushPin,
+                    contentDescription = null,
+                    tint = if (isPinned) colorScheme.primary else colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                    modifier = Modifier.bounceClick { onAction(GameCardAction.Pin) }
+                )
+            }
+
             NumberGrid(
                 allNumbers = game.numbers.sorted().toImmutableList(),
                 selectedNumbers = game.numbers,
-                onNumberClick = {},
+                onNumberClick = {}, 
                 maxSelection = game.numbers.size,
-                numberSize = Dimen.NumberBallSmall, // Bolas um pouco menores no card para caber bem
-                ballVariant = if (isPinned) NumberBallVariant.Primary else NumberBallVariant.Secondary
+                sizeVariant = NumberBallSize.Small,
+                ballVariant = if (isPinned) NumberBallVariant.Primary else NumberBallVariant.Neutral
             )
 
-            AppDivider()
+            AppDivider(modifier = Modifier.padding(vertical = 4.dp))
 
-            GameCardActions(
-                isPinned = isPinned,
-                onAction = { action ->
-                    // Feedback tátil nas ações
-                    val feedback = when (action) {
-                        GameCardAction.Pin, GameCardAction.Delete -> HapticFeedbackType.LongPress
-                        else -> HapticFeedbackType.TextHandleMove
-                    }
-                    haptic.performHapticFeedback(feedback)
-                    onAction(action)
-                }
-            )
-        }
-    }
-}
-
-@Composable
-private fun GameCardActions(
-    isPinned: Boolean,
-    onAction: (GameCardAction) -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Ações de Gerenciamento (Esquerda)
-        Row(horizontalArrangement = Arrangement.spacedBy(Dimen.ExtraSmallPadding)) {
-            IconButton(onClick = { onAction(GameCardAction.Pin) }) {
-                Icon(
-                    modifier = Modifier.size(Dimen.MediumIcon),
-                    imageVector = if (isPinned) Icons.Filled.PushPin else Icons.Outlined.PushPin,
-                    contentDescription = stringResource(if (isPinned) R.string.games_unpin_game_description else R.string.games_pin_game_description),
-                    tint = if (isPinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            IconButton(onClick = { onAction(GameCardAction.Delete) }) {
-                Icon(
-                    modifier = Modifier.size(Dimen.MediumIcon),
-                    imageVector = Icons.Filled.Delete,
-                    contentDescription = stringResource(R.string.games_delete_game_description),
-                    tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f) // Um pouco mais sutil
-                )
-            }
-        }
-        
-        // Ações Funcionais (Direita)
-        Row(horizontalArrangement = Arrangement.spacedBy(Dimen.ExtraSmallPadding)) {
-            IconButton(onClick = { onAction(GameCardAction.Share) }) {
-                Icon(
-                    modifier = Modifier.size(Dimen.MediumIcon),
-                    imageVector = Icons.Filled.Share,
-                    contentDescription = stringResource(R.string.games_share_game_description),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            IconButton(onClick = { onAction(GameCardAction.Analyze) }) {
-                Icon(
-                    modifier = Modifier.size(Dimen.MediumIcon),
-                    imageVector = Icons.Filled.Analytics,
-                    contentDescription = stringResource(R.string.games_analyze_button),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            // Botão de destaque para Conferir
-            IconButton(
-                onClick = { onAction(GameCardAction.Check) },
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    modifier = Modifier.size(Dimen.MediumIcon),
-                    imageVector = Icons.AutoMirrored.Filled.FactCheck,
-                    contentDescription = stringResource(R.string.games_check_button),
-                    tint = MaterialTheme.colorScheme.primary
-                )
+                IconButton(onClick = { onAction(GameCardAction.Delete) }) {
+                    Icon(Icons.Filled.Delete, "Deletar", tint = colorScheme.error.copy(alpha = 0.8f))
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                IconButton(onClick = { onAction(GameCardAction.Share) }) {
+                    Icon(Icons.Filled.Share, "Compartilhar", tint = colorScheme.onSurfaceVariant)
+                }
+                
+                FilledIconButton(
+                    onClick = { onAction(GameCardAction.Check) },
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = colorScheme.primary,
+                        contentColor = colorScheme.onPrimary
+                    ),
+                    modifier = Modifier.padding(start = 4.dp)
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.FactCheck, "Conferir")
+                }
             }
         }
     }

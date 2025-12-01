@@ -29,7 +29,6 @@ import javax.inject.Inject
 
 @Stable
 sealed interface GameScreenEvent {
-    // Passamos apenas os números, a UI (Activity/Fragment) decide como criar a Intent e formatar o texto
     data class ShareGame(val numbers: List<Int>) : GameScreenEvent
 }
 
@@ -67,6 +66,10 @@ class GameViewModel @Inject constructor(
     private val analyzeGameUseCase: AnalyzeGameUseCase
 ) : ViewModel() {
 
+    // Repositório já expõe StateFlow, apenas repassamos com conversão para Immutable se necessário (feito no repo)
+    val unpinnedGames = gameRepository.unpinnedGames
+    val pinnedGames = gameRepository.pinnedGames
+
     private val _uiState = MutableStateFlow(GameScreenUiState())
     val uiState = _uiState.asStateFlow()
 
@@ -76,22 +79,17 @@ class GameViewModel @Inject constructor(
     private val _eventFlow = MutableSharedFlow<GameScreenEvent>()
     val events = _eventFlow.asSharedFlow()
 
-    val unpinnedGames = gameRepository.unpinnedGames
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), persistentListOf())
-
-    val pinnedGames = gameRepository.pinnedGames
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), persistentListOf())
-
     private var analyzeJob: Job? = null
 
     init {
+        // Cálculo reativo do sumário
         viewModelScope.launch {
             combine(unpinnedGames, pinnedGames) { unpinned, pinned ->
                 val total = unpinned.size + pinned.size
                 GameSummary(
                     totalGames = total,
                     pinnedGames = pinned.size,
-                    totalCost = LotofacilConstants.GAME_COST * total.toBigDecimal()
+                    totalCost = LotofacilConstants.GAME_COST.multiply(BigDecimal(total))
                 )
             }.collect { summary ->
                 _uiState.update { it.copy(summary = summary) }
@@ -99,10 +97,7 @@ class GameViewModel @Inject constructor(
         }
     }
 
-    fun clearUnpinned() = viewModelScope.launch {
-        gameRepository.clearUnpinnedGames()
-    }
-
+    // Ações de Jogo
     fun togglePinState(game: LotofacilGame) = viewModelScope.launch {
         gameRepository.togglePinState(game)
     }
@@ -112,10 +107,11 @@ class GameViewModel @Inject constructor(
     }
 
     fun confirmDeleteGame() {
-        val game = _uiState.value.gameToDelete ?: return
-        viewModelScope.launch {
-            gameRepository.deleteGame(game)
-            _uiState.update { it.copy(gameToDelete = null) }
+        _uiState.value.gameToDelete?.let { game ->
+            viewModelScope.launch {
+                gameRepository.deleteGame(game)
+                _uiState.update { it.copy(gameToDelete = null) }
+            }
         }
     }
 
@@ -123,6 +119,11 @@ class GameViewModel @Inject constructor(
         _uiState.update { it.copy(gameToDelete = null) }
     }
 
+    fun clearUnpinned() = viewModelScope.launch {
+        gameRepository.clearUnpinnedGames()
+    }
+
+    // Análise
     fun analyzeGame(game: LotofacilGame) {
         analyzeJob?.cancel()
         analyzeJob = viewModelScope.launch {
@@ -138,6 +139,7 @@ class GameViewModel @Inject constructor(
         _analysisState.value = GameAnalysisUiState.Idle
     }
 
+    // Share
     fun shareGame(game: LotofacilGame) = viewModelScope.launch {
         _eventFlow.emit(GameScreenEvent.ShareGame(game.numbers.sorted()))
     }

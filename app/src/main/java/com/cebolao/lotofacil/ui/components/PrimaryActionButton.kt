@@ -1,74 +1,83 @@
 package com.cebolao.lotofacil.ui.components
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.cebolao.lotofacil.ui.theme.AppConfig
 import com.cebolao.lotofacil.ui.theme.Dimen
 
 @Composable
 fun PrimaryActionButton(
+    text: String,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    loading: Boolean = false,
-    colors: ButtonColors = ButtonDefaults.buttonColors(
-        containerColor = MaterialTheme.colorScheme.primary,
-        contentColor = MaterialTheme.colorScheme.onPrimary,
-        disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-    ),
-    onClick: () -> Unit,
-    leading: (@Composable () -> Unit)? = null,
-    trailing: (@Composable () -> Unit)? = null,
-    content: @Composable () -> Unit
+    isLoading: Boolean = false,
+    icon: (@Composable () -> Unit)? = null,
+    isFullWidth: Boolean = true
 ) {
+    val widthModifier = if (isFullWidth) Modifier.fillMaxWidth() else Modifier
+    
     Button(
-        modifier = modifier,
-        enabled = enabled && !loading,
         onClick = onClick,
-        shape = MaterialTheme.shapes.small, // Botão um pouco mais quadrado que os cards para distinção tátil
-        colors = colors,
+        modifier = modifier
+            .height(Dimen.LargeButtonHeight)
+            .then(widthModifier)
+            .bounceClick(), // Efeito de clique tátil
+        enabled = enabled && !isLoading,
+        shape = MaterialTheme.shapes.small,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+        ),
         elevation = ButtonDefaults.buttonElevation(
-            defaultElevation = Dimen.Elevation.Low,
-            pressedElevation = Dimen.Elevation.None,
-            disabledElevation = Dimen.Elevation.None
+            defaultElevation = 2.dp,
+            pressedElevation = 0.dp
         )
     ) {
         AnimatedContent(
-            targetState = loading,
-            label = "ActionButtonContent",
-            contentAlignment = Alignment.Center
-        ) { isLoading ->
-            Row(
-                modifier = Modifier.padding(horizontal = Dimen.SmallPadding),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(Dimen.SmallIcon),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        strokeWidth = Dimen.ProgressBarStroke
+            targetState = isLoading,
+            transitionSpec = { 
+                fadeIn(tween(200)) togetherWith fadeOut(tween(200)) 
+            },
+            label = "ButtonContent"
+        ) { loading ->
+            if (loading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    strokeWidth = 2.dp
+                )
+            } else {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (icon != null) {
+                        icon()
+                        Spacer(modifier = Modifier.width(Dimen.ItemSpacing))
+                    }
+                    Text(
+                        text = text,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
                     )
-                    Spacer(Modifier.width(Dimen.MediumPadding))
-                } else if (leading != null) {
-                    leading()
-                    Spacer(Modifier.width(Dimen.SmallPadding))
-                }
-                
-                content()
-                
-                if (!isLoading && trailing != null) {
-                    Spacer(Modifier.width(Dimen.SmallPadding))
-                    trailing()
                 }
             }
         }

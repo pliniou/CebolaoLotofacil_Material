@@ -14,13 +14,10 @@ import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.domain.repository.GameRepository
 import com.cebolao.lotofacil.domain.repository.HistoryRepository
 import com.cebolao.lotofacil.util.DEFAULT_NUMBER_FORMAT
-import com.cebolao.lotofacil.util.LOCALE_COUNTRY
-import com.cebolao.lotofacil.util.LOCALE_LANGUAGE
+import com.cebolao.lotofacil.util.Formatters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.flow.first
-import java.text.NumberFormat
-import java.util.Locale
+import kotlinx.coroutines.flow.firstOrNull
 
 private const val TAG = "WidgetUpdateWorker"
 private const val NUMBERS_PER_ROW = 5
@@ -34,22 +31,25 @@ class WidgetUpdateWorker @AssistedInject constructor(
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
-        updateLastDrawWidgets()
-        updateNextContestWidgets()
-        updatePinnedGameWidgets()
-        return Result.success()
+        return try {
+            updateLastDrawWidgets()
+            updateNextContestWidgets()
+            updatePinnedGameWidgets()
+            Result.success()
+        } catch (e: Exception) {
+            Log.e(TAG, "Widget update failed", e)
+            if (runAttemptCount < 3) Result.retry() else Result.failure()
+        }
     }
 
     private suspend fun updateLastDrawWidgets() {
         updateWidgets(
             providerClass = LastDrawWidgetProvider::class.java,
             layoutId = R.layout.widget_last_draw,
+            contentViewId = R.id.widget_numbers_container,
             fetchData = { historyRepository.getLastDraw() },
             updateViews = { lastDraw ->
-                setTextViewText(
-                    R.id.widget_title,
-                    context.getString(R.string.home_last_contest_format, lastDraw.contestNumber)
-                )
+                setTextViewText(R.id.widget_title, "Concurso ${lastDraw.contestNumber}")
                 populateNumberGrid(this, lastDraw.numbers)
             },
             updateErrorViews = {
@@ -60,18 +60,17 @@ class WidgetUpdateWorker @AssistedInject constructor(
     }
 
     private suspend fun updateNextContestWidgets() {
-        val currencyFormat = NumberFormat.getCurrencyInstance(Locale(LOCALE_LANGUAGE, LOCALE_COUNTRY))
         updateWidgets(
             providerClass = NextContestWidgetProvider::class.java,
             layoutId = R.layout.widget_next_contest,
+            contentViewId = R.id.widget_content,
             fetchData = { historyRepository.getLatestApiResult() },
-            updateViews = { nextContestInfo ->
-                setTextViewText(R.id.widget_title, context.getString(R.string.widget_next_contest_title, nextContestInfo.numero + 1))
-                setTextViewText(R.id.widget_date, nextContestInfo.dataProximoConcurso ?: context.getString(R.string.widget_error_load))
-                setTextViewText(R.id.widget_prize, currencyFormat.format(nextContestInfo.valorEstimadoProximoConcurso))
+            updateViews = { info ->
+                setTextViewText(R.id.widget_title, context.getString(R.string.widget_next_contest_title, info.numero + 1))
+                setTextViewText(R.id.widget_date, info.dataProximoConcurso ?: "--/--")
+                setTextViewText(R.id.widget_prize, Formatters.formatCurrency(info.valorEstimadoProximoConcurso))
             },
             updateErrorViews = {
-                setTextViewText(R.id.widget_title, context.getString(R.string.widget_next_contest_title_generic))
                 setTextViewText(R.id.widget_loading_text, context.getString(R.string.widget_error_load))
             }
         )
@@ -81,10 +80,12 @@ class WidgetUpdateWorker @AssistedInject constructor(
         updateWidgets(
             providerClass = PinnedGameWidgetProvider::class.java,
             layoutId = R.layout.widget_pinned_game,
-            fetchData = { gameRepository.pinnedGames.first().randomOrNull() },
-            updateViews = { randomGame ->
+            contentViewId = R.id.widget_numbers_container,
+            // Pega o primeiro jogo da lista de flow ou null
+            fetchData = { gameRepository.pinnedGames.firstOrNull()?.firstOrNull() },
+            updateViews = { game ->
                 setTextViewText(R.id.widget_title, context.getString(R.string.widget_pinned_game_title))
-                populateNumberGrid(this, randomGame.numbers)
+                populateNumberGrid(this, game.numbers)
             },
             updateErrorViews = {
                 setTextViewText(R.id.widget_title, context.getString(R.string.widget_pinned_game_title))
@@ -95,6 +96,7 @@ class WidgetUpdateWorker @AssistedInject constructor(
 
     private fun populateNumberGrid(views: RemoteViews, numbers: Set<Int>) {
         views.removeAllViews(R.id.widget_numbers_container)
+        
         numbers.sorted().chunked(NUMBERS_PER_ROW).forEach { rowNumbers ->
             val rowView = RemoteViews(context.packageName, R.layout.widget_numbers_row)
             rowNumbers.forEach { number ->
@@ -107,44 +109,38 @@ class WidgetUpdateWorker @AssistedInject constructor(
         }
     }
 
-
     private suspend fun <T> updateWidgets(
         providerClass: Class<out AppWidgetProvider>,
         layoutId: Int,
+        contentViewId: Int,
         fetchData: suspend () -> T?,
         updateViews: RemoteViews.(data: T) -> Unit,
         updateErrorViews: RemoteViews.() -> Unit
     ) {
         val appWidgetManager = AppWidgetManager.getInstance(context)
-        val componentName = ComponentName(context, providerClass)
-        val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
-        if (appWidgetIds.isEmpty()) return
+        val ids = appWidgetManager.getAppWidgetIds(ComponentName(context, providerClass))
+        if (ids.isEmpty()) return
 
-        runCatching {
-            val data = fetchData()
-            for (appWidgetId in appWidgetIds) {
-                val views = RemoteViews(context.packageName, layoutId).apply {
-                    // Configura o intent de refresh para o novo ID do botão
-                    setOnClickPendingIntent(
-                        R.id.widget_refresh_button,
-                        WidgetUtils.getRefreshPendingIntent(context, providerClass, appWidgetId)
-                    )
-                    
-                    if (data != null) {
-                        updateViews(this, data)
-                        // Alterna visibilidade baseado nos novos IDs
-                        setViewVisibility(R.id.widget_loading_text, View.GONE)
-                        setViewVisibility(R.id.widget_content, View.VISIBLE)
-                    } else {
-                        updateErrorViews(this)
-                        setViewVisibility(R.id.widget_loading_text, View.VISIBLE)
-                        setViewVisibility(R.id.widget_content, View.GONE)
-                    }
+        val data = runCatching { fetchData() }.getOrNull()
+
+        for (id in ids) {
+            val views = RemoteViews(context.packageName, layoutId).apply {
+                setOnClickPendingIntent(
+                    R.id.widget_refresh_button,
+                    WidgetUtils.getRefreshPendingIntent(context, providerClass, id)
+                )
+
+                if (data != null) {
+                    updateViews(this, data)
+                    setViewVisibility(R.id.widget_loading_text, View.GONE)
+                    setViewVisibility(contentViewId, View.VISIBLE)
+                } else {
+                    updateErrorViews(this)
+                    setViewVisibility(R.id.widget_loading_text, View.VISIBLE)
+                    setViewVisibility(contentViewId, View.GONE)
                 }
-                appWidgetManager.updateAppWidget(appWidgetId, views)
             }
-        }.onFailure { e ->
-            Log.e(TAG, "Failed to update ${providerClass.simpleName}", e)
+            appWidgetManager.updateAppWidget(id, views)
         }
     }
 }

@@ -17,14 +17,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-private const val EVENT_FLOW_REPLAY = 0
 
 @Stable
 sealed interface CheckerUiEvent {
@@ -35,16 +36,8 @@ sealed interface CheckerUiEvent {
 sealed interface CheckerUiState {
     data object Idle : CheckerUiState
     data object Loading : CheckerUiState
-
-    data class Success(
-        val result: CheckResult,
-        val simpleStats: ImmutableList<Pair<String, String>>
-    ) : CheckerUiState
-
-    data class Error(
-        @param:StringRes val messageResId: Int,
-        val canRetry: Boolean = true
-    ) : CheckerUiState
+    data class Success(val result: CheckResult, val simpleStats: ImmutableList<Pair<String, String>>) : CheckerUiState
+    data class Error(@param:StringRes val messageResId: Int) : CheckerUiState
 }
 
 @HiltViewModel
@@ -55,17 +48,22 @@ class CheckerViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<CheckerUiState>(CheckerUiState.Idle)
-    val uiState: StateFlow<CheckerUiState> = _uiState.asStateFlow()
+    val uiState = _uiState.asStateFlow()
 
     private val _selectedNumbers = MutableStateFlow<Set<Int>>(emptySet())
-    val selectedNumbers: StateFlow<Set<Int>> = _selectedNumbers.asStateFlow()
+    val selectedNumbers = _selectedNumbers.asStateFlow()
 
-    private val _eventFlow = MutableSharedFlow<CheckerUiEvent>(replay = EVENT_FLOW_REPLAY)
+    // Estado derivado reativo para UI
+    val isGameComplete = _selectedNumbers
+        .map { it.size == LotofacilConstants.GAME_SIZE }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    private val _eventFlow = MutableSharedFlow<CheckerUiEvent>()
     val events = _eventFlow.asSharedFlow()
 
     init {
-        // Processa os números passados como argumento de navegação, se houver.
-        savedStateHandle.get<String>(Screen.Checker.CHECKER_NUMBERS_ARG)?.let { numbersArg ->
+        val numbersArg = savedStateHandle.get<String>(Screen.Checker.CHECKER_NUMBERS_ARG)
+        if (!numbersArg.isNullOrBlank()) {
             val numbers = numbersArg.split(CHECKER_ARG_SEPARATOR).mapNotNull { it.toIntOrNull() }.toSet()
             if (numbers.size == LotofacilConstants.GAME_SIZE) {
                 _selectedNumbers.value = numbers
@@ -79,8 +77,11 @@ class CheckerViewModel @Inject constructor(
             when {
                 number in current -> current - number
                 current.size < LotofacilConstants.GAME_SIZE -> current + number
-                else -> current
+                else -> current // Ignora se já cheio e tentando adicionar
             }
+        }
+        if (_uiState.value !is CheckerUiState.Idle) {
+            _uiState.value = CheckerUiState.Idle // Reseta resultado se mudar números
         }
     }
 
@@ -90,7 +91,10 @@ class CheckerViewModel @Inject constructor(
     }
 
     fun checkGame() {
-        if (!validateCurrentSelection(R.string.checker_incomplete_game_message)) return
+        if (!isGameComplete.value) {
+            emitError(R.string.checker_incomplete_game_message)
+            return
+        }
 
         viewModelScope.launch {
             _uiState.value = CheckerUiState.Loading
@@ -98,10 +102,7 @@ class CheckerViewModel @Inject constructor(
 
             analyzeGameUseCase(game)
                 .onSuccess { result ->
-                    _uiState.value = CheckerUiState.Success(
-                        result = result.checkResult,
-                        simpleStats = result.simpleStats
-                    )
+                    _uiState.value = CheckerUiState.Success(result.checkResult, result.simpleStats)
                 }
                 .onFailure {
                     _uiState.value = CheckerUiState.Error(R.string.error_analysis_failed)
@@ -110,27 +111,17 @@ class CheckerViewModel @Inject constructor(
     }
 
     fun saveGame() {
-        if (!validateCurrentSelection(R.string.checker_save_fail_message)) return
+        if (!isGameComplete.value) return
 
         viewModelScope.launch {
-            val gameToSave = LotofacilGame(numbers = _selectedNumbers.value)
-            saveGameUseCase(gameToSave)
-                .onSuccess {
-                    _eventFlow.emit(CheckerUiEvent.ShowSnackbar(R.string.checker_save_success_message))
-                }
-                .onFailure {
-                    _eventFlow.emit(CheckerUiEvent.ShowSnackbar(R.string.checker_save_fail_message))
-                }
+            val game = LotofacilGame(numbers = _selectedNumbers.value)
+            saveGameUseCase(game)
+                .onSuccess { emitError(R.string.checker_save_success_message) }
+                .onFailure { emitError(R.string.checker_save_fail_message) }
         }
     }
 
-    private fun validateCurrentSelection(@StringRes errorMessageResId: Int): Boolean {
-        if (_selectedNumbers.value.size != LotofacilConstants.GAME_SIZE) {
-            viewModelScope.launch {
-                _eventFlow.emit(CheckerUiEvent.ShowSnackbar(errorMessageResId))
-            }
-            return false
-        }
-        return true
+    private fun emitError(@StringRes resId: Int) {
+        viewModelScope.launch { _eventFlow.emit(CheckerUiEvent.ShowSnackbar(resId)) }
     }
 }

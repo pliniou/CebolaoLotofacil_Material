@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.core.animation.doOnEnd
+import androidx.core.splashscreen.SplashScreen
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.splashscreen.SplashScreenViewProvider
 import androidx.core.view.WindowCompat
@@ -21,7 +22,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cebolao.lotofacil.data.repository.THEME_MODE_DARK
 import com.cebolao.lotofacil.ui.screens.MainScreen
 import com.cebolao.lotofacil.ui.theme.AccentPalette
-import com.cebolao.lotofacil.ui.theme.AppConfig
 import com.cebolao.lotofacil.ui.theme.CebolaoLotofacilTheme
 import com.cebolao.lotofacil.viewmodels.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -31,37 +31,28 @@ class MainActivity : ComponentActivity() {
 
     private val mainViewModel: MainViewModel by viewModels()
 
-    private companion object {
-        const val SPLASH_INTERPOLATOR_TENSION = 1.5f
-        const val SPLASH_ICON_EXIT_SCALE = 1.5f
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         val splash = installSplashScreen()
         WindowCompat.setDecorFitsSystemWindows(window, false)
+        
         super.onCreate(savedInstanceState)
 
-        splash.setOnExitAnimationListener { splashScreenViewProvider ->
-            setupSplashScreenExitAnimation(splashScreenViewProvider)
-        }
+        setupSplashScreen(splash)
 
         setContent {
             val uiState by mainViewModel.uiState.collectAsStateWithLifecycle()
             val themeMode by mainViewModel.themeMode.collectAsStateWithLifecycle()
             val accentPaletteName by mainViewModel.accentPalette.collectAsStateWithLifecycle()
 
-            // Correção: Fallback para AZUL se o nome não for encontrado (ou DEFAULT se preferir)
+            // Keep splash until ViewModel is ready
+            splash.setKeepOnScreenCondition { !uiState.isReady }
+
             val accentPalette = remember(accentPaletteName) {
                 AccentPalette.entries.find { it.name == accentPaletteName } ?: AccentPalette.AZUL
             }
 
-            splash.setKeepOnScreenCondition { !uiState.isReady }
-
-            val useDarkTheme = themeMode == THEME_MODE_DARK
-
-            // Correção: Removido 'dynamicColor' que causava erro de compilação
             CebolaoLotofacilTheme(
-                darkTheme = useDarkTheme,
+                darkTheme = themeMode == THEME_MODE_DARK,
                 accentPalette = accentPalette
             ) {
                 Surface(
@@ -76,22 +67,29 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun setupSplashScreenExitAnimation(splashScreenViewProvider: SplashScreenViewProvider) {
-        val splashView = splashScreenViewProvider.view
-        val iconView = splashScreenViewProvider.iconView
-        val exitDuration = AppConfig.Animation.SPLASH_EXIT_DURATION.toLong()
+    private fun setupSplashScreen(splash: SplashScreen) {
+        splash.setOnExitAnimationListener { provider ->
+            animateSplashExit(provider)
+        }
+    }
 
-        ObjectAnimator.ofFloat(splashView, View.ALPHA, 1f, 0f).apply {
-            interpolator = AnticipateInterpolator(SPLASH_INTERPOLATOR_TENSION)
-            duration = exitDuration
-            doOnEnd { splashScreenViewProvider.remove() }
-        }.start()
+    private fun animateSplashExit(provider: SplashScreenViewProvider) {
+        val fadeOut = ObjectAnimator.ofFloat(provider.view, View.ALPHA, 1f, 0f).apply {
+            interpolator = AnticipateInterpolator()
+            duration = 400L
+            doOnEnd { provider.remove() }
+        }
+        
+        // Efeito de zoom-out no ícone
+        val icon = provider.iconView
+        val scaleX = ObjectAnimator.ofFloat(icon, View.SCALE_X, 1f, 0.5f)
+        val scaleY = ObjectAnimator.ofFloat(icon, View.SCALE_Y, 1f, 0.5f)
+        val fadeIcon = ObjectAnimator.ofFloat(icon, View.ALPHA, 1f, 0f)
 
-        ObjectAnimator.ofFloat(iconView, View.SCALE_X, 1f, SPLASH_ICON_EXIT_SCALE).apply {
-            duration = exitDuration
-        }.start()
-        ObjectAnimator.ofFloat(iconView, View.SCALE_Y, 1f, SPLASH_ICON_EXIT_SCALE).apply {
-            duration = exitDuration
-        }.start()
+        // Roda tudo junto (simplificado sem AnimatorSet para performance leve)
+        fadeOut.start()
+        scaleX.setDuration(400L).start()
+        scaleY.setDuration(400L).start()
+        fadeIcon.setDuration(400L).start()
     }
 }

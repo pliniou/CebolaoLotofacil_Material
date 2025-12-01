@@ -4,11 +4,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes
 import androidx.compose.ui.unit.dp
 
-// Formas mais orgânicas e modernas (raios maiores)
 val Shapes = Shapes(
-    extraSmall = RoundedCornerShape(8.dp),  // Tags, Chips pequenos
-    small = RoundedCornerShape(12.dp),      // Botões pequenos, Inputs
-    medium = RoundedCornerShape(16.dp),     // Cards internos
-    large = RoundedCornerShape(24.dp),      // Cards principais, Dialogs
-    extraLarge = RoundedCornerShape(32.dp)  // Bottom Sheets, Floating Action Buttons
+    extraSmall = RoundedCornerShape(4.dp), // Tags
+    small = RoundedCornerShape(8.dp),      // Botões pequenos
+    medium = RoundedCornerShape(16.dp),    // Cartões padrão
+    large = RoundedCornerShape(24.dp),     // Cartões destaque
+    extraLarge = RoundedCornerShape(32.dp) // Sheets
 )

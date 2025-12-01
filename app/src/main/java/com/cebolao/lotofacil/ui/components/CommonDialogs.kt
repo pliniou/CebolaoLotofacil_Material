@@ -1,6 +1,7 @@
 package com.cebolao.lotofacil.ui.components
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
@@ -13,12 +14,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import com.cebolao.lotofacil.R
+import com.cebolao.lotofacil.ui.theme.Dimen
 
 @Composable
 fun AppConfirmationDialog(
     @StringRes title: Int,
     @StringRes message: Int,
-    @StringRes confirmText: Int,
+    confirmText: Int,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
@@ -28,24 +30,24 @@ fun AppConfirmationDialog(
     AlertDialog(
         modifier = modifier,
         onDismissRequest = onDismiss,
+        shape = MaterialTheme.shapes.extraLarge, 
         icon = {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                modifier = Modifier.size(Dimen.LargeIcon)
             )
         },
         title = {
             Text(
                 text = stringResource(title),
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.headlineSmall
             )
         },
         text = {
             Text(
                 text = stringResource(message),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MaterialTheme.typography.bodyLarge
             )
         },
         confirmButton = {

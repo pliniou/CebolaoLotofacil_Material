@@ -42,6 +42,7 @@ import com.cebolao.lotofacil.ui.theme.AccentPalette
 import com.cebolao.lotofacil.ui.theme.CaixaBlue
 import com.cebolao.lotofacil.ui.theme.CaixaOrange
 import com.cebolao.lotofacil.ui.theme.Dimen
+import androidx.core.net.toUri
 
 @Composable
 fun AboutScreen(
@@ -80,7 +81,8 @@ fun AboutScreen(
             // 3. Link Oficial Caixa
             Text(stringResource(R.string.about_official_source), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
             OfficialCaixaCard(onClick = {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://loterias.caixa.gov.br/Paginas/Lotofacil.aspx"))
+                val intent = Intent(Intent.ACTION_VIEW,
+                    "https://loterias.caixa.gov.br/Paginas/Lotofacil.aspx".toUri())
                 context.startActivity(intent)
             })
 

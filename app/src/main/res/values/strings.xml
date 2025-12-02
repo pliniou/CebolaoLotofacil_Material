@@ -139,7 +139,7 @@
     <string name="games_analysis_total_label">Total de Prêmios</string>
     <string name="games_analysis_last_prize_label">Última Premiação</string>
     <string name="games_analysis_last_prize_value">Conc. #%1$s (%2$s pts)</string>
-    <string name="games_share_chooser_title">Compartilhar via...</string>
+    <string name="games_share_chooser_title">Compartilhar via…</string>
     <string name="games_share_game_subject">Minha aposta Cebolão Lotofácil</string>
     <string name="share_game_message_template">🎲 *Cebolão Lotofácil* sugeriu:\n\n%1$s\n\nBoa sorte!</string>
 

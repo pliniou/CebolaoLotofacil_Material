@@ -22,7 +22,7 @@ object HistoryParser {
         return try {
             // Extrai número do concurso
             // substring é otimizado no Android (dependendo da versão da JVM, mas geralmente seguro aqui)
-            val contestPart = line.substring(0, dashIndex).trim()
+            val contestPart = line.take(dashIndex).trim()
             val contestNumber = contestPart.toIntOrNull() ?: return null
 
             // Extrai números

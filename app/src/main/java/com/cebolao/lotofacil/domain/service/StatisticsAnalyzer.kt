@@ -130,6 +130,7 @@ class StatisticsAnalyzer @Inject constructor(
         return map
     }
 
+    @Suppress("SameParameterValue")
     private fun createFrequencyList(
         counts: IntArray?,
         lastSeen: IntArray?,

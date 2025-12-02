@@ -124,7 +124,7 @@ fun defaultChartColors(): ChartColors = ChartColors(
 
 // --- Helper Logic ---
 
-private class ChartMetrics(val size: Size, val dataCount: Int) {
+private class ChartMetrics(size: Size, val dataCount: Int) {
     val drawHeight = size.height - X_AXIS_HEIGHT_PX - TOP_PADDING_PX
     val availableWidth = size.width - Y_AXIS_WIDTH_PX
 

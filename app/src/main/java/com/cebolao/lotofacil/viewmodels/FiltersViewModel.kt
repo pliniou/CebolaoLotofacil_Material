@@ -84,11 +84,18 @@ class FiltersViewModel @Inject constructor(
         .map { filters -> filterSuccessCalculator(filters.filter { it.isEnabled }) }
         .distinctUntilChanged()
 
-    // Correção: Cast explícito para lidar com combine de 6 argumentos
-    @Suppress("UNCHECKED_CAST")
+    // Combinação segura de fluxos (evitando limite de argumentos do combine)
     val uiState: StateFlow<FiltersScreenState> = combine(
-        listOf(_filterStates, _generationState, _lastDraw, _probability, _showResetDialog, _filterInfoToShow)
+        listOf(
+            _filterStates,
+            _generationState,
+            _lastDraw,
+            _probability,
+            _showResetDialog,
+            _filterInfoToShow
+        )
     ) { args ->
+        @Suppress("UNCHECKED_CAST")
         FiltersScreenState(
             filterStates = args[0] as List<FilterState>,
             generationState = args[1] as GenerationUiState,
@@ -97,7 +104,11 @@ class FiltersViewModel @Inject constructor(
             showResetDialog = args[4] as Boolean,
             filterInfoToShow = args[5] as FilterType?
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), FiltersScreenState())
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS),
+        initialValue = FiltersScreenState()
+    )
 
     init {
         loadLastDraw()
@@ -124,11 +135,20 @@ class FiltersViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Aplica um preset de configuração aos filtros.
+     * Ativa filtros definidos no preset e ajusta seus ranges.
+     */
     fun applyPreset(preset: FilterPreset) {
-        _filterStates.update {
-            FilterType.entries.map { type ->
-                val range = preset.settings[type]
-                FilterState(type = type, isEnabled = range != null, selectedRange = range ?: type.defaultRange)
+        _filterStates.update { currentStates ->
+            currentStates.map { filterState ->
+                val rule = preset.rules[filterState.type]
+                if (rule != null) {
+                    filterState.copy(isEnabled = true, selectedRange = rule)
+                } else {
+                    // Mantém estado anterior ou desabilita se preferir limpar
+                    filterState.copy(isEnabled = false, selectedRange = filterState.type.defaultRange)
+                }
             }
         }
     }
@@ -185,10 +205,12 @@ class FiltersViewModel @Inject constructor(
     }
 
     fun requestResetFilters() { _showResetDialog.value = true }
+    
     fun confirmResetFilters() {
         _filterStates.value = FilterType.entries.map { FilterState(type = it) }
         _showResetDialog.value = false
     }
+    
     fun dismissResetDialog() { _showResetDialog.value = false }
     fun showFilterInfo(type: FilterType) { _filterInfoToShow.value = type }
     fun dismissFilterInfo() { _filterInfoToShow.value = null }

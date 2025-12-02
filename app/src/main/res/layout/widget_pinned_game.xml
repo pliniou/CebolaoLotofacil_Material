@@ -1,58 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_background"
-    android:padding="@dimen/widget_content_padding">
+    android:padding="16dp">
 
     <LinearLayout
+        android:id="@+id/header_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="@dimen/icon_size_medium"
-            android:layout_height="@dimen/icon_size_medium"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:src="@drawable/ic_widget_fixado"
-            app:tint="@color/light_text_primary"
+            android:tint="@color/light_text_primary"
             android:contentDescription="@null"/>
 
         <TextView
             android:id="@+id/widget_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_small"
             android:layout_weight="1"
-            android:fontFamily="@font/outfit_bold"
+            android:layout_marginStart="12dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
             android:textColor="@color/light_text_primary"
-            android:textSize="@dimen/widget_title_size"
             android:text="@string/widget_pinned_game_title" />
 
         <ImageButton
             android:id="@+id/widget_refresh_button"
-            android:layout_width="@dimen/widget_refresh_button_size"
-            android:layout_height="@dimen/widget_refresh_button_size"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:padding="8dp"
-            android:scaleType="fitCenter"
             android:src="@drawable/ic_refresh"
-            app:tint="@color/light_text_secondary"
+            android:padding="6dp"
+            android:tint="@color/light_text_secondary"
             android:contentDescription="@string/home_sync_button_description"/>
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/widget_numbers_container"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:gravity="center"
         android:orientation="vertical"
-        android:visibility="gone"
-        tools:visibility="visible">
+        android:layout_marginTop="8dp">
         <!-- Bolas infladas dinamicamente -->
     </LinearLayout>
 
@@ -61,10 +58,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:gravity="center"
-        android:fontFamily="@font/outfit_medium"
         android:textColor="@color/light_text_secondary"
-        android:textSize="@dimen/widget_subtitle_size"
-        android:text="@string/widget_no_pinned_games" />
+        android:text="@string/widget_no_pinned_games"
+        android:visibility="gone"/>
 
 </RelativeLayout>

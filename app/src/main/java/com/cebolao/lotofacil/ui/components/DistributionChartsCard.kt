@@ -33,7 +33,6 @@ fun DistributionChartsCard(
 
     SectionCard(modifier = modifier) {
         Column(verticalArrangement = Arrangement.spacedBy(Dimen.CardPadding)) {
-            // Correção: icon -> iconVector
             TitleWithIcon(
                 text = "Distribuição de Padrões", 
                 iconVector = selectedPattern.icon

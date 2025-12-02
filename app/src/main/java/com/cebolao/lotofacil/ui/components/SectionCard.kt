@@ -21,7 +21,6 @@ import com.cebolao.lotofacil.ui.theme.Dimen
 @Composable
 fun SectionCard(
     modifier: Modifier = Modifier,
-    // Padrão MD3: Surface Container Low para cartões agrupados
     backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerLow, 
     contentSpacing: Dp = Dimen.ItemSpacing,
     header: (@Composable () -> Unit)? = null,
@@ -31,8 +30,9 @@ fun SectionCard(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp), // Flat design
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         border = BorderStroke(
+            // Correção: Referência hierárquica
             width = Dimen.Border.Hairline,
             color = MaterialTheme.colorScheme.outlineVariant
         )

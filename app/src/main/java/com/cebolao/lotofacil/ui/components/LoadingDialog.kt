@@ -41,6 +41,7 @@ fun LoadingDialog(
                 .fillMaxWidth()
                 .padding(horizontal = Dimen.LargePadding),
             shape = MaterialTheme.shapes.large,
+            // Correção: Referência hierárquica correta
             elevation = CardDefaults.cardElevation(Dimen.Elevation.High),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
         ) {
@@ -59,7 +60,7 @@ fun LoadingDialog(
                     horizontalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)
                 ) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(36.dp), // Loader maior
+                        modifier = Modifier.size(36.dp),
                         strokeWidth = 3.dp
                     )
                     Text(

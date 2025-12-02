@@ -1,5 +1,6 @@
 package com.cebolao.lotofacil.data
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.runtime.Immutable
 import com.cebolao.lotofacil.data.network.LotofacilApiResult
@@ -19,6 +20,7 @@ private const val TAG = "HistoricalDraw"
  * @property numbers Conjunto de 15 números sorteados (1-25)
  * @property date Data da apuração no formato fornecido pela API (opcional)
  */
+@SuppressLint("UnsafeOptInUsageError")
 @Immutable
 @Serializable
 data class HistoricalDraw(

@@ -13,12 +13,12 @@ import com.cebolao.lotofacil.domain.usecase.AnalyzeGameUseCase
 import com.cebolao.lotofacil.domain.usecase.SaveGameUseCase
 import com.cebolao.lotofacil.navigation.Screen
 import com.cebolao.lotofacil.util.CHECKER_ARG_SEPARATOR
+import com.cebolao.lotofacil.util.STATE_IN_TIMEOUT_MS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
@@ -53,10 +53,10 @@ class CheckerViewModel @Inject constructor(
     private val _selectedNumbers = MutableStateFlow<Set<Int>>(emptySet())
     val selectedNumbers = _selectedNumbers.asStateFlow()
 
-    // Estado derivado reativo para UI
+    // Refatorado: Uso da constante global STATE_IN_TIMEOUT_MS
     val isGameComplete = _selectedNumbers
         .map { it.size == LotofacilConstants.GAME_SIZE }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), false)
 
     private val _eventFlow = MutableSharedFlow<CheckerUiEvent>()
     val events = _eventFlow.asSharedFlow()

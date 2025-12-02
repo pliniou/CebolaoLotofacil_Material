@@ -1,29 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Paleta Base (Brand) -->
-    <color name="brand_azul" tools:keep="@color/brand_azul">#465EFF</color>
-    <color name="brand_amarelo" tools:keep="@color/brand_amarelo">#FCFC30</color>
+    <!-- SYSTEM & SPLASH -->
+    <color name="splash_background">#FAFAFA</color>
 
-    <!-- Light Theme Tokens -->
-    <color name="light_background">#F9F9FF</color>
-    <color name="light_surface" tools:keep="@color/light_surface">#F9F9FF</color>
-    <color name="light_surface_container">#EDEDF4</color>
-    <color name="light_text_primary">#1A1B1F</color>
-    <color name="light_text_secondary">#44474F</color>
+    <!-- WIDGET COLORS -->
+    <color name="widget_background_light">#FAFAFA</color>
+    <color name="widget_background_dark" tools:keep="@color/widget_background_dark">#16191D</color>
+    <color name="widget_primary" tools:keep="@color/widget_primary">#2962FF</color>
 
-    <!-- Dark Theme Tokens -->
-    <color name="dark_background">#111318</color>
-    <color name="dark_surface" tools:keep="@color/dark_surface">#111318</color>
-    <color name="dark_surface_container">#1D2024</color>
-    <color name="dark_text_primary">#E2E2E6</color>
-    <color name="dark_text_secondary">#C4C6D0</color>
+    <!-- LEGACY / COMPATIBILITY MAPPINGS -->
+    <!-- Mantidos para garantir que drawables/layouts XML antigos compilem corretamente -->
+    <color name="dark_background">#0F1115</color>
+    <color name="light_background" tools:keep="@color/light_background">#FAFAFA</color>
 
-    <!-- Widget Specifics (Mapeamento) -->
-    <!-- Define a cor padrão (Light) para o widget -->
-    <color name="widget_background_light">@color/light_surface_container</color>
-    <!-- Define a cor escura para referência direta se necessário -->
-    <color name="widget_background_dark" tools:keep="@color/widget_background_dark">@color/dark_surface_container</color>
-    
-    <!-- Splash Screen -->
-    <color name="splash_background">@color/light_background</color>
+    <color name="dark_text_primary" tools:keep="@color/dark_text_primary">#E6E1E5</color>
+    <color name="dark_text_secondary" tools:keep="@color/dark_text_secondary">#CAC4D0</color>
+
+    <color name="light_text_primary">#1C1B1F</color>
+    <color name="light_text_secondary">#49454F</color>
+
+    <color name="light_surface" tools:keep="@color/light_surface">#FFFFFF</color>
+    <color name="dark_surface" tools:keep="@color/dark_surface">#16191D</color>
 </resources>

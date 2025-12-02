@@ -1,5 +1,6 @@
 package com.cebolao.lotofacil.data
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.Immutable
 import kotlinx.serialization.Serializable
 
@@ -7,6 +8,7 @@ import kotlinx.serialization.Serializable
  * Representa um único jogo da Lotofácil.
  * Otimizada para performance no Jetpack Compose com @Immutable e serializável com Kotlinx.
  */
+@SuppressLint("UnsafeOptInUsageError")
 @Immutable
 @Serializable
 data class LotofacilGame(

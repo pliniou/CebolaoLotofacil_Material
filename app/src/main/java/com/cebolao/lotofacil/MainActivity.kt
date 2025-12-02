@@ -22,9 +22,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cebolao.lotofacil.data.repository.THEME_MODE_DARK
 import com.cebolao.lotofacil.ui.screens.MainScreen
 import com.cebolao.lotofacil.ui.theme.AccentPalette
+import com.cebolao.lotofacil.ui.theme.AppConfig
 import com.cebolao.lotofacil.ui.theme.CebolaoLotofacilTheme
 import com.cebolao.lotofacil.viewmodels.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
+
+private const val SPLASH_ICON_SCALE_TARGET = 0.5f
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -74,22 +77,22 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun animateSplashExit(provider: SplashScreenViewProvider) {
+        val duration = AppConfig.Animation.SPLASH_EXIT_DURATION.toLong()
+        
         val fadeOut = ObjectAnimator.ofFloat(provider.view, View.ALPHA, 1f, 0f).apply {
             interpolator = AnticipateInterpolator()
-            duration = 400L
+            this.duration = duration
             doOnEnd { provider.remove() }
         }
         
-        // Efeito de zoom-out no ícone
         val icon = provider.iconView
-        val scaleX = ObjectAnimator.ofFloat(icon, View.SCALE_X, 1f, 0.5f)
-        val scaleY = ObjectAnimator.ofFloat(icon, View.SCALE_Y, 1f, 0.5f)
+        val scaleX = ObjectAnimator.ofFloat(icon, View.SCALE_X, 1f, SPLASH_ICON_SCALE_TARGET)
+        val scaleY = ObjectAnimator.ofFloat(icon, View.SCALE_Y, 1f, SPLASH_ICON_SCALE_TARGET)
         val fadeIcon = ObjectAnimator.ofFloat(icon, View.ALPHA, 1f, 0f)
 
-        // Roda tudo junto (simplificado sem AnimatorSet para performance leve)
         fadeOut.start()
-        scaleX.setDuration(400L).start()
-        scaleY.setDuration(400L).start()
-        fadeIcon.setDuration(400L).start()
+        scaleX.setDuration(duration).start()
+        scaleY.setDuration(duration).start()
+        fadeIcon.setDuration(duration).start()
     }
 }

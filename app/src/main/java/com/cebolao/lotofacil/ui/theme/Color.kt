@@ -2,37 +2,40 @@ package com.cebolao.lotofacil.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// --- BRAND COLORS (Base Identity) ---
-val BrandAzul = Color(0xFF2962FF)       // Azul mais vibrante (Google Blue 700 style)
-val BrandAmarelo = Color(0xFFFFD600)    // Amarelo Ouro (Alta visibilidade)
-val BrandRoxo = Color(0xFF6200EA)       // Roxo Profundo (Deep Purple A700)
-val BrandVerde = Color(0xFF00C853)      // Verde Sucesso (Green A700)
-val BrandRosa = Color(0xFFC51162)       // Rosa Intenso
+// --- BRAND IDENTITY ---
+val BrandAzul = Color(0xFF2962FF)       // Primary Identity
+val BrandRoxo = Color(0xFF6200EA)       // Creative/Secondary
+val BrandVerde = Color(0xFF00C853)      // Success/Money
+val BrandAmarelo = Color(0xFFFFD600)    // Accent/High Vis
+val BrandRosa = Color(0xFFC51162)       // Tertiary
 
-// --- NEUTRALS (Material 3 Surfaces) ---
-// Light - Fundo levemente azulado para sensação de "papel digital"
-val LightBackground = Color(0xFFF8F9FE)
+// --- LIGHT THEME TOKENS ---
+// Fundo quase branco para "papel digital", containers sutis
+val LightBackground = Color(0xFFFAFAFA)
 val LightSurface = Color(0xFFFFFFFF)
-val LightSurfaceContainerLow = Color(0xFFF2F4FA)
-val LightSurfaceContainer = Color(0xFFEDEDF4)
-val LightSurfaceContainerHigh = Color(0xFFE7E8EE)
-val LightOnSurface = Color(0xFF191C20)
-val LightOnSurfaceVariant = Color(0xFF44474F)
-val LightOutline = Color(0xFF74777F)
+val LightSurfaceContainerLow = Color(0xFFF5F5F5)
+val LightSurfaceContainer = Color(0xFFEEEEEE)
+val LightSurfaceContainerHigh = Color(0xFFE0E0E0)
+val LightOnSurface = Color(0xFF1C1B1F)
+val LightOnSurfaceVariant = Color(0xFF49454F)
+val LightOutline = Color(0xFF79747E)
 
-// Dark - Fundo "OLED Deep" para economia de bateria e contraste
-val DarkBackground = Color(0xFF0A0C10) 
-val DarkSurface = Color(0xFF111418)
-val DarkSurfaceContainerLow = Color(0xFF191C20)
-val DarkSurfaceContainer = Color(0xFF202329)
-val DarkSurfaceContainerHigh = Color(0xFF2B2E35)
-val DarkOnSurface = Color(0xFFE2E2E6)
-val DarkOnSurfaceVariant = Color(0xFFC4C6D0)
-val DarkOutline = Color(0xFF8E9099)
+// --- DARK THEME TOKENS ---
+// Fundo OLED deep, superfícies com leve tint azulado/neutro
+val DarkBackground = Color(0xFF0F1115)
+val DarkSurface = Color(0xFF16191D)
+val DarkSurfaceContainerLow = Color(0xFF1D2126)
+val DarkSurfaceContainer = Color(0xFF24282E)
+val DarkSurfaceContainerHigh = Color(0xFF2E3239)
+val DarkOnSurface = Color(0xFFE6E1E5)
+val DarkOnSurfaceVariant = Color(0xFFCAC4D0)
+val DarkOutline = Color(0xFF938F99)
 
-// --- FUNCTIONAL ---
-val ErrorLight = Color(0xFFBA1A1A)
-val ErrorDark = Color(0xFFFFB4AB)
+// --- SEMANTIC COLORS ---
+val ErrorLight = Color(0xFFB3261E)
+val ErrorDark = Color(0xFFF2B8B5)
 val SuccessGreen = Color(0xFF4CAF50)
-val GoldGradientStart = Color(0xFFFFD700)
-val GoldGradientEnd = Color(0xFFFFA000)
+
+// Caixa Econômica Brand (Para Banner)
+val CaixaBlue = Color(0xFF005CA9)
+val CaixaOrange = Color(0xFFF39200)

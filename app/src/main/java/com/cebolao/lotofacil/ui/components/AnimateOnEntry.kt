@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import com.cebolao.lotofacil.ui.theme.AppConfig
 import kotlinx.coroutines.delay
 
+private const val VERTICAL_SLIDE_OFFSET_FACTOR = 0.05f
+
 @Composable
 fun AnimateOnEntry(
     modifier: Modifier = Modifier,
@@ -36,8 +38,8 @@ fun AnimateOnEntry(
         modifier = modifier,
         visible = isVisible,
         enter = slideInVertically(
-            // Entrada suave de baixo para cima (5% da altura ou offset fixo pequeno)
-            initialOffsetY = { fullHeight -> (fullHeight * 0.05f).toInt() },
+            // Entrada suave de baixo para cima
+            initialOffsetY = { fullHeight -> (fullHeight * VERTICAL_SLIDE_OFFSET_FACTOR).toInt() },
             animationSpec = spring(
                 dampingRatio = Spring.DampingRatioLowBouncy,
                 stiffness = Spring.StiffnessLow

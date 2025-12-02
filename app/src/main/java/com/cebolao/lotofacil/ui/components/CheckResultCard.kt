@@ -13,7 +13,6 @@ import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.Celebration
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.outlined.ErrorOutline
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -40,7 +39,6 @@ fun CheckResultCard(
 ) {
     SectionCard(
         modifier = modifier.fillMaxWidth(),
-        // Destaque sutil para o resultado
         backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
         contentSpacing = Dimen.MediumPadding
     ) {
@@ -150,7 +148,7 @@ private fun LastHitInfo(result: CheckResult) {
         Icon(
             imageVector = Icons.Filled.CheckCircle,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.tertiary, // Cor secundária de destaque
+            tint = MaterialTheme.colorScheme.tertiary,
             modifier = Modifier.size(Dimen.SmallIcon)
         )
         Text(

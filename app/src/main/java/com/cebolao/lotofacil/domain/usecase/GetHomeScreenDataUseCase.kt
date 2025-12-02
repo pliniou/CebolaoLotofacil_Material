@@ -21,22 +21,18 @@ private const val TAG = "GetHomeScreenDataUseCase"
 class GetHomeScreenDataUseCase @Inject constructor(
     private val historyRepository: HistoryRepository,
     private val getAnalyzedStatsUseCase: GetAnalyzedStatsUseCase,
-    @param:DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
+    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
 ) {
-    /**
-     * Busca os dados da Home Screen de forma única.
-     */
     operator fun invoke(): Flow<Result<HomeScreenData>> = flow {
         val history = historyRepository.getHistory()
-        
+
         if (history.isEmpty()) {
             throw IllegalStateException("Nenhum histórico de sorteio encontrado.")
         }
 
         val latestApi = historyRepository.getLatestApiResult()
         val lastDraw = history.first()
-        
-        // Operação pesada encapsulada em outro UseCase
+
         val stats = getAnalyzedStatsUseCase(timeWindow = 0).getOrThrow()
 
         val (nextDraw, winners) = processApiResult(latestApi)

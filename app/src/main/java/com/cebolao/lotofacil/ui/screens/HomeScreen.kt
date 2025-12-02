@@ -1,258 +1,195 @@
 package com.cebolao.lotofacil.ui.screens
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material.icons.filled.ErrorOutline
-import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cebolao.lotofacil.R
-import com.cebolao.lotofacil.data.HistoricalDraw
-import com.cebolao.lotofacil.domain.model.StatisticPattern
-import com.cebolao.lotofacil.domain.model.WinnerData
-import com.cebolao.lotofacil.ui.components.AppDivider
 import com.cebolao.lotofacil.ui.components.DistributionChartsCard
-import com.cebolao.lotofacil.ui.components.MessageState
+import com.cebolao.lotofacil.ui.components.LastDrawCard
 import com.cebolao.lotofacil.ui.components.NextContestHeroCard
-import com.cebolao.lotofacil.ui.components.NumberBallSize
-import com.cebolao.lotofacil.ui.components.NumberBallVariant
-import com.cebolao.lotofacil.ui.components.NumberGrid
-import com.cebolao.lotofacil.ui.components.SectionCard
-import com.cebolao.lotofacil.ui.components.StandardPageLayout
-import com.cebolao.lotofacil.ui.components.StatisticsExplanationCard
 import com.cebolao.lotofacil.ui.components.StatisticsPanel
-import com.cebolao.lotofacil.ui.components.TitleWithIcon
+import com.cebolao.lotofacil.ui.components.WelcomeCard
 import com.cebolao.lotofacil.ui.theme.Dimen
-import com.cebolao.lotofacil.util.rememberCurrencyFormatter
 import com.cebolao.lotofacil.viewmodels.HomeScreenState
-import com.cebolao.lotofacil.viewmodels.HomeUiState
 import com.cebolao.lotofacil.viewmodels.HomeViewModel
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val context = androidx.compose.ui.platform.LocalContext.current
-
-    // Gestão de Efeitos (Snackbars)
-    LaunchedEffect(uiState.syncMessageRes) {
-        uiState.syncMessageRes?.let { resId ->
-            snackbarHostState.showSnackbar(context.getString(resId))
-            viewModel.onMessageShown()
-        }
-    }
+    val scrollState = rememberScrollState()
 
     AppScreen(
-        title = stringResource(R.string.home_title),
+        // CORREÇÃO: Restaurado o título do App na Toolbar
+        title = stringResource(R.string.app_name),
         subtitle = stringResource(R.string.home_subtitle),
-        navigationIcon = {
-            Image(
-                painter = painterResource(id = R.drawable.ic_lotofacil_logo),
-                contentDescription = null,
-                modifier = Modifier.size(Dimen.LargeIcon)
-            )
-        },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
         actions = {
-            if (uiState.isSyncing) {
-                CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
-            } else {
-                IconButton(onClick = viewModel::forceSync) {
-                    Icon(Icons.Default.Refresh, stringResource(R.string.home_sync_button_description))
+            IconButton(onClick = viewModel::forceSync) {
+                if (uiState.isSyncing) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                } else {
+                    Icon(
+                        Icons.Default.Refresh,
+                        stringResource(R.string.home_sync_button_description)
+                    )
                 }
             }
         }
     ) { innerPadding ->
-        HomeContent(
-            uiState = uiState,
-            onRetry = viewModel::retryInitialLoad,
-            onTimeWindowSelected = viewModel::onTimeWindowSelected,
-            onPatternSelected = viewModel::onPatternSelected,
-            paddingValues = innerPadding
-        )
-    }
-}
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(bottom = Dimen.BottomBarSpacer)
+        ) {
+            // Welcome Card (Logo abaixo da Toolbar)
+            Box(modifier = Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.SmallPadding)) {
+                WelcomeCard()
+            }
 
-@Composable
-private fun HomeContent(
-    uiState: HomeUiState,
-    onRetry: () -> Unit,
-    onTimeWindowSelected: (Int) -> Unit,
-    onPatternSelected: (StatisticPattern) -> Unit,
-    paddingValues: PaddingValues
-) {
-    AnimatedContent(
-        targetState = uiState.screenState, 
-        label = "HomeContent",
-        transitionSpec = { fadeIn() togetherWith fadeOut() }
-    ) { state ->
-        when (state) {
-            is HomeScreenState.Loading -> MessageState(
-                icon = Icons.Default.Refresh,
-                title = stringResource(R.string.general_loading),
-                message = stringResource(R.string.general_loading_analysis)
-            )
-            is HomeScreenState.Error -> MessageState(
-                icon = Icons.Default.ErrorOutline,
-                title = stringResource(R.string.general_failed_to_load_data),
-                message = stringResource(state.messageResId),
-                actionLabel = stringResource(R.string.general_retry),
-                onActionClick = onRetry
-            )
-            is HomeScreenState.Success -> SuccessContent(
-                state = state,
-                uiState = uiState,
-                onTimeWindowSelected = onTimeWindowSelected,
-                onPatternSelected = onPatternSelected,
-                paddingValues = paddingValues
-            )
-        }
-    }
-}
+            // Próximo Concurso
+            Box(modifier = Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.MediumPadding)) {
+                when (val state = uiState.screenState) {
+                    is HomeScreenState.Success -> NextContestHeroCard(state.nextDrawInfo)
+                    else -> LoadingCard()
+                }
+            }
 
-@Composable
-private fun SuccessContent(
-    state: HomeScreenState.Success,
-    uiState: HomeUiState,
-    onTimeWindowSelected: (Int) -> Unit,
-    onPatternSelected: (StatisticPattern) -> Unit,
-    paddingValues: PaddingValues
-) {
-    StandardPageLayout(scaffoldPadding = paddingValues) {
-        // Hero Card: Próximo Concurso
-        item { NextContestHeroCard(state.nextDrawInfo) }
-        
-        // Card Último Sorteio
-        item { 
-            LastDrawSection(state.lastDraw, state.winnerData.toImmutableList()) 
-        }
-        
-        // Painel Estatístico
-        uiState.statistics?.let { stats ->
-            item { 
+            // Último Resultado
+            if (uiState.screenState is HomeScreenState.Success) {
+                val state = uiState.screenState as HomeScreenState.Success
+                state.lastDraw?.let { draw ->
+                    SectionHeader(title = stringResource(R.string.home_last_contest_format, draw.contestNumber))
+                    LastDrawCard(
+                        draw = draw,
+                        winnerData = state.winnerData,
+                        modifier = Modifier.padding(horizontal = Dimen.ScreenPadding)
+                    )
+                }
+            }
+
+            // Estatísticas
+            SectionHeader(title = stringResource(R.string.home_statistics_center))
+
+            uiState.statistics?.let { stats ->
                 StatisticsPanel(
-                    stats = stats, 
-                    isStatsLoading = uiState.isStatsLoading, 
-                    selectedWindow = uiState.selectedTimeWindow, 
-                    onTimeWindowSelected = onTimeWindowSelected
-                ) 
-            }
-            item { 
+                    stats = stats,
+                    modifier = Modifier.padding(horizontal = Dimen.ScreenPadding),
+                    selectedWindow = uiState.selectedTimeWindow,
+                    onTimeWindowSelected = viewModel::onTimeWindowSelected,
+                    isStatsLoading = uiState.isStatsLoading
+                )
+
+                Spacer(Modifier.height(Dimen.MediumPadding))
+
                 DistributionChartsCard(
-                    stats = stats, 
-                    selectedPattern = uiState.selectedPattern, 
-                    onPatternSelected = onPatternSelected
-                ) 
-            }
+                    stats = stats,
+                    selectedPattern = uiState.selectedPattern,
+                    onPatternSelected = viewModel::onPatternSelected,
+                    modifier = Modifier.padding(horizontal = Dimen.ScreenPadding)
+                )
+            } ?: LoadingStats()
+
+            Spacer(Modifier.height(Dimen.SectionSpacing))
+            InfoTipCard(modifier = Modifier.padding(horizontal = Dimen.ScreenPadding))
         }
-        
-        // Card Educativo
-        item { StatisticsExplanationCard() }
     }
 }
 
 @Composable
-private fun LastDrawSection(
-    lastDraw: HistoricalDraw?,
-    winnerData: ImmutableList<WinnerData>
-) {
-    if (lastDraw == null) return
-    SectionCard(
-        header = {
-            TitleWithIcon(
-                text = stringResource(R.string.home_last_contest_format, lastDraw.contestNumber),
-                iconVector = Icons.Default.History
-            )
-            lastDraw.date?.let { 
-                Text(it, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) 
-            }
-        }
+private fun SectionHeader(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.onSurface,
+        modifier = Modifier.padding(
+            start = Dimen.ScreenPadding,
+            top = Dimen.LargePadding,
+            bottom = Dimen.SmallPadding
+        )
+    )
+}
+
+@Composable
+private fun LoadingCard() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(150.dp),
+        contentAlignment = Alignment.Center
     ) {
-        NumberGrid(
-            selectedNumbers = lastDraw.numbers,
-            onNumberClick = {},
-            sizeVariant = NumberBallSize.Medium,
-            ballVariant = NumberBallVariant.Secondary
-        )
-        
-        AppDivider()
-        
-        WinnerInfoSection(winnerData)
+        CircularProgressIndicator()
     }
 }
 
 @Composable
-private fun WinnerInfoSection(winnerData: ImmutableList<WinnerData>) {
-    val currencyFormat = rememberCurrencyFormatter()
-    Column(verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)) {
-        TitleWithIcon(
-            text = stringResource(R.string.home_winners_last_contest),
-            iconVector = Icons.Default.EmojiEvents
+private fun LoadingStats() {
+    Column(Modifier.padding(Dimen.ScreenPadding)) {
+        LinearProgressIndicator(Modifier.fillMaxWidth())
+        Text(
+            text = "Carregando inteligência...",
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(top = 8.dp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
-        winnerData.forEach { winnerInfo ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    stringResource(R.string.home_hits_format, winnerInfo.hits),
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(1f)
-                )
-                Text(
-                    stringResource(
-                        if (winnerInfo.winnerCount == 1) R.string.home_winner_count_one 
-                        else R.string.home_winner_count_other, 
-                        winnerInfo.winnerCount
-                    ),
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center
-                )
-                Text(
-                    currencyFormat.format(winnerInfo.prize),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.weight(1.5f),
-                    textAlign = TextAlign.End
-                )
-            }
+    }
+}
+
+@Composable
+private fun InfoTipCard(modifier: Modifier = Modifier) {
+    OutlinedCard(
+        modifier = modifier.fillMaxWidth(),
+        colors = androidx.compose.material3.CardDefaults.outlinedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        )
+    ) {
+        androidx.compose.foundation.layout.Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                Icons.Outlined.Info,
+                null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Spacer(Modifier.width(16.dp))
+            Text(
+                text = "Lembre-se: Probabilidade não é certeza. Jogue com responsabilidade.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

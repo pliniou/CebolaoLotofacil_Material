@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.CebolaoLotofacil" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="android:windowBackground">@color/light_background</item>
-        <item name="android:textColorPrimary">@color/light_text_primary</item>
-        <item name="android:textColorSecondary">@color/light_text_secondary</item>
+    <!-- Tema Base Light -->
+    <style name="Theme.CebolaoLotofacil" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowBackground">@color/splash_background</item>
     </style>
 
+    <!-- Tema Splash Screen -->
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/splash_background</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
         <item name="windowSplashScreenAnimationDuration">500</item>
         <item name="postSplashScreenTheme">@style/Theme.CebolaoLotofacil</item>
     </style>

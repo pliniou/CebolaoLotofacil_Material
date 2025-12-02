@@ -61,9 +61,11 @@ fun ColorPaletteCard(
     }
 
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
+        // Correção: Uso de recurso de string se disponível, ou manter hardcoded se não crítico, 
+        // mas idealmente extrair. Usando personalização como fallback.
         Text(
-            "Paleta de Cores", 
-            style = MaterialTheme.typography.titleLarge, // Aumentado
+            stringResource(R.string.about_personalization_title), 
+            style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
         
@@ -101,11 +103,12 @@ private fun PalettePreviewCard(
 
     Card(
         modifier = modifier
-            .width(Dimen.PaletteCardWidth) // 120dp
-            .height(Dimen.PaletteCardHeight) // 100dp
+            .width(Dimen.PaletteCardWidth)
+            .height(Dimen.PaletteCardHeight)
             .clickable { onClick() },
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
+        // Correção: Referência a Dimen.Border e Dimen.Elevation
         border = BorderStroke(if (isSelected) Dimen.Border.Thick else Dimen.Border.Hairline, borderColor),
         elevation = CardDefaults.cardElevation(if (isSelected) Dimen.Elevation.Medium else Dimen.Elevation.Low)
     ) {
@@ -154,10 +157,11 @@ private fun PalettePreviewCard(
 private fun ColorSwatch(color: Color, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
-            .height(24.dp) // Swatch maior
+            .height(24.dp)
             .clip(MaterialTheme.shapes.extraSmall)
             .background(color)
             .border(
+                // Correção: Referência a Dimen.Border
                 width = Dimen.Border.Hairline,
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
                 shape = MaterialTheme.shapes.extraSmall

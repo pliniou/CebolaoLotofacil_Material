@@ -17,30 +17,15 @@ import com.cebolao.lotofacil.domain.model.StatisticPattern
 import com.cebolao.lotofacil.domain.model.WinnerData
 import com.cebolao.lotofacil.domain.repository.HistoryRepository
 import com.cebolao.lotofacil.domain.repository.SyncStatus
-import com.cebolao.lotofacil.domain.usecase.CheckGameUseCase
-import com.cebolao.lotofacil.domain.usecase.GetAnalyzedStatsUseCase
-import com.cebolao.lotofacil.domain.usecase.GetGameSimpleStatsUseCase
-import com.cebolao.lotofacil.domain.usecase.GetHomeScreenDataUseCase
-import com.cebolao.lotofacil.domain.usecase.SyncHistoryUseCase
+import com.cebolao.lotofacil.domain.usecase.*
 import com.cebolao.lotofacil.util.WIDGET_UPDATE_INTERVAL_HOURS
 import com.cebolao.lotofacil.util.WIDGET_UPDATE_WORK_NAME
 import com.cebolao.lotofacil.widget.WidgetUpdateWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -124,7 +109,6 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun processHomeDataResult(result: Result<HomeScreenData>) {
-        // Usando fold para evitar problemas com suspend functions dentro de blocos inline
         result.fold(
             onSuccess = { data ->
                 val lastDraw = data.lastDraw
@@ -158,7 +142,7 @@ class HomeViewModel @Inject constructor(
         _timeWindow
             .flatMapLatest { window ->
                 _uiState.update { it.copy(isStatsLoading = true, selectedTimeWindow = window) }
-                kotlinx.coroutines.flow.flow { emit(getAnalyzedStatsUseCase(window)) }
+                flow { emit(getAnalyzedStatsUseCase(window)) }
             }
             .onEach { result ->
                 result.fold(

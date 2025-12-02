@@ -1,45 +1,28 @@
 package com.cebolao.lotofacil.ui.screens
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Calculate
-import androidx.compose.material.icons.filled.Gavel
-import androidx.compose.material.icons.filled.Groups
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.PrivacyTip
-import androidx.compose.material.icons.filled.WorkspacePremium
-import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.cebolao.lotofacil.R
-import com.cebolao.lotofacil.ui.components.FormattedText
-import com.cebolao.lotofacil.ui.components.InfoDialog
-import com.cebolao.lotofacil.ui.components.InfoListCard
-import com.cebolao.lotofacil.ui.components.StandardPageLayout
-import com.cebolao.lotofacil.ui.components.StudioHero
-import com.cebolao.lotofacil.ui.components.ThemeSettingsCard
+import com.cebolao.lotofacil.ui.components.*
 import com.cebolao.lotofacil.ui.theme.AccentPalette
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
-
-@Immutable
-private data class InfoItem(
-    val title: String,
-    val subtitle: String,
-    val icon: ImageVector,
-    val content: @Composable () -> Unit
-)
+import com.cebolao.lotofacil.ui.theme.CaixaBlue
+import com.cebolao.lotofacil.ui.theme.CaixaOrange
+import com.cebolao.lotofacil.ui.theme.Dimen
 
 @Composable
 fun AboutScreen(
@@ -48,107 +31,111 @@ fun AboutScreen(
     onThemeChange: (String) -> Unit,
     onPaletteChange: (AccentPalette) -> Unit
 ) {
-    var dialogContent by remember { mutableStateOf<InfoItem?>(null) }
-    val infoItems = rememberInfoItems()
-
-    // Dialog de Detalhes
-    dialogContent?.let { item ->
-        InfoDialog(
-            onDismissRequest = { dialogContent = null },
-            dialogTitle = item.title,
-            icon = item.icon, // Ícone contextualizado
-            content = item.content
-        )
-    }
+    val context = LocalContext.current
+    val scrollState = rememberScrollState()
 
     AppScreen(
         title = stringResource(R.string.about_title),
-        subtitle = stringResource(R.string.about_subtitle),
-        navigationIcon = { Icon(Icons.Default.Info, null, tint = MaterialTheme.colorScheme.primary) }
+        subtitle = stringResource(R.string.about_subtitle)
     ) { innerPadding ->
-        StandardPageLayout(scaffoldPadding = innerPadding) {
-            
-            // Hero Section (Logo e Slogan)
-            item { StudioHero() }
-            
-            // Configurações de Tema
-            item {
-                ThemeSettingsCard(
-                    currentTheme = currentTheme,
-                    currentPalette = currentPalette,
-                    onThemeChange = onThemeChange,
-                    onPaletteChange = onPaletteChange
-                )
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(Dimen.ScreenPadding),
+            verticalArrangement = Arrangement.spacedBy(Dimen.LargePadding)
+        ) {
+            // 1. Branding App
+            StudioHero()
+
+            // 2. Personalização
+            Text(stringResource(R.string.about_appearance), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+            ThemeSettingsCard(
+                currentTheme = currentTheme,
+                currentPalette = currentPalette,
+                onThemeChange = onThemeChange,
+                onPaletteChange = onPaletteChange
+            )
+
+            // 3. Link Oficial Caixa
+            Text(stringResource(R.string.about_official_source), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+            OfficialCaixaCard(onClick = {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://loterias.caixa.gov.br/Paginas/Lotofacil.aspx"))
+                context.startActivity(intent)
+            })
+
+            // 4. Informações Legais
+            Text(stringResource(R.string.about_info_section), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                AboutListItem(Icons.Default.Gavel, stringResource(R.string.about_terms)) {}
+                AboutListItem(Icons.Default.PrivacyTip, stringResource(R.string.about_privacy_policy)) {}
+                AboutListItem(Icons.Default.Info, stringResource(R.string.about_version_format, "1.0.0")) {}
             }
             
-            // Lista de Informações
-            items(infoItems.size) { index ->
-                val info = infoItems[index]
-                InfoListCard(
-                    title = info.title,
-                    subtitle = info.subtitle,
-                    icon = info.icon,
-                    modifier = Modifier.clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = rememberRipple(), // Ripple padrão é ok aqui
-                        onClick = { dialogContent = info }
-                    )
-                )
-            }
+            Spacer(Modifier.height(Dimen.LargePadding))
+            Text(
+                stringResource(R.string.about_disclaimer),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
         }
     }
 }
 
 @Composable
-private fun rememberInfoItems(): ImmutableList<InfoItem> {
-    val context = LocalContext.current
-    return remember(context) {
-        listOf(
-            InfoItem(
-                context.getString(R.string.about_purpose_title),
-                context.getString(R.string.about_purpose_subtitle),
-                Icons.Default.Calculate
-            ) { AboutPurposeContent() },
-            
-            InfoItem(
-                context.getString(R.string.about_rules_title),
-                context.getString(R.string.about_rules_subtitle),
-                Icons.Default.WorkspacePremium
-            ) { AboutRulesContent() },
-            
-            InfoItem(
-                context.getString(R.string.about_bolao_title),
-                context.getString(R.string.about_bolao_subtitle),
-                Icons.Default.Groups
-            ) { AboutBolaoContent() },
-            
-            InfoItem(
-                context.getString(R.string.about_privacy_title),
-                context.getString(R.string.about_privacy_subtitle),
-                Icons.Default.PrivacyTip
-            ) { AboutPrivacyContent() },
-            
-            InfoItem(
-                context.getString(R.string.about_legal_title),
-                context.getString(R.string.about_legal_subtitle),
-                Icons.Default.Gavel
-            ) { AboutLegalContent() }
-        ).toImmutableList()
+private fun OfficialCaixaCard(onClick: () -> Unit) {
+    Card(
+        onClick = onClick,
+        colors = CardDefaults.cardColors(containerColor = CaixaBlue),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.Public, 
+                contentDescription = null, 
+                tint = Color.White,
+                modifier = Modifier.size(32.dp)
+            )
+            Spacer(Modifier.width(16.dp))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    stringResource(R.string.about_caixa_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White
+                )
+                Text(
+                    stringResource(R.string.about_caixa_desc),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White.copy(alpha = 0.8f)
+                )
+            }
+            Icon(Icons.AutoMirrored.Filled.ArrowForward, null, tint = CaixaOrange)
+        }
     }
 }
 
-@Composable private fun AboutPurposeContent() {
-    FormattedText(stringResource(R.string.about_purpose_desc_body))
-}
-@Composable private fun AboutRulesContent() {
-    FormattedText(stringResource(R.string.about_rules_item1))
-}
-@Composable private fun AboutBolaoContent() {
-    FormattedText(stringResource(R.string.about_bolao_desc_body))
-}
-@Composable private fun AboutPrivacyContent() {
-    FormattedText(stringResource(R.string.about_privacy_desc_body))
-}
-@Composable private fun AboutLegalContent() {
-    FormattedText(stringResource(R.string.about_legal_footer))
+@Composable
+private fun AboutListItem(icon: ImageVector, text: String, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        color = Color.Transparent,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(icon, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            Spacer(Modifier.width(16.dp))
+            Text(text, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+            Icon(Icons.AutoMirrored.Filled.ArrowForward, null, tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f), modifier = Modifier.size(16.dp))
+        }
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
+    }
 }

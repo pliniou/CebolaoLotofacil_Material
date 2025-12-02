@@ -19,7 +19,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RangeSlider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -45,10 +44,9 @@ fun FilterCard(
     onEnabledChange: (Boolean) -> Unit,
     onRangeChange: (ClosedFloatingPointRange<Float>) -> Unit,
     onInfoClick: () -> Unit,
-    lastDrawNumbers: Set<Int>? = null, // Usado para determinar disponibilidade
+    lastDrawNumbers: Set<Int>? = null,
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
-    // Lógica simples de UI derivada (rápida, sem recomposição pesada)
     val isDataMissing by remember(filterState.type, lastDrawNumbers) {
         derivedStateOf { 
             filterState.type == FilterType.REPETIDAS_CONCURSO_ANTERIOR && lastDrawNumbers == null 
@@ -56,8 +54,6 @@ fun FilterCard(
     }
     
     val isActive = filterState.isEnabled && !isDataMissing
-    
-    // Animação de opacidade
     val contentAlpha by animateFloatAsState(targetValue = if (isActive) 1f else 0.5f, label = "alpha")
 
     SectionCard(
@@ -112,7 +108,6 @@ fun FilterCard(
                 )
             }
 
-            // Slider Content
             AnimatedVisibility(
                 visible = isActive,
                 enter = expandVertically() + fadeIn(),
@@ -128,7 +123,6 @@ fun FilterCard(
                         value = filterState.selectedRange,
                         onValueChange = onRangeChange,
                         valueRange = filterState.type.fullRange,
-                        // Steps: (Total - 1) para snap em inteiros
                         steps = (filterState.type.fullRange.endInclusive - filterState.type.fullRange.start).toInt() - 1,
                         modifier = Modifier.padding(top = Dimen.SmallPadding)
                     )

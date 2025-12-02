@@ -20,10 +20,6 @@ import javax.inject.Singleton
 
 @Retention(AnnotationRetention.BINARY)
 @Qualifier
-annotation class IoDispatcher
-
-@Retention(AnnotationRetention.BINARY)
-@Qualifier
 annotation class DefaultDispatcher
 
 @Retention(AnnotationRetention.BINARY)
@@ -54,10 +50,6 @@ object AppModule {
     @Singleton
     fun provideFilterSuccessCalculator(): FilterSuccessCalculator =
         FilterSuccessCalculator()
-
-    @IoDispatcher
-    @Provides
-    fun providesIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
 
     @DefaultDispatcher
     @Provides

@@ -1,5 +1,6 @@
 package com.cebolao.lotofacil.data
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.Immutable
 import kotlinx.serialization.Serializable
 
@@ -16,6 +17,7 @@ enum class RestrictivenessCategory {
     VERY_TIGHT   // <20% do range total
 }
 
+@SuppressLint("UnsafeOptInUsageError")
 @Immutable
 @Serializable
 data class FilterState(

@@ -1,24 +1,37 @@
 [versions]
 # Build & Kotlin
+#noinspection AndroidGradlePluginVersion
 agp = "8.5.1"
 kotlin = "2.0.0"
 ksp = "2.0.0-1.0.22" # Deve casar com a versão do Kotlin
+#noinspection GradleDependency,GradleDependency
 desugar = "2.0.4"
 
 # Android Core & Compose
+#noinspection GradleDependency
 coreKtx = "1.13.1"
+#noinspection GradleDependency,GradleDependency
 lifecycle = "2.8.3"
+#noinspection GradleDependency
 activityCompose = "1.9.0"
+#noinspection GradleDependency
 composeBom = "2024.06.00"
+#noinspection GradleDependency
 navigationCompose = "2.7.7"
+#noinspection GradleDependency
 material3 = "1.2.1"
+#noinspection GradleDependency
 materialComponents = "1.12.0" # XML Legacy support if needed
+#noinspection GradleDependency
 splashScreen = "1.0.1"
 
 # Architecture
 hilt = "2.51.1"
+#noinspection GradleDependency,GradleDependency,GradleDependency
 androidxHilt = "1.2.0"
+#noinspection GradleDependency
 workRuntimeKtx = "2.9.0"
+#noinspection GradleDependency
 datastore = "1.1.1"
 
 # Data & Network
@@ -30,7 +43,9 @@ coil = "2.6.0"
 
 # Testing
 junit = "4.13.2"
+#noinspection GradleDependency
 junitVersion = "1.1.5"
+#noinspection GradleDependency
 espresso = "3.6.1"
 coroutines = "1.8.1"
 

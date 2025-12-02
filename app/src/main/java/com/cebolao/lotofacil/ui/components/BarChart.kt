@@ -19,6 +19,7 @@ import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.NativeCanvas
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -38,6 +39,7 @@ import com.cebolao.lotofacil.ui.theme.AppConfig
 import com.cebolao.lotofacil.ui.theme.Dimen
 import kotlinx.collections.immutable.ImmutableList
 import kotlin.math.roundToInt
+import androidx.core.graphics.withSave
 
 // Padrões internos
 private object ChartDefaults {
@@ -89,14 +91,12 @@ fun BarChart(
                 .fillMaxSize()
                 .pointerInput(data) {
                     detectTapGestures { offset ->
-                        // Correção: converter IntSize para Size
                         val metrics = ChartMetrics(size.toSize(), data.size)
                         val index = metrics.getBarIndexAt(offset.x)
                         selectedIndex = if (selectedIndex == index) null else index
                     }
                 }
         ) {
-            // No DrawScope, size já é Size
             val metrics = ChartMetrics(size, data.size)
 
             drawGrid(maxValue, metrics, paints.text, colors.line)
@@ -217,20 +217,21 @@ private fun DrawScope.drawBars(
         }
 
         if (data.size <= 15 || index % 2 == 0) {
-            drawContext.canvas.nativeCanvas.save()
-            drawContext.canvas.nativeCanvas.rotate(
-                -45f,
-                left + metrics.barWidth / 2,
-                size.height - X_AXIS_HEIGHT / 3
-            )
-            drawContext.canvas.nativeCanvas.drawText(
-                label,
-                left + metrics.barWidth / 2,
-                size.height - X_AXIS_HEIGHT / 4,
-                paints.label
-            )
-            drawContext.canvas.nativeCanvas.restore()
+            drawRotatedLabel(label, left + metrics.barWidth / 2, size.height - X_AXIS_HEIGHT / 4, paints.label)
         }
+    }
+}
+
+private fun DrawScope.drawRotatedLabel(text: String, x: Float, y: Float, paint: Paint) {
+    drawContext.canvas.nativeCanvas.withRotation(-45f, x, size.height - X_AXIS_HEIGHT / 3) {
+        drawText(text, x, y, paint)
+    }
+}
+
+private inline fun NativeCanvas.withRotation(degrees: Float, pivotX: Float, pivotY: Float, block: NativeCanvas.() -> Unit) {
+    withSave {
+        rotate(degrees, pivotX, pivotY)
+        block()
     }
 }
 

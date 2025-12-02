@@ -36,12 +36,16 @@ fun PrimaryActionButton(
 ) {
     val widthModifier = if (isFullWidth) Modifier.fillMaxWidth() else Modifier
     
+    // Aplicando bounceClick antes do clique nativo do Button se necessário, 
+    // mas Button já tem clique. Se quisermos animação de escala no botão todo:
     Button(
         onClick = onClick,
         modifier = modifier
             .height(Dimen.LargeButtonHeight)
             .then(widthModifier)
-            .bounceClick(), // Efeito de clique tátil
+            // bounceClick deve estar visível no pacote ui.components. 
+            // Se falhar, verifique se UIExtensions.kt está no mesmo package.
+            .bounceClick(scaleDown = 0.97f), 
         enabled = enabled && !isLoading,
         shape = MaterialTheme.shapes.small,
         colors = ButtonDefaults.buttonColors(
@@ -57,7 +61,8 @@ fun PrimaryActionButton(
         AnimatedContent(
             targetState = isLoading,
             transitionSpec = { 
-                fadeIn(tween(200)) togetherWith fadeOut(tween(200)) 
+                fadeIn(tween(AppConfig.Animation.SHORT_DURATION)) togetherWith 
+                fadeOut(tween(AppConfig.Animation.SHORT_DURATION)) 
             },
             label = "ButtonContent"
         ) { loading ->

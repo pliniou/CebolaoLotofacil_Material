@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.firstOrNull
 
 private const val TAG = "WidgetUpdateWorker"
 private const val NUMBERS_PER_ROW = 5
+private const val MAX_RETRIES = 3
 
 @HiltWorker
 class WidgetUpdateWorker @AssistedInject constructor(
@@ -38,7 +39,7 @@ class WidgetUpdateWorker @AssistedInject constructor(
             Result.success()
         } catch (e: Exception) {
             Log.e(TAG, "Widget update failed", e)
-            if (runAttemptCount < 3) Result.retry() else Result.failure()
+            if (runAttemptCount < MAX_RETRIES) Result.retry() else Result.failure()
         }
     }
 
@@ -46,10 +47,11 @@ class WidgetUpdateWorker @AssistedInject constructor(
         updateWidgets(
             providerClass = LastDrawWidgetProvider::class.java,
             layoutId = R.layout.widget_last_draw,
+            // ID atualizado conforme refatoração do layout XML
             contentViewId = R.id.widget_numbers_container,
             fetchData = { historyRepository.getLastDraw() },
             updateViews = { lastDraw ->
-                setTextViewText(R.id.widget_title, "Concurso ${lastDraw.contestNumber}")
+                setTextViewText(R.id.widget_title, "Último: ${lastDraw.contestNumber}")
                 populateNumberGrid(this, lastDraw.numbers)
             },
             updateErrorViews = {
@@ -66,7 +68,7 @@ class WidgetUpdateWorker @AssistedInject constructor(
             contentViewId = R.id.widget_content,
             fetchData = { historyRepository.getLatestApiResult() },
             updateViews = { info ->
-                setTextViewText(R.id.widget_title, context.getString(R.string.widget_next_contest_title, info.numero + 1))
+                setTextViewText(R.id.widget_title, context.getString(R.string.widget_next_contest_title_generic) + " ${info.numero + 1}")
                 setTextViewText(R.id.widget_date, info.dataProximoConcurso ?: "--/--")
                 setTextViewText(R.id.widget_prize, Formatters.formatCurrency(info.valorEstimadoProximoConcurso))
             },
@@ -81,7 +83,6 @@ class WidgetUpdateWorker @AssistedInject constructor(
             providerClass = PinnedGameWidgetProvider::class.java,
             layoutId = R.layout.widget_pinned_game,
             contentViewId = R.id.widget_numbers_container,
-            // Pega o primeiro jogo da lista de flow ou null
             fetchData = { gameRepository.pinnedGames.firstOrNull()?.firstOrNull() },
             updateViews = { game ->
                 setTextViewText(R.id.widget_title, context.getString(R.string.widget_pinned_game_title))

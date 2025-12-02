@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 class GetGameSimpleStatsUseCase @Inject constructor(
-    @param:DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
+    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
 ) {
     operator fun invoke(game: GameStatisticsProvider): Flow<Result<ImmutableList<Pair<String, String>>>> =
         flow {

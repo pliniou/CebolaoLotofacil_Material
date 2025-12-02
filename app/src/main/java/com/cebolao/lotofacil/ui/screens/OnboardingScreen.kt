@@ -5,19 +5,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -121,29 +109,28 @@ private fun OnboardingControls(pagerState: PagerState, onOnboardingComplete: () 
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        // Botão Pular (Esquerda)
+        // Botão Pular
         AnimatedVisibility(
             visible = !isLastPage,
             enter = fadeIn(),
             exit = fadeOut(),
-            modifier = Modifier.weight(1f) // Peso aplicado diretamente aqui
+            modifier = Modifier.weight(1f)
         ) {
-            // Corrigido: Nome do parâmetro alterado para onClick
-            SkipButton(onClick = onOnboardingComplete)
+            TextButton(onClick = onOnboardingComplete) {
+                Text(stringResource(R.string.onboarding_skip))
+            }
         }
 
-        if (isLastPage) {
-            Box(modifier = Modifier.weight(1f)) // Placeholder para manter alinhamento
-        }
+        if (isLastPage) Box(modifier = Modifier.weight(1f))
 
-        // Indicador (Centro)
+        // Indicador
         PagerIndicator(
             pageCount = pagerState.pageCount,
             currentPage = pagerState.currentPage,
             modifier = Modifier.weight(1f)
         )
 
-        // Botão Ação (Direita)
+        // Botão Ação
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
             val text = stringResource(if (isLastPage) R.string.onboarding_start else R.string.onboarding_next)
 
@@ -157,12 +144,5 @@ private fun OnboardingControls(pagerState: PagerState, onOnboardingComplete: () 
                 isFullWidth = false
             )
         }
-    }
-}
-
-@Composable
-private fun SkipButton(onClick: () -> Unit) {
-    TextButton(onClick = onClick) {
-        Text(stringResource(R.string.onboarding_skip))
     }
 }

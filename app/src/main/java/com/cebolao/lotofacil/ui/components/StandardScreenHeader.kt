@@ -10,7 +10,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.cebolao.lotofacil.ui.theme.Dimen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,19 +26,22 @@ fun StandardScreenHeader(
     TopAppBar(
         modifier = modifier,
         title = {
-            Column(modifier = Modifier.padding(start = 8.dp)) {
+            Column(modifier = Modifier.padding(start = 4.dp)) {
                 Text(
                     text = title,
-                    // Fonte de Impacto (Gabarito)
-                    style = MaterialTheme.typography.displaySmall, 
-                    color = MaterialTheme.colorScheme.onSurface
+                    // CORREÇÃO: Reduzido de displaySmall para headlineSmall para evitar cortes
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 if (subtitle != null) {
                     Text(
                         text = subtitle,
-                        // Fonte de UI (Outfit)
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }

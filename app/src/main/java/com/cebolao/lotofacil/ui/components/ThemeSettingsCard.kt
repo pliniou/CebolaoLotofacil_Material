@@ -1,7 +1,6 @@
 package com.cebolao.lotofacil.ui.components
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.cebolao.lotofacil.R
@@ -49,14 +49,7 @@ fun ThemeSettingsCard(
 
             AppDivider()
 
-            // Seção de Cores (Paletas Dinâmicas)
-            Column(verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)) {
-                Text(
-                    text = stringResource(R.string.about_personalization_title),
-                    style = MaterialTheme.typography.titleMedium
-                )
-                PaletteSelector(currentPalette, onPaletteChange)
-            }
+            ColorPaletteCard(currentPalette, onPaletteChange)
         }
     }
 }
@@ -87,7 +80,7 @@ private fun ThemeModeSelector(currentTheme: String, onThemeChange: (String) -> U
 @Composable
 private fun ThemeModeButton(
     selected: Boolean,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     label: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -114,57 +107,6 @@ private fun ThemeModeButton(
             Icon(imageVector = icon, contentDescription = null, tint = contentColor)
             Spacer(modifier = Modifier.width(Dimen.SmallPadding))
             Text(text = label, style = MaterialTheme.typography.labelLarge, color = contentColor)
-        }
-    }
-}
-
-@Composable
-private fun PaletteSelector(currentPalette: AccentPalette, onPaletteChange: (AccentPalette) -> Unit) {
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(horizontal = 4.dp)
-    ) {
-        items(AccentPalette.entries) { palette ->
-            PaletteSwatch(
-                palette = palette,
-                isSelected = currentPalette == palette,
-                onClick = { onPaletteChange(palette) }
-            )
-        }
-    }
-}
-
-@Composable
-private fun PaletteSwatch(
-    palette: AccentPalette,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    val size by animateDpAsState(if (isSelected) 56.dp else 48.dp, label = "swatchSize")
-    
-    // Cor do check depende da luminância da seed
-    val checkColor = if (palette == AccentPalette.AMARELO || palette == AccentPalette.VERDE) Color.Black else Color.White
-
-    Box(
-        modifier = Modifier
-            .size(size)
-            .clip(CircleShape)
-            .background(palette.seed)
-            .border(
-                width = if (isSelected) 3.dp else 0.dp, 
-                color = MaterialTheme.colorScheme.onSurface, 
-                shape = CircleShape
-            )
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        if (isSelected) {
-            Icon(
-                imageVector = Icons.Default.Check,
-                contentDescription = null,
-                tint = checkColor,
-                modifier = Modifier.size(24.dp)
-            )
         }
     }
 }

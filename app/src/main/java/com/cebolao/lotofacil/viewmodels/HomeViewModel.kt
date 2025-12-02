@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import com.cebolao.lotofacil.R
+import com.cebolao.lotofacil.R // IMPORT ADICIONADO
 import com.cebolao.lotofacil.data.CheckResult
 import com.cebolao.lotofacil.data.HistoricalDraw
 import com.cebolao.lotofacil.data.StatisticsReport
@@ -56,7 +56,7 @@ data class HomeUiState(
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    historyRepository: HistoryRepository,
+    private val historyRepository: HistoryRepository,
     private val syncHistoryUseCase: SyncHistoryUseCase,
     private val getHomeScreenDataUseCase: GetHomeScreenDataUseCase,
     private val getAnalyzedStatsUseCase: GetAnalyzedStatsUseCase,
@@ -67,18 +67,18 @@ class HomeViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState = _uiState.asStateFlow()
-    
+
     private val _timeWindow = MutableStateFlow(0)
 
     init {
-        setupSyncObserver(historyRepository)
-        setupDataLoad()
-        setupStatisticsObserver()
+        observeSyncStatus()
+        observeTimeWindowChange()
+        reloadHomeData()
         scheduleWidgetUpdate()
     }
 
-    private fun setupSyncObserver(repo: HistoryRepository) {
-        repo.syncStatus.onEach { status ->
+    private fun observeSyncStatus() {
+        historyRepository.syncStatus.onEach { status ->
             _uiState.update { state ->
                 state.copy(
                     isSyncing = status is SyncStatus.Syncing,
@@ -95,14 +95,28 @@ class HomeViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    private fun setupDataLoad() {
-        reloadHomeData()
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun observeTimeWindowChange() {
+        _timeWindow
+            .flatMapLatest { window ->
+                _uiState.update { it.copy(isStatsLoading = true, selectedTimeWindow = window) }
+                flow { emit(getAnalyzedStatsUseCase(window)) }
+            }
+            .onEach { result ->
+                _uiState.update { state ->
+                    result.fold(
+                        onSuccess = { stats -> state.copy(statistics = stats, isStatsLoading = false) },
+                        onFailure = { state.copy(isStatsLoading = false) }
+                    )
+                }
+            }
+            .launchIn(viewModelScope)
     }
 
     private fun reloadHomeData() {
         viewModelScope.launch {
             _uiState.update { it.copy(screenState = HomeScreenState.Loading) }
-            
+
             getHomeScreenDataUseCase()
                 .collect { result -> processHomeDataResult(result) }
         }
@@ -112,13 +126,16 @@ class HomeViewModel @Inject constructor(
         result.fold(
             onSuccess = { data ->
                 val lastDraw = data.lastDraw
-                
-                val simpleStats = lastDraw?.let { getGameSimpleStatsUseCase(it).first().getOrNull() } 
-                    ?: persistentListOf()
-                
-                val checkResult = lastDraw?.let { checkGameUseCase(it.numbers).first().getOrNull() }
 
-                _uiState.update { 
+                val simpleStats = lastDraw?.let {
+                    getGameSimpleStatsUseCase(it).first().getOrNull()
+                } ?: persistentListOf()
+
+                val checkResult = lastDraw?.let {
+                    checkGameUseCase(it.numbers).first().getOrNull()
+                }
+
+                _uiState.update {
                     it.copy(
                         screenState = HomeScreenState.Success(
                             lastDraw = lastDraw,
@@ -137,32 +154,12 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private fun setupStatisticsObserver() {
-        _timeWindow
-            .flatMapLatest { window ->
-                _uiState.update { it.copy(isStatsLoading = true, selectedTimeWindow = window) }
-                flow { emit(getAnalyzedStatsUseCase(window)) }
-            }
-            .onEach { result ->
-                result.fold(
-                    onSuccess = { stats ->
-                        _uiState.update { it.copy(statistics = stats, isStatsLoading = false) }
-                    },
-                    onFailure = {
-                        _uiState.update { it.copy(isStatsLoading = false) }
-                    }
-                )
-            }
-            .launchIn(viewModelScope)
-    }
-
     private fun scheduleWidgetUpdate() {
         val request = PeriodicWorkRequestBuilder<WidgetUpdateWorker>(WIDGET_UPDATE_INTERVAL_HOURS, TimeUnit.HOURS)
             .build()
         workManager.enqueueUniquePeriodicWork(
-            WIDGET_UPDATE_WORK_NAME, 
-            ExistingPeriodicWorkPolicy.KEEP, 
+            WIDGET_UPDATE_WORK_NAME,
+            ExistingPeriodicWorkPolicy.KEEP,
             request
         )
     }
@@ -170,10 +167,9 @@ class HomeViewModel @Inject constructor(
     fun onMessageShown() {
         _uiState.update { it.copy(syncMessageRes = null) }
     }
-    
-    fun retryInitialLoad() = reloadHomeData()
+
     fun forceSync() = syncHistoryUseCase()
-    
+
     fun onTimeWindowSelected(window: Int) {
         _timeWindow.value = window
     }

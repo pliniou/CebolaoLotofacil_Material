@@ -10,18 +10,14 @@ import com.cebolao.lotofacil.data.LotofacilConstants
 import com.cebolao.lotofacil.data.LotofacilGame
 import com.cebolao.lotofacil.domain.repository.GameRepository
 import com.cebolao.lotofacil.domain.usecase.AnalyzeGameUseCase
-import com.cebolao.lotofacil.util.STATE_IN_TIMEOUT_MS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
@@ -66,7 +62,6 @@ class GameViewModel @Inject constructor(
     private val analyzeGameUseCase: AnalyzeGameUseCase
 ) : ViewModel() {
 
-    // Repositório já expõe StateFlow, apenas repassamos com conversão para Immutable se necessário (feito no repo)
     val unpinnedGames = gameRepository.unpinnedGames
     val pinnedGames = gameRepository.pinnedGames
 
@@ -82,7 +77,6 @@ class GameViewModel @Inject constructor(
     private var analyzeJob: Job? = null
 
     init {
-        // Cálculo reativo do sumário
         viewModelScope.launch {
             combine(unpinnedGames, pinnedGames) { unpinned, pinned ->
                 val total = unpinned.size + pinned.size
@@ -97,7 +91,6 @@ class GameViewModel @Inject constructor(
         }
     }
 
-    // Ações de Jogo
     fun togglePinState(game: LotofacilGame) = viewModelScope.launch {
         gameRepository.togglePinState(game)
     }
@@ -123,7 +116,6 @@ class GameViewModel @Inject constructor(
         gameRepository.clearUnpinnedGames()
     }
 
-    // Análise
     fun analyzeGame(game: LotofacilGame) {
         analyzeJob?.cancel()
         analyzeJob = viewModelScope.launch {
@@ -139,7 +131,6 @@ class GameViewModel @Inject constructor(
         _analysisState.value = GameAnalysisUiState.Idle
     }
 
-    // Share
     fun shareGame(game: LotofacilGame) = viewModelScope.launch {
         _eventFlow.emit(GameScreenEvent.ShareGame(game.numbers.sorted()))
     }

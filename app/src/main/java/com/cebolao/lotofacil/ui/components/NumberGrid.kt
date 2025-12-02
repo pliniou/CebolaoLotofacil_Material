@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,32 +45,32 @@ fun NumberGrid(
         maxItemsInEachRow = AppConfig.UI.GRID_COLUMNS
     ) {
         allNumbers.forEach { number ->
-            val isSelected = number in selectedNumbers
-            val isClickable = !(selectionFull && !isSelected)
+            // key ajuda o Compose a pular a recomposição se este número específico não mudou
+            key(number) {
+                val isSelected = number in selectedNumbers
+                val isClickable = !selectionFull || isSelected
 
-            // Wrapper para clique sem Ripple (estilo toggle instantâneo)
-            Box(
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        enabled = isClickable,
-                        onClick = {
-                            if (isClickable) {
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            enabled = isClickable,
+                            onClick = {
                                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                 onNumberClick(number)
                             }
-                        }
+                        )
+                ) {
+                    NumberBall(
+                        number = number,
+                        isSelected = isSelected,
+                        isDisabled = !isClickable,
+                        sizeVariant = sizeVariant,
+                        variant = ballVariant
                     )
-            ) {
-                NumberBall(
-                    number = number,
-                    isSelected = isSelected,
-                    isDisabled = !isClickable,
-                    sizeVariant = sizeVariant,
-                    variant = ballVariant
-                )
+                }
             }
         }
     }

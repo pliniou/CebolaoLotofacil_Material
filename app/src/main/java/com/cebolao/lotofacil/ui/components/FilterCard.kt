@@ -54,81 +54,110 @@ fun FilterCard(
     }
     
     val isActive = filterState.isEnabled && !isDataMissing
-    val contentAlpha by animateFloatAsState(targetValue = if (isActive) 1f else 0.5f, label = "alpha")
-
+    
     SectionCard(
         modifier = modifier,
         backgroundColor = if(isActive) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceContainerLow
     ) {
         Column(modifier = Modifier.padding(Dimen.SmallPadding)) {
-            // Header
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)
-            ) {
-                Icon(
-                    imageVector = filterState.type.filterIcon,
-                    contentDescription = null,
-                    tint = if(isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(Dimen.MediumIcon)
-                )
-                
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = stringResource(filterState.type.titleRes),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    if (isDataMissing) {
-                        Text(
-                            text = stringResource(R.string.filters_unavailable_data),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                }
-
-                IconButton(onClick = onInfoClick) {
-                    Icon(
-                        imageVector = Icons.Outlined.Info, 
-                        contentDescription = stringResource(R.string.filters_info_button_description),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                
-                Switch(
-                    checked = filterState.isEnabled,
-                    onCheckedChange = onEnabledChange,
-                    enabled = !isDataMissing,
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
-                        checkedTrackColor = MaterialTheme.colorScheme.primary
-                    )
-                )
-            }
+            FilterCardHeader(
+                filterState = filterState,
+                isActive = isActive,
+                isDataMissing = isDataMissing,
+                onInfoClick = onInfoClick,
+                onEnabledChange = onEnabledChange
+            )
 
             AnimatedVisibility(
                 visible = isActive,
                 enter = expandVertically() + fadeIn(),
                 exit = shrinkVertically() + fadeOut()
             ) {
-                Column(modifier = Modifier.padding(top = Dimen.MediumPadding).alpha(contentAlpha)) {
-                    RangeLabels(
-                        start = filterState.selectedRange.start.toInt(),
-                        end = filterState.selectedRange.endInclusive.toInt()
-                    )
-                    
-                    RangeSlider(
-                        value = filterState.selectedRange,
-                        onValueChange = onRangeChange,
-                        valueRange = filterState.type.fullRange,
-                        steps = (filterState.type.fullRange.endInclusive - filterState.type.fullRange.start).toInt() - 1,
-                        modifier = Modifier.padding(top = Dimen.SmallPadding)
-                    )
-                }
+                FilterCardContent(
+                    filterState = filterState,
+                    onRangeChange = onRangeChange
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun FilterCardHeader(
+    filterState: FilterState,
+    isActive: Boolean,
+    isDataMissing: Boolean,
+    onInfoClick: () -> Unit,
+    onEnabledChange: (Boolean) -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)
+    ) {
+        Icon(
+            imageVector = filterState.type.filterIcon,
+            contentDescription = null,
+            tint = if(isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(Dimen.MediumIcon)
+        )
+        
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(filterState.type.titleRes),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            if (isDataMissing) {
+                Text(
+                    text = stringResource(R.string.filters_unavailable_data),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        }
+
+        IconButton(onClick = onInfoClick) {
+            Icon(
+                imageVector = Icons.Outlined.Info, 
+                contentDescription = stringResource(R.string.filters_info_button_description),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        
+        Switch(
+            checked = filterState.isEnabled,
+            onCheckedChange = onEnabledChange,
+            enabled = !isDataMissing,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                checkedTrackColor = MaterialTheme.colorScheme.primary
+            )
+        )
+    }
+}
+
+@Composable
+private fun FilterCardContent(
+    filterState: FilterState,
+    onRangeChange: (ClosedFloatingPointRange<Float>) -> Unit
+) {
+    // Opacidade para transição suave
+    val contentAlpha by animateFloatAsState(targetValue = 1f, label = "alpha")
+
+    Column(modifier = Modifier.padding(top = Dimen.MediumPadding).alpha(contentAlpha)) {
+        RangeLabels(
+            start = filterState.selectedRange.start.toInt(),
+            end = filterState.selectedRange.endInclusive.toInt()
+        )
+        
+        RangeSlider(
+            value = filterState.selectedRange,
+            onValueChange = onRangeChange,
+            valueRange = filterState.type.fullRange,
+            steps = (filterState.type.fullRange.endInclusive - filterState.type.fullRange.start).toInt() - 1,
+            modifier = Modifier.padding(top = Dimen.SmallPadding)
+        )
     }
 }
 

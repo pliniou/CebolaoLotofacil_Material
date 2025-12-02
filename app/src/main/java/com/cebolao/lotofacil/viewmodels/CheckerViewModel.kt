@@ -5,7 +5,7 @@ import androidx.compose.runtime.Stable
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cebolao.lotofacil.R
+import com.cebolao.lotofacil.R // IMPORT ADICIONADO
 import com.cebolao.lotofacil.data.CheckResult
 import com.cebolao.lotofacil.data.LotofacilConstants
 import com.cebolao.lotofacil.data.LotofacilGame
@@ -53,7 +53,6 @@ class CheckerViewModel @Inject constructor(
     private val _selectedNumbers = MutableStateFlow<Set<Int>>(emptySet())
     val selectedNumbers = _selectedNumbers.asStateFlow()
 
-    // Refatorado: Uso da constante global STATE_IN_TIMEOUT_MS
     val isGameComplete = _selectedNumbers
         .map { it.size == LotofacilConstants.GAME_SIZE }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), false)
@@ -64,7 +63,10 @@ class CheckerViewModel @Inject constructor(
     init {
         val numbersArg = savedStateHandle.get<String>(Screen.Checker.CHECKER_NUMBERS_ARG)
         if (!numbersArg.isNullOrBlank()) {
-            val numbers = numbersArg.split(CHECKER_ARG_SEPARATOR).mapNotNull { it.toIntOrNull() }.toSet()
+            val numbers = numbersArg.split(CHECKER_ARG_SEPARATOR)
+                .mapNotNull { it.toIntOrNull() }
+                .toSet()
+
             if (numbers.size == LotofacilConstants.GAME_SIZE) {
                 _selectedNumbers.value = numbers
                 checkGame()
@@ -77,17 +79,17 @@ class CheckerViewModel @Inject constructor(
             when {
                 number in current -> current - number
                 current.size < LotofacilConstants.GAME_SIZE -> current + number
-                else -> current // Ignora se já cheio e tentando adicionar
+                else -> current
             }
         }
         if (_uiState.value !is CheckerUiState.Idle) {
-            _uiState.value = CheckerUiState.Idle // Reseta resultado se mudar números
+            _uiState.update { CheckerUiState.Idle }
         }
     }
 
     fun clearNumbers() {
-        _selectedNumbers.value = emptySet()
-        _uiState.value = CheckerUiState.Idle
+        _selectedNumbers.update { emptySet() }
+        _uiState.update { CheckerUiState.Idle }
     }
 
     fun checkGame() {
@@ -97,15 +99,15 @@ class CheckerViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            _uiState.value = CheckerUiState.Loading
+            _uiState.update { CheckerUiState.Loading }
             val game = LotofacilGame(numbers = _selectedNumbers.value)
 
             analyzeGameUseCase(game)
                 .onSuccess { result ->
-                    _uiState.value = CheckerUiState.Success(result.checkResult, result.simpleStats)
+                    _uiState.update { CheckerUiState.Success(result.checkResult, result.simpleStats) }
                 }
                 .onFailure {
-                    _uiState.value = CheckerUiState.Error(R.string.error_analysis_failed)
+                    _uiState.update { CheckerUiState.Error(R.string.error_analysis_failed) }
                 }
         }
     }

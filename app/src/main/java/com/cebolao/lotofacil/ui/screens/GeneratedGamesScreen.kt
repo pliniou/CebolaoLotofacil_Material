@@ -74,20 +74,18 @@ fun GeneratedGamesScreen(navController: NavController, viewModel: GameViewModel 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val analysisState by viewModel.analysisState.collectAsStateWithLifecycle()
     
-    val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    
-    val tabTitles = listOf(R.string.games_tab_new, R.string.games_tab_pinned)
-    val pagerState = rememberPagerState(pageCount = { tabTitles.size })
+    val snackbarHostState = remember { SnackbarHostState() }
+    val pagerState = rememberPagerState(pageCount = { 2 }) // 0: Novos, 1: Salvos
     
     var showClearDialog by remember { mutableStateOf(false) }
 
-    // Event Handling
+    // Efeito para Eventos One-Shot (Share, Snackbar)
     LaunchedEffect(Unit) {
         viewModel.events.collectLatest { event ->
             when (event) {
-                is GameScreenEvent.ShareGame -> context.shareGame(event.numbers)
+                is GameScreenEvent.ShareGame -> context.shareGameIntent(event.numbers)
             }
         }
     }
@@ -136,49 +134,79 @@ fun GeneratedGamesScreen(navController: NavController, viewModel: GameViewModel 
                 GameSummarySection(uiState.summary)
             }
 
-            SecondaryTabRow(
-                selectedTabIndex = pagerState.currentPage,
-                containerColor = MaterialTheme.colorScheme.background,
-                divider = {}
-            ) {
-                tabTitles.forEachIndexed { index, titleRes ->
-                    Tab(
-                        selected = pagerState.currentPage == index,
-                        onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
-                        text = { 
-                            Text(
-                                stringResource(titleRes), 
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = if(pagerState.currentPage == index) FontWeight.Bold else FontWeight.Normal
-                            ) 
-                        }
-                    )
-                }
-            }
+            GameTabs(
+                selectedIndex = pagerState.currentPage,
+                onTabSelected = { index -> scope.launch { pagerState.animateScrollToPage(index) } }
+            )
             
             HorizontalPager(state = pagerState, modifier = Modifier.weight(1f)) { page ->
                 val games = if (page == 0) unpinned else pinned
-                if (games.isEmpty()) {
-                    EmptyState(navController, isNewGamesTab = (page == 0))
-                } else {
-                    StandardPageLayout(scaffoldPadding = PaddingValues()) {
-                        items(
-                            items = games,
-                            key = { it.hashCode() }, // HashCode do objeto imutável é seguro e rápido
-                            contentType = { "game_card" }
-                        ) { game ->
-                            AnimateOnEntry {
-                                GameCard(game) { action -> handleAction(action, game, viewModel, navController) }
-                            }
-                        }
-                    }
+                GameList(
+                    games = games,
+                    isNewGamesTab = (page == 0),
+                    navController = navController,
+                    onAction = { action, game -> handleAction(action, game, viewModel, navController) }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun GameTabs(selectedIndex: Int, onTabSelected: (Int) -> Unit) {
+    val titles = listOf(R.string.games_tab_new, R.string.games_tab_pinned)
+    SecondaryTabRow(
+        selectedTabIndex = selectedIndex,
+        containerColor = MaterialTheme.colorScheme.background,
+        divider = {}
+    ) {
+        titles.forEachIndexed { index, titleRes ->
+            Tab(
+                selected = selectedIndex == index,
+                onClick = { onTabSelected(index) },
+                text = { 
+                    Text(
+                        stringResource(titleRes), 
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = if(selectedIndex == index) FontWeight.Bold else FontWeight.Normal
+                    ) 
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun GameList(
+    games: List<LotofacilGame>,
+    isNewGamesTab: Boolean,
+    navController: NavController,
+    onAction: (GameCardAction, LotofacilGame) -> Unit
+) {
+    if (games.isEmpty()) {
+        EmptyState(navController, isNewGamesTab)
+    } else {
+        StandardPageLayout(scaffoldPadding = PaddingValues()) {
+            items(
+                items = games,
+                key = { it.hashCode() },
+                contentType = { "game_card" }
+            ) { game ->
+                AnimateOnEntry {
+                    GameCard(game) { action -> onAction(action, game) }
                 }
             }
         }
     }
 }
 
-private fun handleAction(action: GameCardAction, game: LotofacilGame, viewModel: GameViewModel, navController: NavController) {
+private fun handleAction(
+    action: GameCardAction, 
+    game: LotofacilGame, 
+    viewModel: GameViewModel, 
+    navController: NavController
+) {
     when (action) {
         GameCardAction.Analyze -> viewModel.analyzeGame(game)
         GameCardAction.Pin -> viewModel.togglePinState(game)
@@ -188,7 +216,7 @@ private fun handleAction(action: GameCardAction, game: LotofacilGame, viewModel:
     }
 }
 
-private fun Context.shareGame(numbers: List<Int>) {
+private fun Context.shareGameIntent(numbers: List<Int>) {
     val numbersStr = numbers.joinToString(", ") { "%02d".format(it) }
     val template = getString(R.string.share_game_message_template, numbersStr)
     val htmlText = HtmlCompat.fromHtml(template, HtmlCompat.FROM_HTML_MODE_COMPACT).toString()

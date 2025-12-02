@@ -13,100 +13,116 @@ import javax.inject.Singleton
 
 private const val TOP_NUMBERS_COUNT = 5
 private const val CACHE_SIZE = 50
-private const val MAX_SUM_BUCKET = 300 // Soma máx teórica é 25*15 ~ mas 300 cobre folgado
-private const val MAX_BUCKET_SIZE = 30 // Para histogramas pequenos (pares, primos, etc)
+
+// Tamanhos de Histogramas (Max Value + 1)
+private const val HIST_SIZE_EVENS = 16    // 0..15
+private const val HIST_SIZE_PRIMES = 16   // 0..15 (teoricamente max 9 primos, mas mantemos margem)
+private const val HIST_SIZE_FRAME = 17    // 0..16
+private const val HIST_SIZE_PORTRAIT = 16 // 0..15
+private const val HIST_SIZE_FIB = 16      // 0..15
+private const val HIST_SIZE_MULT3 = 16    // 0..15
+private const val HIST_SIZE_SUM = 300     // Soma máx teórica 25*15 + margem
 
 @Singleton
 class StatisticsAnalyzer @Inject constructor(
     @param:DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
 ) {
 
-    // Cache simples: Chave = "count_firstContest_lastContest"
+    // Chave composta para cache: "Qtd_Inicio_Fim"
     private val analysisCache = LruCache<String, StatisticsReport>(CACHE_SIZE)
 
     suspend fun analyze(draws: List<HistoricalDraw>, timeWindow: Int = 0): StatisticsReport =
         withContext(defaultDispatcher) {
             if (draws.isEmpty()) return@withContext StatisticsReport()
 
+            // Define janela de análise
             val drawsToAnalyze = if (timeWindow > 0) draws.take(timeWindow) else draws
             if (drawsToAnalyze.isEmpty()) return@withContext StatisticsReport()
 
             val cacheKey = "${drawsToAnalyze.size}_${drawsToAnalyze.first().contestNumber}_${drawsToAnalyze.last().contestNumber}"
             
-            analysisCache.get(cacheKey)?.let { return@withContext it }
+            synchronized(analysisCache) {
+                analysisCache.get(cacheKey)?.let { return@withContext it }
+            }
 
             val report = calculateStatistics(drawsToAnalyze)
-            analysisCache.put(cacheKey, report)
+            
+            synchronized(analysisCache) {
+                analysisCache.put(cacheKey, report)
+            }
             report
         }
 
+    /**
+     * Executa análise em passagem única (Single Pass Loop) para performance.
+     * Utiliza IntArrays para evitar alocação excessiva de objetos Integer (Autoboxing).
+     */
     private fun calculateStatistics(draws: List<HistoricalDraw>): StatisticsReport {
-        // Arrays primitivos para evitar alocação de Integer em Maps
+        // Inicialização de Arrays de Frequência
         val frequencies = IntArray(LotofacilConstants.MAX_NUMBER + 1)
         val lastSeen = IntArray(LotofacilConstants.MAX_NUMBER + 1) { -1 }
         
-        // Histogramas fixos (Range conhecido)
-        val evensDist = IntArray(16) // 0..15
-        val primesDist = IntArray(16)
-        val frameDist = IntArray(17) // 0..16
-        val portraitDist = IntArray(16)
-        val fibonacciDist = IntArray(16)
-        val mult3Dist = IntArray(16)
-        
-        // Soma agrupa por dezenas, range aprox 120..270. Array de 300 cobre tudo.
-        val sumDist = IntArray(MAX_SUM_BUCKET)
+        // Histogramas
+        val evensDist = IntArray(HIST_SIZE_EVENS)
+        val primesDist = IntArray(HIST_SIZE_PRIMES)
+        val frameDist = IntArray(HIST_SIZE_FRAME)
+        val portraitDist = IntArray(HIST_SIZE_PORTRAIT)
+        val fibonacciDist = IntArray(HIST_SIZE_FIB)
+        val mult3Dist = IntArray(HIST_SIZE_MULT3)
+        val sumDist = IntArray(HIST_SIZE_SUM)
         
         var sumAccumulator = 0L
         val latestContest = draws.first().contestNumber
 
-        // Single pass loop
+        // Single Pass Loop O(N * 15)
         for (draw in draws) {
-            // Stats por número
+            // Stats por número individual
             for (num in draw.numbers) {
-                frequencies[num]++
+                frequencies.safeIncrement(num)
                 if (lastSeen[num] == -1) {
                     lastSeen[num] = draw.contestNumber
                 }
             }
             
-            // Stats globais do jogo (incremento direto em array)
-            safeInc(evensDist, draw.evens)
-            safeInc(primesDist, draw.primes)
-            safeInc(frameDist, draw.frame)
-            safeInc(portraitDist, draw.portrait)
-            safeInc(fibonacciDist, draw.fibonacci)
-            safeInc(mult3Dist, draw.multiplesOf3)
+            // Stats globais do concurso
+            evensDist.safeIncrement(draw.evens)
+            primesDist.safeIncrement(draw.primes)
+            frameDist.safeIncrement(draw.frame)
+            portraitDist.safeIncrement(draw.portrait)
+            fibonacciDist.safeIncrement(draw.fibonacci)
+            mult3Dist.safeIncrement(draw.multiplesOf3)
             
+            // Bucket da soma (arredonda para dezena mais próxima: 184 -> 180)
             val sumBucket = (draw.sum / 10) * 10
-            safeInc(sumDist, sumBucket)
+            sumDist.safeIncrement(sumBucket)
             
             sumAccumulator += draw.sum
         }
 
-        // Converte arrays para listas/mapas exigidos pelo objeto de retorno (apenas no final)
+        // Materialização dos resultados
         val mostFrequent = createFrequencyList(frequencies, null, TOP_NUMBERS_COUNT)
         val mostOverdue = createFrequencyList(null, lastSeen, TOP_NUMBERS_COUNT, latestContest)
 
         return StatisticsReport(
             mostFrequentNumbers = mostFrequent,
             mostOverdueNumbers = mostOverdue,
-            evenDistribution = evensDist.toMapDist(),
-            primeDistribution = primesDist.toMapDist(),
-            frameDistribution = frameDist.toMapDist(),
-            portraitDistribution = portraitDist.toMapDist(),
-            fibonacciDistribution = fibonacciDist.toMapDist(),
-            multiplesOf3Distribution = mult3Dist.toMapDist(),
-            sumDistribution = sumDist.toMapDist(), // Filter 0s handled in extension
-            averageSum = sumAccumulator.toFloat() / draws.size,
+            evenDistribution = evensDist.toNonZeroMap(),
+            primeDistribution = primesDist.toNonZeroMap(),
+            frameDistribution = frameDist.toNonZeroMap(),
+            portraitDistribution = portraitDist.toNonZeroMap(),
+            fibonacciDistribution = fibonacciDist.toNonZeroMap(),
+            multiplesOf3Distribution = mult3Dist.toNonZeroMap(),
+            sumDistribution = sumDist.toNonZeroMap(),
+            averageSum = if (draws.isNotEmpty()) sumAccumulator.toFloat() / draws.size else 0f,
             totalDrawsAnalyzed = draws.size
         )
     }
 
-    private fun safeInc(array: IntArray, index: Int) {
-        if (index in array.indices) array[index]++
+    private fun IntArray.safeIncrement(index: Int) {
+        if (index in indices) this[index]++
     }
 
-    private fun IntArray.toMapDist(): Map<Int, Int> {
+    private fun IntArray.toNonZeroMap(): Map<Int, Int> {
         val map = HashMap<Int, Int>(this.size)
         for (i in indices) {
             if (this[i] > 0) map[i] = this[i]
@@ -117,16 +133,13 @@ class StatisticsAnalyzer @Inject constructor(
     private fun createFrequencyList(
         counts: IntArray?,
         lastSeen: IntArray?,
-        @Suppress("SameParameterValue") limit: Int,
+        limit: Int,
         currentContest: Int = 0
     ): List<NumberFrequency> {
         return (1..LotofacilConstants.MAX_NUMBER)
             .map { num ->
-                val value = if (counts != null) {
-                    counts[num]
-                } else {
-                    if (lastSeen!![num] == -1) -1 else currentContest - lastSeen[num]
-                }
+                val value = counts?.get(num) 
+                    ?: (if (lastSeen!![num] == -1) -1 else currentContest - lastSeen[num])
                 NumberFrequency(num, value)
             }
             .sortedByDescending { it.frequency }

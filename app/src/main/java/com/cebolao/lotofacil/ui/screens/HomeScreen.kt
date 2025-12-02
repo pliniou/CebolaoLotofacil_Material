@@ -2,6 +2,7 @@ package com.cebolao.lotofacil.ui.screens
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -40,20 +42,21 @@ import com.cebolao.lotofacil.ui.theme.Dimen
 import com.cebolao.lotofacil.viewmodels.HomeScreenState
 import com.cebolao.lotofacil.viewmodels.HomeViewModel
 
+private const val DISCLAIMER_TEXT = "Lembre-se: Probabilidade não é certeza. Jogue com responsabilidade."
+
 @Composable
 fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scrollState = rememberScrollState()
 
     AppScreen(
-        // CORREÇÃO: Restaurado o título do App na Toolbar
         title = stringResource(R.string.app_name),
         subtitle = stringResource(R.string.home_subtitle),
         actions = {
             IconButton(onClick = viewModel::forceSync) {
                 if (uiState.isSyncing) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
+                        modifier = Modifier.size(Dimen.SmallIcon),
                         strokeWidth = 2.dp,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -73,12 +76,10 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                 .verticalScroll(scrollState)
                 .padding(bottom = Dimen.BottomBarSpacer)
         ) {
-            // Welcome Card (Logo abaixo da Toolbar)
             Box(modifier = Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.SmallPadding)) {
                 WelcomeCard()
             }
 
-            // Próximo Concurso
             Box(modifier = Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.MediumPadding)) {
                 when (val state = uiState.screenState) {
                     is HomeScreenState.Success -> NextContestHeroCard(state.nextDrawInfo)
@@ -86,7 +87,6 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                 }
             }
 
-            // Último Resultado
             if (uiState.screenState is HomeScreenState.Success) {
                 val state = uiState.screenState as HomeScreenState.Success
                 state.lastDraw?.let { draw ->
@@ -99,7 +99,6 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                 }
             }
 
-            // Estatísticas
             SectionHeader(title = stringResource(R.string.home_statistics_center))
 
             uiState.statistics?.let { stats ->
@@ -159,9 +158,9 @@ private fun LoadingStats() {
     Column(Modifier.padding(Dimen.ScreenPadding)) {
         LinearProgressIndicator(Modifier.fillMaxWidth())
         Text(
-            text = "Carregando inteligência...",
+            text = stringResource(R.string.general_loading_analysis),
             style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(top = 8.dp),
+            modifier = Modifier.padding(top = Dimen.SmallPadding),
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
@@ -171,12 +170,12 @@ private fun LoadingStats() {
 private fun InfoTipCard(modifier: Modifier = Modifier) {
     OutlinedCard(
         modifier = modifier.fillMaxWidth(),
-        colors = androidx.compose.material3.CardDefaults.outlinedCardColors(
+        colors = CardDefaults.outlinedCardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         )
     ) {
-        androidx.compose.foundation.layout.Row(
-            modifier = Modifier.padding(16.dp),
+        Row(
+            modifier = Modifier.padding(Dimen.MediumPadding),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -184,11 +183,11 @@ private fun InfoTipCard(modifier: Modifier = Modifier) {
                 null,
                 tint = MaterialTheme.colorScheme.primary
             )
-            Spacer(Modifier.width(16.dp))
+            Spacer(Modifier.width(Dimen.MediumPadding))
             Text(
-                text = "Lembre-se: Probabilidade não é certeza. Jogue com responsabilidade.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+            	text = stringResource(R.string.general_disclaimer_responsibility),
+            	style = MaterialTheme.typography.bodyMedium,
+            	color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

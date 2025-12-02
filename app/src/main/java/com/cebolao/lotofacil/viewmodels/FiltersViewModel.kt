@@ -18,6 +18,7 @@ import com.cebolao.lotofacil.domain.usecase.GetLastDrawUseCase
 import com.cebolao.lotofacil.domain.usecase.SaveGeneratedGamesUseCase
 import com.cebolao.lotofacil.util.STATE_IN_TIMEOUT_MS
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,7 +32,6 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.concurrent.CancellationException
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
@@ -84,25 +84,34 @@ class FiltersViewModel @Inject constructor(
         .map { filters -> filterSuccessCalculator(filters.filter { it.isEnabled }) }
         .distinctUntilChanged()
 
-    // Combinação segura de fluxos (evitando limite de argumentos do combine)
+    // Combinação em etapas para garantir Type Safety (evitando cast não checado de List<Any>)
+    private val _uiStateBase = combine(
+        _filterStates,
+        _generationState,
+        _lastDraw
+    ) { filters, genState, lastDraw ->
+        Triple(filters, genState, lastDraw)
+    }
+
+    private val _uiStateOverlay = combine(
+        _probability,
+        _showResetDialog,
+        _filterInfoToShow
+    ) { prob, showDialog, info ->
+        Triple(prob, showDialog, info)
+    }
+
     val uiState: StateFlow<FiltersScreenState> = combine(
-        listOf(
-            _filterStates,
-            _generationState,
-            _lastDraw,
-            _probability,
-            _showResetDialog,
-            _filterInfoToShow
-        )
-    ) { args ->
-        @Suppress("UNCHECKED_CAST")
+        _uiStateBase,
+        _uiStateOverlay
+    ) { (filters, genState, lastDraw), (prob, showDialog, info) ->
         FiltersScreenState(
-            filterStates = args[0] as List<FilterState>,
-            generationState = args[1] as GenerationUiState,
-            lastDraw = args[2] as Set<Int>?,
-            successProbability = args[3] as Float,
-            showResetDialog = args[4] as Boolean,
-            filterInfoToShow = args[5] as FilterType?
+            filterStates = filters,
+            generationState = genState,
+            lastDraw = lastDraw,
+            successProbability = prob,
+            showResetDialog = showDialog,
+            filterInfoToShow = info
         )
     }.stateIn(
         scope = viewModelScope,
@@ -135,10 +144,6 @@ class FiltersViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Aplica um preset de configuração aos filtros.
-     * Ativa filtros definidos no preset e ajusta seus ranges.
-     */
     fun applyPreset(preset: FilterPreset) {
         _filterStates.update { currentStates ->
             currentStates.map { filterState ->
@@ -146,7 +151,6 @@ class FiltersViewModel @Inject constructor(
                 if (rule != null) {
                     filterState.copy(isEnabled = true, selectedRange = rule)
                 } else {
-                    // Mantém estado anterior ou desabilita se preferir limpar
                     filterState.copy(isEnabled = false, selectedRange = filterState.type.defaultRange)
                 }
             }

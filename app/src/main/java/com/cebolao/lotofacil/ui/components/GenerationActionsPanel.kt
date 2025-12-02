@@ -34,7 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.data.LotofacilConstants
-import com.cebolao.lotofacil.ui.theme.AppConfig.UI.GAME_QUANTITY_OPTIONS
+import com.cebolao.lotofacil.ui.theme.AppConfig
 import com.cebolao.lotofacil.ui.theme.Dimen
 import com.cebolao.lotofacil.util.rememberCurrencyFormatter
 import com.cebolao.lotofacil.viewmodels.GenerationUiState
@@ -48,15 +48,14 @@ fun GenerationActionsPanel(
 ) {
     val haptic = LocalHapticFeedback.current
     var selectedIndex by remember { mutableIntStateOf(0) }
-    val quantity = GAME_QUANTITY_OPTIONS[selectedIndex]
+    val quantity = AppConfig.UI.GAME_QUANTITY_OPTIONS[selectedIndex]
     val currencyFormat = rememberCurrencyFormatter()
     val isLoading = generationState is GenerationUiState.Loading
 
-    // Container elevado (Tonal Elevation) típico de Bottom Sheets/Bars MD3
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shadowElevation = 4.dp, // Sombra suave
-        tonalElevation = 3.dp,  // Cor tonal baseada no Primary
+        shadowElevation = Dimen.Elevation.Medium,
+        tonalElevation = Dimen.Elevation.Low,
         color = MaterialTheme.colorScheme.surface
     ) {
         Row(
@@ -78,13 +77,13 @@ fun GenerationActionsPanel(
                         }
                     },
                     onIncrement = {
-                        if (selectedIndex < GAME_QUANTITY_OPTIONS.lastIndex) {
+                        if (selectedIndex < AppConfig.UI.GAME_QUANTITY_OPTIONS.lastIndex) {
                             haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                             selectedIndex++
                         }
                     },
                     isDecrementEnabled = selectedIndex > 0 && !isLoading,
-                    isIncrementEnabled = selectedIndex < GAME_QUANTITY_OPTIONS.lastIndex && !isLoading
+                    isIncrementEnabled = selectedIndex < AppConfig.UI.GAME_QUANTITY_OPTIONS.lastIndex && !isLoading
                 )
                 Text(
                     text = currencyFormat.format(LotofacilConstants.GAME_COST.multiply(quantity.toBigDecimal())),
@@ -94,44 +93,16 @@ fun GenerationActionsPanel(
             }
 
             // Ações Principais
-            Row(
-                modifier = Modifier.weight(1f),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)
-            ) {
-                if (isLoading) {
-                    FilledIconButton(
-                        onClick = {
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            onCancel()
-                        },
-                        colors = IconButtonDefaults.filledIconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer,
-                            contentColor = MaterialTheme.colorScheme.onErrorContainer
-                        )
-                    ) {
-                        Icon(Icons.Filled.Cancel, stringResource(R.string.filters_button_cancel_description))
-                    }
-                }
-
-                val buttonText = if (isLoading) {
-                    if (generationState.total > 0) 
-                        stringResource(R.string.filters_button_generating_progress, generationState.progress, generationState.total)
-                    else 
-                        stringResource(generationState.messageRes)
-                } else {
-                    stringResource(R.string.filters_button_generate)
-                }
-
-                PrimaryActionButton(
-                    text = buttonText,
-                    modifier = Modifier.weight(1f),
-                    enabled = !isLoading,
-                    isLoading = isLoading,
-                    onClick = { onGenerate(quantity) },
-                    icon = { if (!isLoading) Icon(Icons.AutoMirrored.Filled.Send, null) }
-                )
-            }
+            ActionButtons(
+                isLoading = isLoading,
+                generationState = generationState,
+                onCancel = {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onCancel()
+                },
+                onGenerate = { onGenerate(quantity) },
+                modifier = Modifier.weight(1f)
+            )
         }
     }
 }
@@ -146,33 +117,98 @@ private fun QuantitySelector(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically, 
-        horizontalArrangement = Arrangement.spacedBy(4.dp) // Mais compacto
+        horizontalArrangement = Arrangement.spacedBy(Dimen.ExtraSmallPadding)
     ) {
-        // Botões menores para o seletor
-        FilledIconButton(
-            onClick = onDecrement, 
+        SelectorButton(
+            icon = Icons.Default.Remove,
+            descRes = R.string.filters_quantity_decrease,
             enabled = isDecrementEnabled,
-            modifier = Modifier.size(32.dp),
-            colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
-        ) {
-            Icon(Icons.Filled.Remove, stringResource(R.string.filters_quantity_decrease), modifier = Modifier.size(16.dp))
-        }
+            onClick = onDecrement
+        )
         
         Text(
             text = quantity.toString(), 
-            style = MaterialTheme.typography.headlineLarge, // Numérico Grande
+            style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(horizontal = 8.dp)
+            modifier = Modifier.padding(horizontal = Dimen.SmallPadding)
         )
         
-        FilledIconButton(
-            onClick = onIncrement, 
+        SelectorButton(
+            icon = Icons.Default.Add,
+            descRes = R.string.filters_quantity_increase,
             enabled = isIncrementEnabled,
-            modifier = Modifier.size(32.dp),
-            colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
-        ) {
-            Icon(Icons.Filled.Add, stringResource(R.string.filters_quantity_increase), modifier = Modifier.size(16.dp))
+            onClick = onIncrement
+        )
+    }
+}
+
+@Composable
+private fun SelectorButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    descRes: Int,
+    enabled: Boolean,
+    onClick: () -> Unit
+) {
+    FilledIconButton(
+        onClick = onClick, 
+        enabled = enabled,
+        modifier = Modifier.size(32.dp),
+        colors = IconButtonDefaults.filledIconButtonColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            disabledContainerColor = MaterialTheme.colorScheme.surfaceContainer
+        )
+    ) {
+        Icon(
+            imageVector = icon, 
+            contentDescription = stringResource(descRes), 
+            modifier = Modifier.size(Dimen.SmallIcon)
+        )
+    }
+}
+
+@Composable
+private fun ActionButtons(
+    isLoading: Boolean,
+    generationState: GenerationUiState,
+    onCancel: () -> Unit,
+    onGenerate: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)
+    ) {
+        if (isLoading) {
+            FilledIconButton(
+                onClick = onCancel,
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer
+                )
+            ) {
+                Icon(Icons.Default.Cancel, stringResource(R.string.filters_button_cancel_description))
+            }
         }
+
+        val buttonText = if (isLoading) {
+            if (generationState is GenerationUiState.Loading && generationState.total > 0) 
+                stringResource(R.string.filters_button_generating_progress, generationState.progress, generationState.total)
+            else if (generationState is GenerationUiState.Loading)
+                stringResource(generationState.messageRes)
+            else ""
+        } else {
+            stringResource(R.string.filters_button_generate)
+        }
+
+        PrimaryActionButton(
+            text = buttonText,
+            modifier = Modifier.weight(1f),
+            enabled = !isLoading,
+            isLoading = isLoading,
+            onClick = onGenerate,
+            icon = { if (!isLoading) Icon(Icons.AutoMirrored.Filled.Send, null) }
+        )
     }
 }

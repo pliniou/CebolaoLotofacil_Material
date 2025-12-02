@@ -11,7 +11,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -19,7 +25,6 @@ import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.NativeCanvas
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -34,18 +39,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.withSave
 import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.ui.theme.AppConfig
 import com.cebolao.lotofacil.ui.theme.Dimen
 import kotlinx.collections.immutable.ImmutableList
 import kotlin.math.roundToInt
-import androidx.core.graphics.withSave
 
-// Padrões internos
-private object ChartDefaults {
-    val barCornerRadius = 4.dp
-    val defaultChartHeight = 200.dp
-}
+// --- Configuração ---
+private const val Y_AXIS_WIDTH_PX = 70f
+private const val X_AXIS_HEIGHT_PX = 70f
+private const val TOP_PADDING_PX = 40f
+private const val GRID_LINES_COUNT = 4
+private const val TOOLTIP_POINTER_SIZE = 12f
+private const val TOOLTIP_HEIGHT = 50f
+private const val ROTATION_ANGLE = -45f
 
 @Immutable
 data class ChartColors(
@@ -53,17 +61,12 @@ data class ChartColors(
     val line: Color, val tooltipBg: Color, val tooltipText: Color
 )
 
-private const val Y_AXIS_WIDTH = 70f
-private const val X_AXIS_HEIGHT = 70f
-private const val TOP_PADDING = 40f
-private const val GRID_LINES = 4
-
 @Composable
 fun BarChart(
     data: ImmutableList<Pair<String, Int>>,
     maxValue: Int,
     modifier: Modifier = Modifier,
-    chartHeight: Dp = ChartDefaults.defaultChartHeight,
+    chartHeight: Dp = Dimen.BarChartHeight,
     colors: ChartColors = defaultChartColors()
 ) {
     val density = LocalDensity.current
@@ -99,11 +102,11 @@ fun BarChart(
         ) {
             val metrics = ChartMetrics(size, data.size)
 
-            drawGrid(maxValue, metrics, paints.text, colors.line)
-            drawBars(data, maxValue, metrics, animProgress.value, selectedIndex, colors, paints)
+            drawChartGrid(maxValue, metrics, paints.text, colors.line)
+            drawChartBars(data, maxValue, metrics, animProgress.value, selectedIndex, colors, paints)
 
             selectedIndex?.let { index ->
-                drawTooltip(data[index].second, index, metrics, maxValue, animProgress.value, colors, paints)
+                drawChartTooltip(data[index].second, index, metrics, maxValue, animProgress.value, colors, paints)
             }
         }
     }
@@ -119,13 +122,13 @@ fun defaultChartColors(): ChartColors = ChartColors(
     tooltipText = MaterialTheme.colorScheme.inverseOnSurface
 )
 
-// --- Helpers de Desenho e Cálculo ---
+// --- Helper Logic ---
 
 private class ChartMetrics(val size: Size, val dataCount: Int) {
-    val drawHeight = size.height - X_AXIS_HEIGHT - TOP_PADDING
+    val drawHeight = size.height - X_AXIS_HEIGHT_PX - TOP_PADDING_PX
+    val availableWidth = size.width - Y_AXIS_WIDTH_PX
 
     val barWidth: Float by lazy {
-        val availableWidth = size.width - Y_AXIS_WIDTH
         val rawWidth = (availableWidth * 0.75f) / dataCount.coerceAtLeast(1)
         rawWidth.coerceIn(8f, 100f)
     }
@@ -133,20 +136,20 @@ private class ChartMetrics(val size: Size, val dataCount: Int) {
     val barSpacing: Float by lazy {
         if (dataCount <= 1) 0f else {
             val totalBarWidth = dataCount * barWidth
-            val availableSpace = (size.width - Y_AXIS_WIDTH) - totalBarWidth
+            val availableSpace = availableWidth - totalBarWidth
             (availableSpace / (dataCount - 1)).coerceAtLeast(0f)
         }
     }
 
-    fun getBarX(index: Int): Float = Y_AXIS_WIDTH + index * (barWidth + barSpacing)
+    fun getBarX(index: Int): Float = Y_AXIS_WIDTH_PX + index * (barWidth + barSpacing)
 
     fun getBarHeight(value: Int, max: Int): Float {
         return (value.toFloat() / max.coerceAtLeast(1)) * drawHeight
     }
 
     fun getBarIndexAt(x: Float): Int? {
-        if (x < Y_AXIS_WIDTH) return null
-        val relativeX = x - Y_AXIS_WIDTH
+        if (x < Y_AXIS_WIDTH_PX) return null
+        val relativeX = x - Y_AXIS_WIDTH_PX
         val slotWidth = barWidth + barSpacing
         val index = (relativeX / slotWidth).toInt()
 
@@ -156,126 +159,6 @@ private class ChartMetrics(val size: Size, val dataCount: Int) {
         }
         return null
     }
-}
-
-private fun DrawScope.drawGrid(max: Int, metrics: ChartMetrics, paint: Paint, color: Color) {
-    val pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
-
-    for (i in 0..GRID_LINES) {
-        val normalizedY = 1f - i.toFloat() / GRID_LINES
-        val y = TOP_PADDING + metrics.drawHeight * normalizedY
-        val value = (max * i.toFloat() / GRID_LINES).roundToInt()
-
-        drawLine(
-            color = color,
-            start = Offset(Y_AXIS_WIDTH, y),
-            end = Offset(size.width, y),
-            pathEffect = pathEffect,
-            strokeWidth = 1f
-        )
-        drawContext.canvas.nativeCanvas.drawText(
-            value.toString(),
-            Y_AXIS_WIDTH - 10f,
-            y + 10f,
-            paint
-        )
-    }
-}
-
-private fun DrawScope.drawBars(
-    data: List<Pair<String, Int>>,
-    max: Int,
-    metrics: ChartMetrics,
-    progress: Float,
-    selectedIndex: Int?,
-    colors: ChartColors,
-    paints: ChartPaints
-) {
-    data.forEachIndexed { index, (label, value) ->
-        val targetHeight = metrics.getBarHeight(value, max)
-        val currentHeight = targetHeight * progress
-        val left = metrics.getBarX(index)
-        val top = TOP_PADDING + metrics.drawHeight - currentHeight
-        val isSelected = selectedIndex == index
-
-        if (currentHeight > 0) {
-            val brush = Brush.verticalGradient(
-                colors = if (isSelected)
-                    listOf(colors.secondary, colors.secondary.copy(alpha = 0.8f))
-                else
-                    listOf(colors.primary, colors.primary.copy(alpha = 0.7f)),
-                startY = top,
-                endY = top + currentHeight
-            )
-
-            drawRoundRect(
-                brush = brush,
-                topLeft = Offset(left, top),
-                size = Size(metrics.barWidth, currentHeight),
-                cornerRadius = CornerRadius(ChartDefaults.barCornerRadius.toPx(), ChartDefaults.barCornerRadius.toPx())
-            )
-        }
-
-        if (data.size <= 15 || index % 2 == 0) {
-            drawRotatedLabel(label, left + metrics.barWidth / 2, size.height - X_AXIS_HEIGHT / 4, paints.label)
-        }
-    }
-}
-
-private fun DrawScope.drawRotatedLabel(text: String, x: Float, y: Float, paint: Paint) {
-    drawContext.canvas.nativeCanvas.withRotation(-45f, x, size.height - X_AXIS_HEIGHT / 3) {
-        drawText(text, x, y, paint)
-    }
-}
-
-private inline fun NativeCanvas.withRotation(degrees: Float, pivotX: Float, pivotY: Float, block: NativeCanvas.() -> Unit) {
-    withSave {
-        rotate(degrees, pivotX, pivotY)
-        block()
-    }
-}
-
-private fun DrawScope.drawTooltip(
-    value: Int,
-    index: Int,
-    metrics: ChartMetrics,
-    max: Int,
-    progress: Float,
-    colors: ChartColors,
-    paints: ChartPaints
-) {
-    val left = metrics.getBarX(index)
-    val targetHeight = metrics.getBarHeight(value, max)
-    val currentHeight = targetHeight * progress
-    val top = TOP_PADDING + metrics.drawHeight - currentHeight
-    val centerX = left + metrics.barWidth / 2
-    val bottomY = top - 12f
-
-    val text = value.toString()
-    val paddingHorizontal = 24f
-    val textWidth = paints.tooltip.measureText(text)
-    val width = textWidth + paddingHorizontal * 2
-    val height = 50f
-
-    val safeLeft = (centerX - width / 2).coerceIn(0f, size.width - width)
-    val safeRight = safeLeft + width
-    val safeTop = bottomY - height
-
-    val path = Path().apply {
-        addRoundRect(RoundRect(
-            left = safeLeft, top = safeTop, right = safeRight, bottom = bottomY,
-            cornerRadius = CornerRadius(12f, 12f)
-        ))
-        val pointerSize = 12f
-        val pointerX = centerX.coerceIn(safeLeft + 10f, safeRight - 10f)
-        moveTo(pointerX - pointerSize/2, bottomY)
-        lineTo(pointerX, bottomY + pointerSize/1.5f)
-        lineTo(pointerX + pointerSize/2, bottomY)
-        close()
-    }
-
-    drawPath(path, color = colors.tooltipBg)
-    drawContext.canvas.nativeCanvas.drawText(text, safeLeft + width/2, safeTop + height/2 + 10f, paints.tooltip)
 }
 
 private class ChartPaints(density: Density, colors: ChartColors, typeface: Typeface) {
@@ -300,4 +183,125 @@ private class ChartPaints(density: Density, colors: ChartColors, typeface: Typef
         setTypeface(typeface)
         textAlign = Paint.Align.CENTER
     }
+}
+
+// --- Drawing Functions ---
+
+private fun DrawScope.drawChartGrid(max: Int, metrics: ChartMetrics, paint: Paint, color: Color) {
+    val pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
+
+    for (i in 0..GRID_LINES_COUNT) {
+        val normalizedY = 1f - i.toFloat() / GRID_LINES_COUNT
+        val y = TOP_PADDING_PX + metrics.drawHeight * normalizedY
+        val value = (max * i.toFloat() / GRID_LINES_COUNT).roundToInt()
+
+        drawLine(
+            color = color,
+            start = Offset(Y_AXIS_WIDTH_PX, y),
+            end = Offset(size.width, y),
+            pathEffect = pathEffect,
+            strokeWidth = 1f
+        )
+        drawContext.canvas.nativeCanvas.drawText(
+            value.toString(),
+            Y_AXIS_WIDTH_PX - 10f,
+            y + 10f,
+            paint
+        )
+    }
+}
+
+private fun DrawScope.drawChartBars(
+    data: List<Pair<String, Int>>,
+    max: Int,
+    metrics: ChartMetrics,
+    progress: Float,
+    selectedIndex: Int?,
+    colors: ChartColors,
+    paints: ChartPaints
+) {
+    data.forEachIndexed { index, (label, value) ->
+        val targetHeight = metrics.getBarHeight(value, max)
+        val currentHeight = targetHeight * progress
+        val left = metrics.getBarX(index)
+        val top = TOP_PADDING_PX + metrics.drawHeight - currentHeight
+        val isSelected = selectedIndex == index
+
+        if (currentHeight > 0) {
+            val brush = Brush.verticalGradient(
+                colors = if (isSelected)
+                    listOf(colors.secondary, colors.secondary.copy(alpha = 0.8f))
+                else
+                    listOf(colors.primary, colors.primary.copy(alpha = 0.7f)),
+                startY = top,
+                endY = top + currentHeight
+            )
+
+            drawRoundRect(
+                brush = brush,
+                topLeft = Offset(left, top),
+                size = Size(metrics.barWidth, currentHeight),
+                cornerRadius = CornerRadius(4.dp.toPx(), 4.dp.toPx())
+            )
+        }
+
+        // Desenha rótulo se não houver muitos dados
+        if (data.size <= 15 || index % 2 == 0) {
+            drawRotatedLabel(label, left + metrics.barWidth / 2, paints.label)
+        }
+    }
+}
+
+private fun DrawScope.drawRotatedLabel(text: String, x: Float, paint: Paint) {
+    val y = size.height - X_AXIS_HEIGHT_PX / 3
+    drawContext.canvas.nativeCanvas.withSave {
+        rotate(ROTATION_ANGLE, x, y)
+        drawText(text, x, y, paint)
+    }
+}
+
+private fun DrawScope.drawChartTooltip(
+    value: Int,
+    index: Int,
+    metrics: ChartMetrics,
+    max: Int,
+    progress: Float,
+    colors: ChartColors,
+    paints: ChartPaints
+) {
+    val left = metrics.getBarX(index)
+    val targetHeight = metrics.getBarHeight(value, max)
+    val currentHeight = targetHeight * progress
+    val top = TOP_PADDING_PX + metrics.drawHeight - currentHeight
+    val centerX = left + metrics.barWidth / 2
+    val bottomY = top - 12f
+
+    val text = value.toString()
+    val paddingHorizontal = 24f
+    val textWidth = paints.tooltip.measureText(text)
+    val width = textWidth + paddingHorizontal * 2
+
+    val safeLeft = (centerX - width / 2).coerceIn(0f, size.width - width)
+    val safeRight = safeLeft + width
+    val safeTop = bottomY - TOOLTIP_HEIGHT
+
+    val path = Path().apply {
+        addRoundRect(RoundRect(
+            left = safeLeft, top = safeTop, right = safeRight, bottom = bottomY,
+            cornerRadius = CornerRadius(12f, 12f)
+        ))
+        val pointerX = centerX.coerceIn(safeLeft + 10f, safeRight - 10f)
+        moveTo(pointerX - TOOLTIP_POINTER_SIZE / 2, bottomY)
+        lineTo(pointerX, bottomY + TOOLTIP_POINTER_SIZE / 1.5f)
+        lineTo(pointerX + TOOLTIP_POINTER_SIZE / 2, bottomY)
+        close()
+    }
+
+    drawPath(path, color = colors.tooltipBg)
+    drawContext.canvas.nativeCanvas.drawText(
+        text,
+        safeLeft + width / 2,
+        safeTop + TOOLTIP_HEIGHT / 2 + 10f, // Centralização visual
+        paints.tooltip
+    )
 }

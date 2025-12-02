@@ -15,7 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.cebolao.lotofacil.R
+import com.cebolao.lotofacil.R // IMPORT ADICIONADO
 import com.cebolao.lotofacil.data.LotofacilConstants
 import com.cebolao.lotofacil.ui.components.*
 import com.cebolao.lotofacil.ui.theme.Dimen
@@ -27,24 +27,25 @@ fun CheckerScreen(viewModel: CheckerViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val selectedNumbers by viewModel.selectedNumbers.collectAsStateWithLifecycle()
     val isGameComplete by viewModel.isGameComplete.collectAsStateWithLifecycle()
-    
+
     AppScreen(
         title = stringResource(R.string.checker_title),
         subtitle = stringResource(R.string.checker_subtitle),
         actions = {
-             IconButton(onClick = viewModel::clearNumbers, enabled = selectedNumbers.isNotEmpty()) {
-                 Icon(Icons.Default.Delete, stringResource(R.string.checker_clear_selection))
-             }
+            IconButton(onClick = viewModel::clearNumbers, enabled = selectedNumbers.isNotEmpty()) {
+                // CORREÇÃO: Nome da string atualizado para match com strings.xml
+                Icon(Icons.Default.Delete, stringResource(R.string.checker_clear_button_description))
+            }
         },
         bottomBar = {
             if (isGameComplete) {
                 Surface(tonalElevation = 4.dp) {
                     Row(
-                        Modifier.fillMaxWidth().padding(16.dp), 
+                        Modifier.fillMaxWidth().padding(16.dp),
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         OutlinedButton(
-                            onClick = viewModel::saveGame, 
+                            onClick = viewModel::saveGame,
                             modifier = Modifier.weight(1f)
                         ) {
                             Icon(Icons.Default.Save, null)
@@ -52,7 +53,7 @@ fun CheckerScreen(viewModel: CheckerViewModel = hiltViewModel()) {
                             Text(stringResource(R.string.general_save))
                         }
                         Button(
-                            onClick = viewModel::checkGame, 
+                            onClick = viewModel::checkGame,
                             modifier = Modifier.weight(1f)
                         ) {
                             Icon(Icons.Default.CheckCircle, null)
@@ -77,7 +78,7 @@ fun CheckerScreen(viewModel: CheckerViewModel = hiltViewModel()) {
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
-            
+
             SectionCard {
                 NumberGrid(
                     selectedNumbers = selectedNumbers,
@@ -89,7 +90,7 @@ fun CheckerScreen(viewModel: CheckerViewModel = hiltViewModel()) {
 
             // 2. Resultados (Dinâmico)
             Spacer(Modifier.height(Dimen.SectionSpacing))
-            
+
             when (val state = uiState) {
                 is CheckerUiState.Success -> {
                     Text(stringResource(R.string.checker_performance_analysis), style = MaterialTheme.typography.titleMedium)
@@ -112,7 +113,7 @@ fun CheckerScreen(viewModel: CheckerViewModel = hiltViewModel()) {
                     )
                 }
             }
-            
+
             Spacer(Modifier.height(Dimen.BottomBarSpacer))
         }
     }

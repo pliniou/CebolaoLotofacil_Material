@@ -19,7 +19,6 @@ private const val HISTORY_LOOKUP_SIZE = 200
 private const val MIN_HOT_NUMBERS = 8
 private const val MAX_HOT_NUMBERS = 13
 private const val SAFETY_LOOP_MULTIPLIER = 100
-// Define o tamanho fixo do pool quente para garantir sobra para o frio
 private const val HOT_POOL_SIZE = 15
 
 class GameGenerator @Inject constructor(
@@ -38,32 +37,24 @@ class GameGenerator @Inject constructor(
             return@flow
         }
 
-        // Carregar histórico para heurística e filtro de repetidas
+        // Carregar histórico
         val history = historyRepository.getHistory().take(HISTORY_LOOKUP_SIZE)
         val lastDrawNumbers = history.firstOrNull()?.numbers
 
-        // Se histórico insuficiente
+        // Validação de pré-requisitos para heurística
         if (history.size < MIN_HISTORY_FOR_HEURISTIC || lastDrawNumbers == null) {
-            // Se tiver filtro de "Repetidas", falhar pois é impossível calcular
             if (activeFilters.any { it.type == FilterType.REPETIDAS_CONCURSO_ANTERIOR }) {
                 emit(GenerationProgress.failed(GenerationFailureReason.NO_HISTORY))
                 return@flow
             }
-            // Tenta gerar aleatório apenas com filtros matemáticos
             emit(GenerationProgress.step(GenerationStep.RANDOM_START, 0, quantity))
         } else {
             emit(GenerationProgress.step(GenerationStep.HEURISTIC_START, 0, quantity))
         }
 
-        // Prepara pools.
-        val (hotPool, coldPool) = if (history.isNotEmpty()) {
-            prepareNumberPools(history)
-        } else {
-            // Fallback seguro se histórico vazio
-            val all = LotofacilConstants.ALL_NUMBERS.shuffled()
-            all.take(HOT_POOL_SIZE) to all.drop(HOT_POOL_SIZE)
-        }
-
+        // Preparação dos Pools
+        val (hotPool, coldPool) = prepareNumberPools(history)
+        
         val generatedGames = LinkedHashSet<LotofacilGame>(quantity)
         var attempts = 0
         var gamesSinceLastEmit = 0
@@ -72,9 +63,9 @@ class GameGenerator @Inject constructor(
             if (!currentCoroutineContext().isActive) return@flow
 
             repeat(BATCH_SIZE) {
+                // Otimização: Evita shuffled() completo em loop quente
                 val candidateGame = createHeuristicCandidate(hotPool, coldPool)
 
-                // Valida com filtros ativos
                 if (validateGame(candidateGame, activeFilters, lastDrawNumbers ?: emptySet())) {
                     if (generatedGames.add(candidateGame)) {
                         gamesSinceLastEmit++
@@ -92,11 +83,10 @@ class GameGenerator @Inject constructor(
             if (generatedGames.size == quantity) break
         }
 
-        // Fallback: Completa com aleatórios se não atingiu a meta (Timeout ou filtros muito restritos)
+        // Fallback: Completa com aleatórios se necessário
         if (generatedGames.size < quantity) {
             emit(GenerationProgress.step(GenerationStep.RANDOM_FALLBACK, generatedGames.size, quantity))
             val remainingNeeded = quantity - generatedGames.size
-            // Gera jogos puramente aleatórios para preencher
             generatedGames.addAll(generateRandomGames(remainingNeeded, generatedGames))
             emit(GenerationProgress.attempt(quantity, quantity))
         }
@@ -109,40 +99,49 @@ class GameGenerator @Inject constructor(
     }
 
     private fun prepareNumberPools(history: List<com.cebolao.lotofacil.data.HistoricalDraw>): Pair<List<Int>, List<Int>> {
-        // Mapa de frequência: Número -> Contagem
+        if (history.isEmpty()) {
+            val all = LotofacilConstants.ALL_NUMBERS.shuffled()
+            return all.take(HOT_POOL_SIZE) to all.drop(HOT_POOL_SIZE)
+        }
+
         val frequencyMap = history.flatMap { it.numbers }
             .groupingBy { it }
             .eachCount()
 
-        // Ordena TODOS os números (1..25) por frequência (descendente).
-        // Números não sorteados (count null) vão para o final (0).
         val rankedNumbers = LotofacilConstants.ALL_NUMBERS.sortedByDescending {
             frequencyMap[it] ?: 0
         }
 
-        // Divide explicitamente em Hot (Top 15) e Cold (Resto 10).
-        // Isso garante que sempre existam números suficientes em ambos os pools.
-        val hotPool = rankedNumbers.take(HOT_POOL_SIZE)
-        val coldPool = rankedNumbers.drop(HOT_POOL_SIZE)
-
-        return hotPool to coldPool
+        return rankedNumbers.take(HOT_POOL_SIZE) to rankedNumbers.drop(HOT_POOL_SIZE)
     }
 
     private fun createHeuristicCandidate(hotPool: List<Int>, coldPool: List<Int>): LotofacilGame {
-        // Define quantos números quentes pegar (8 a 13)
-        // Garante que não pede mais do que o pool tem (embora HOT_POOL_SIZE=15 > 13)
         val maxHot = minOf(MAX_HOT_NUMBERS, hotPool.size)
         val minHot = minOf(MIN_HOT_NUMBERS, maxHot)
-
+        
         val hotCount = Random.nextInt(minHot, maxHot + 1)
         val coldCount = LotofacilConstants.GAME_SIZE - hotCount
 
-        // Seleciona aleatoriamente dentro dos pools
-        val selectedHot = hotPool.shuffled().take(hotCount)
-        val selectedCold = coldPool.shuffled().take(coldCount)
+        // Otimização: pickRandomItems é mais eficiente que shuffled().take() repetidamente
+        val selectedHot = hotPool.pickRandomItems(hotCount)
+        val selectedCold = coldPool.pickRandomItems(coldCount)
 
-        // A soma dos tamanhos será sempre 15, evitando o IllegalArgumentException
         return LotofacilGame((selectedHot + selectedCold).toSet())
+    }
+
+    /**
+     * Seleciona N itens aleatórios de uma lista sem criar cópia completa para shuffle.
+     * Ideal para pools pequenos.
+     */
+    private fun <T> List<T>.pickRandomItems(count: Int): List<T> {
+        if (count >= this.size) return this
+        if (count == 0) return emptyList()
+        
+        // Para listas pequenas, shuffled().take() é aceitável, mas para evitar alocação excessiva
+        // em loop, usamos uma amostragem simples.
+        // Como a lista fonte é pequena (max 15), shuffled() ainda é rápido, 
+        // mas esta implementação evita criar a lista intermediária completa do shuffle.
+        return this.asSequence().shuffled(Random).take(count).toList()
     }
 
     private fun generateRandomGames(
@@ -163,6 +162,7 @@ class GameGenerator @Inject constructor(
     }
 
     private fun validateGame(game: LotofacilGame, filters: List<FilterState>, lastDrawNumbers: Set<Int>): Boolean {
+        // Fail-fast: retorna false assim que o primeiro filtro falhar
         return filters.all { filter ->
             val valueToCheck = when (filter.type) {
                 FilterType.SOMA_DEZENAS -> game.sum

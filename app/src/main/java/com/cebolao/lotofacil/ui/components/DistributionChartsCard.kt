@@ -12,6 +12,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource // IMPORT ADICIONADO
+import com.cebolao.lotofacil.R // IMPORT ADICIONADO
 import com.cebolao.lotofacil.data.StatisticsReport
 import com.cebolao.lotofacil.domain.model.StatisticPattern
 import com.cebolao.lotofacil.ui.theme.AppConfig
@@ -34,7 +36,7 @@ fun DistributionChartsCard(
     SectionCard(modifier = modifier) {
         Column(verticalArrangement = Arrangement.spacedBy(Dimen.CardPadding)) {
             TitleWithIcon(
-                text = "Distribuição de Padrões", 
+                text = stringResource(R.string.stats_distribution_title_format, selectedPattern.title),
                 iconVector = selectedPattern.icon
             )
 
@@ -47,7 +49,7 @@ fun DistributionChartsCard(
                         selected = selectedPattern == pattern,
                         onClick = { onPatternSelected(pattern) },
                         label = { Text(pattern.title) },
-                        leadingIcon = { 
+                        leadingIcon = {
                             if (selectedPattern == pattern) {
                                 Icon(imageVector = pattern.icon, contentDescription = null)
                             }
@@ -81,24 +83,25 @@ private fun prepareChartData(
         StatisticPattern.MULTIPLES_OF_3 -> stats.multiplesOf3Distribution
     }
 
-    return if (pattern == StatisticPattern.SUM) {
+    if (pattern == StatisticPattern.SUM) {
         val min = AppConfig.UI.SUM_MIN_RANGE
         val max = AppConfig.UI.SUM_MAX_RANGE
         val step = AppConfig.UI.SUM_STEP
-        val buckets = (min..max step step).associateWith { 0 }.toMutableMap()
 
-        rawMap.forEach { (value, count) ->
-            val bucket = (value / step) * step
-            if (buckets.containsKey(bucket)) {
-                buckets[bucket] = (buckets[bucket] ?: 0) + count
+        val filledBuckets = (min..max step step).associateWith { 0 }.toMutableMap()
+
+        rawMap.forEach { (bucketValue, count) ->
+            if (filledBuckets.containsKey(bucketValue)) {
+                filledBuckets[bucketValue] = count
             }
         }
-        buckets.entries
+
+        return filledBuckets.entries
+            .sortedBy { it.key }
             .map { it.key.toString() to it.value }
-            .sortedBy { it.first.toIntOrNull() ?: 0 }
-    } else {
-        rawMap.entries
-            .map { it.key.toString() to it.value }
-            .sortedBy { it.first.toIntOrNull() ?: 0 }
     }
+
+    return rawMap.entries
+        .sortedBy { it.key }
+        .map { it.key.toString() to it.value }
 }

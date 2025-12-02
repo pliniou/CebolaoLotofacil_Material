@@ -30,9 +30,9 @@ class HistoryRepositoryImpl @Inject constructor(
 ) : HistoryRepository {
 
     private val writeMutex = Mutex()
-    
-    // Cache Volátil: A lista imutável ordenada é trocada atomicamente após atualizações.
-    // Isso permite leituras O(1) sem lock, ideal para UI.
+
+    // Cache Volátil: Permite leituras de UI (Main Thread) sem travar no Mutex.
+    // A lista é imutável e substituída atomicamente.
     @Volatile
     private var cachedHistory: List<HistoricalDraw> = emptyList()
     
@@ -44,16 +44,16 @@ class HistoryRepositoryImpl @Inject constructor(
 
     init {
         scope.launch {
-            // Carga inicial
             val local = localDataSource.getLocalHistory()
             updateCache(local)
+            // Tenta sync inicial em background
             syncHistory()
         }
     }
 
     override suspend fun getHistory(): List<HistoricalDraw> {
+        // Se vazio, tenta carregar síncrono (caso o init ainda não tenha completado)
         if (cachedHistory.isEmpty()) {
-            // Fallback síncrono se o init ainda não terminou ou falhou
             writeMutex.withLock {
                 if (cachedHistory.isEmpty()) {
                     updateCache(localDataSource.getLocalHistory())
@@ -64,7 +64,6 @@ class HistoryRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getLastDraw(): HistoricalDraw? {
-        // Prioridade: API Recente > Cache Local > Null
         val fromApi = latestApiResult?.let { HistoricalDraw.fromApiResult(it) }
         return fromApi ?: cachedHistory.firstOrNull()
     }
@@ -76,31 +75,12 @@ class HistoryRepositoryImpl @Inject constructor(
     }
 
     override fun syncHistory(): Job = scope.launch {
-        if (_syncStatus.value is SyncStatus.Syncing) return@launch
-        // TryLock evita empilhamento de chamadas de sync (debounce natural)
-        if (!writeMutex.tryLock()) return@launch
+        // Debounce: Se já estiver sincronizando ou não conseguir o lock, aborta.
+        if (_syncStatus.value is SyncStatus.Syncing || !writeMutex.tryLock()) return@launch
 
         try {
             _syncStatus.value = SyncStatus.Syncing
-            
-            // Pega o cache atual (seguro pois temos o lock)
-            val currentMax = cachedHistory.firstOrNull()?.contestNumber ?: 0
-            
-            val remoteResult = remoteDataSource.getLatestDraw() 
-                ?: throw IllegalStateException("Falha ao buscar último sorteio remoto")
-            
-            latestApiResult = remoteResult
-            val remoteMax = remoteResult.numero
-
-            if (remoteMax > currentMax) {
-                // Busca apenas o delta
-                val newDraws = remoteDataSource.getDrawsInRange((currentMax + 1)..remoteMax)
-                if (newDraws.isNotEmpty()) {
-                    localDataSource.saveNewContests(newDraws)
-                    // Reconstrói a lista ordenada
-                    updateCache(newDraws + cachedHistory)
-                }
-            }
+            performSync()
             _syncStatus.value = SyncStatus.Success
         } catch (e: Exception) {
             if (e is CancellationException) throw e
@@ -111,8 +91,27 @@ class HistoryRepositoryImpl @Inject constructor(
         }
     }
 
+    private suspend fun performSync() {
+        val currentMax = cachedHistory.firstOrNull()?.contestNumber ?: 0
+        
+        val remoteResult = remoteDataSource.getLatestDraw() 
+            ?: throw IllegalStateException("Unable to fetch latest draw from API")
+        
+        latestApiResult = remoteResult
+        val remoteMax = remoteResult.numero
+
+        if (remoteMax > currentMax) {
+            val newDraws = remoteDataSource.getDrawsInRange((currentMax + 1)..remoteMax)
+            if (newDraws.isNotEmpty()) {
+                localDataSource.saveNewContests(newDraws)
+                // Atualiza cache: Novos + Antigos
+                updateCache(newDraws + cachedHistory)
+            }
+        }
+    }
+
     private fun updateCache(allDraws: List<HistoricalDraw>) {
-        // Ordenação única e atribuição atômica
+        // Garante ordenação e unicidade antes de publicar para a variável volátil
         cachedHistory = allDraws
             .distinctBy { it.contestNumber }
             .sortedByDescending { it.contestNumber }

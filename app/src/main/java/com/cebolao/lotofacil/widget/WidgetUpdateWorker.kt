@@ -32,71 +32,106 @@ class WidgetUpdateWorker @AssistedInject constructor(
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
-        return try {
+        return runCatching {
             updateLastDrawWidgets()
             updateNextContestWidgets()
             updatePinnedGameWidgets()
             Result.success()
-        } catch (e: Exception) {
+        }.getOrElse { e ->
             Log.e(TAG, "Widget update failed", e)
             if (runAttemptCount < MAX_RETRIES) Result.retry() else Result.failure()
         }
     }
 
     private suspend fun updateLastDrawWidgets() {
-        updateWidgets(
-            providerClass = LastDrawWidgetProvider::class.java,
-            layoutId = R.layout.widget_last_draw,
-            // ID atualizado conforme refatoração do layout XML
-            contentViewId = R.id.widget_numbers_container,
-            fetchData = { historyRepository.getLastDraw() },
-            updateViews = { lastDraw ->
-                setTextViewText(R.id.widget_title, "Último: ${lastDraw.contestNumber}")
-                populateNumberGrid(this, lastDraw.numbers)
-            },
-            updateErrorViews = {
-                setTextViewText(R.id.widget_title, context.getString(R.string.widget_last_draw_title))
-                setTextViewText(R.id.widget_loading_text, context.getString(R.string.widget_error_load))
+        val lastDraw = historyRepository.getLastDraw()
+        val ids = getWidgetIds(LastDrawWidgetProvider::class.java)
+        if (ids.isEmpty()) return
+
+        for (id in ids) {
+            val views = createBaseRemoteViews(R.layout.widget_last_draw, LastDrawWidgetProvider::class.java, id)
+            
+            if (lastDraw != null) {
+                views.setTextViewText(R.id.widget_title, "Último: ${lastDraw.contestNumber}")
+                populateNumberGrid(views, R.id.widget_numbers_container, lastDraw.numbers)
+                showContent(views, R.id.widget_numbers_container)
+            } else {
+                showError(views, R.id.widget_numbers_container, context.getString(R.string.widget_error_load))
             }
-        )
+            updateAppWidget(id, views)
+        }
     }
 
     private suspend fun updateNextContestWidgets() {
-        updateWidgets(
-            providerClass = NextContestWidgetProvider::class.java,
-            layoutId = R.layout.widget_next_contest,
-            contentViewId = R.id.widget_content,
-            fetchData = { historyRepository.getLatestApiResult() },
-            updateViews = { info ->
-                setTextViewText(R.id.widget_title, context.getString(R.string.widget_next_contest_title_generic) + " ${info.numero + 1}")
-                setTextViewText(R.id.widget_date, info.dataProximoConcurso ?: "--/--")
-                setTextViewText(R.id.widget_prize, Formatters.formatCurrency(info.valorEstimadoProximoConcurso))
-            },
-            updateErrorViews = {
-                setTextViewText(R.id.widget_loading_text, context.getString(R.string.widget_error_load))
+        val apiResult = historyRepository.getLatestApiResult()
+        val ids = getWidgetIds(NextContestWidgetProvider::class.java)
+        if (ids.isEmpty()) return
+
+        for (id in ids) {
+            val views = createBaseRemoteViews(R.layout.widget_next_contest, NextContestWidgetProvider::class.java, id)
+
+            if (apiResult != null) {
+                val nextContestNumber = apiResult.numero + 1
+                val title = "${context.getString(R.string.widget_next_contest_title_generic)} $nextContestNumber"
+                
+                views.setTextViewText(R.id.widget_title, title)
+                views.setTextViewText(R.id.widget_date, apiResult.dataProximoConcurso ?: "--/--")
+                views.setTextViewText(R.id.widget_prize, Formatters.formatCurrency(apiResult.valorEstimadoProximoConcurso))
+                showContent(views, R.id.widget_content)
+            } else {
+                showError(views, R.id.widget_content, context.getString(R.string.widget_error_load))
             }
-        )
+            updateAppWidget(id, views)
+        }
     }
 
     private suspend fun updatePinnedGameWidgets() {
-        updateWidgets(
-            providerClass = PinnedGameWidgetProvider::class.java,
-            layoutId = R.layout.widget_pinned_game,
-            contentViewId = R.id.widget_numbers_container,
-            fetchData = { gameRepository.pinnedGames.firstOrNull()?.firstOrNull() },
-            updateViews = { game ->
-                setTextViewText(R.id.widget_title, context.getString(R.string.widget_pinned_game_title))
-                populateNumberGrid(this, game.numbers)
-            },
-            updateErrorViews = {
-                setTextViewText(R.id.widget_title, context.getString(R.string.widget_pinned_game_title))
-                setTextViewText(R.id.widget_loading_text, context.getString(R.string.widget_no_pinned_games))
+        val pinnedGame = gameRepository.pinnedGames.firstOrNull()?.firstOrNull()
+        val ids = getWidgetIds(PinnedGameWidgetProvider::class.java)
+        if (ids.isEmpty()) return
+
+        for (id in ids) {
+            val views = createBaseRemoteViews(R.layout.widget_pinned_game, PinnedGameWidgetProvider::class.java, id)
+            views.setTextViewText(R.id.widget_title, context.getString(R.string.widget_pinned_game_title))
+
+            if (pinnedGame != null) {
+                populateNumberGrid(views, R.id.widget_numbers_container, pinnedGame.numbers)
+                showContent(views, R.id.widget_numbers_container)
+            } else {
+                showError(views, R.id.widget_numbers_container, context.getString(R.string.widget_no_pinned_games))
             }
-        )
+            updateAppWidget(id, views)
+        }
     }
 
-    private fun populateNumberGrid(views: RemoteViews, numbers: Set<Int>) {
-        views.removeAllViews(R.id.widget_numbers_container)
+    // --- Helpers ---
+
+    private fun getWidgetIds(providerClass: Class<out AppWidgetProvider>): IntArray {
+        return AppWidgetManager.getInstance(context).getAppWidgetIds(ComponentName(context, providerClass))
+    }
+
+    private fun createBaseRemoteViews(layoutId: Int, providerClass: Class<out AppWidgetProvider>, widgetId: Int): RemoteViews {
+        return RemoteViews(context.packageName, layoutId).apply {
+            setOnClickPendingIntent(
+                R.id.widget_refresh_button,
+                WidgetUtils.getRefreshPendingIntent(context, providerClass, widgetId)
+            )
+        }
+    }
+
+    private fun showContent(views: RemoteViews, contentId: Int) {
+        views.setViewVisibility(R.id.widget_loading_text, View.GONE)
+        views.setViewVisibility(contentId, View.VISIBLE)
+    }
+
+    private fun showError(views: RemoteViews, contentId: Int, message: String) {
+        views.setTextViewText(R.id.widget_loading_text, message)
+        views.setViewVisibility(R.id.widget_loading_text, View.VISIBLE)
+        views.setViewVisibility(contentId, View.GONE)
+    }
+
+    private fun populateNumberGrid(views: RemoteViews, containerId: Int, numbers: Set<Int>) {
+        views.removeAllViews(containerId)
         
         numbers.sorted().chunked(NUMBERS_PER_ROW).forEach { rowNumbers ->
             val rowView = RemoteViews(context.packageName, R.layout.widget_numbers_row)
@@ -106,42 +141,11 @@ class WidgetUpdateWorker @AssistedInject constructor(
                 }
                 rowView.addView(R.id.widget_numbers_row_container, numberView)
             }
-            views.addView(R.id.widget_numbers_container, rowView)
+            views.addView(containerId, rowView)
         }
     }
-
-    private suspend fun <T> updateWidgets(
-        providerClass: Class<out AppWidgetProvider>,
-        layoutId: Int,
-        contentViewId: Int,
-        fetchData: suspend () -> T?,
-        updateViews: RemoteViews.(data: T) -> Unit,
-        updateErrorViews: RemoteViews.() -> Unit
-    ) {
-        val appWidgetManager = AppWidgetManager.getInstance(context)
-        val ids = appWidgetManager.getAppWidgetIds(ComponentName(context, providerClass))
-        if (ids.isEmpty()) return
-
-        val data = runCatching { fetchData() }.getOrNull()
-
-        for (id in ids) {
-            val views = RemoteViews(context.packageName, layoutId).apply {
-                setOnClickPendingIntent(
-                    R.id.widget_refresh_button,
-                    WidgetUtils.getRefreshPendingIntent(context, providerClass, id)
-                )
-
-                if (data != null) {
-                    updateViews(this, data)
-                    setViewVisibility(R.id.widget_loading_text, View.GONE)
-                    setViewVisibility(contentViewId, View.VISIBLE)
-                } else {
-                    updateErrorViews(this)
-                    setViewVisibility(R.id.widget_loading_text, View.VISIBLE)
-                    setViewVisibility(contentViewId, View.GONE)
-                }
-            }
-            appWidgetManager.updateAppWidget(id, views)
-        }
+    
+    private fun updateAppWidget(id: Int, views: RemoteViews) {
+        AppWidgetManager.getInstance(context).updateAppWidget(id, views)
     }
 }

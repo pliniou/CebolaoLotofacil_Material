@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.cebolao.lotofacil.ui.theme.Dimen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

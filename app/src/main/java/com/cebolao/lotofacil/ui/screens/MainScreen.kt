@@ -26,8 +26,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -53,89 +55,129 @@ fun MainScreen(mainViewModel: MainViewModel = hiltViewModel()) {
         AccentPalette.entries.find { it.name == accentPaletteName } ?: AccentPalette.AZUL
     }
 
+    Scaffold(
+        bottomBar = {
+            AppBottomBar(
+                navController = navController,
+                currentDestination = currentDestination
+            )
+        }
+    ) { innerPadding ->
+        if (!uiState.isReady) {
+            LoadingScreen()
+        } else {
+            NavigationGraph(
+                navController = navController,
+                startDestination = startDestination.destination,
+                modifier = Modifier.padding(innerPadding),
+                viewModel = mainViewModel,
+                currentTheme = themeMode,
+                currentPalette = accentPalette
+            )
+        }
+    }
+}
+
+@Composable
+private fun AppBottomBar(
+    navController: NavHostController,
+    currentDestination: NavDestination?
+) {
     val bottomBarVisible by remember(currentDestination) {
         derivedStateOf { bottomNavItems.any { it.baseRoute == currentDestination?.route?.substringBefore('?') } }
     }
 
-    Scaffold(
-        bottomBar = {
-            AnimatedVisibility(
-                visible = bottomBarVisible,
-                enter = slideInVertically { it },
-                exit = slideOutVertically { it }
-            ) {
-                NavigationBar(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    tonalElevation = 0.dp // Flat design
-                ) {
-                    bottomNavItems.forEach { screen ->
-                        val selected = currentDestination?.hierarchy?.any { it.route?.substringBefore('?') == screen.baseRoute } == true
-                        NavigationBarItem(
-                            selected = selected,
-                            alwaysShowLabel = true,
-                            onClick = {
-                                navController.navigate(screen.route) {
-                                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            },
-                            icon = {
-                                val icon = if (selected) screen.selectedIcon else screen.unselectedIcon
-                                icon?.let { Icon(imageVector = it, contentDescription = screen.title) }
-                            },
-                            label = {
-                                screen.title?.let { 
-                                    Text(
-                                        text = it, 
-                                        style = MaterialTheme.typography.labelSmall,
-                                        fontFamily = Outfit,
-                                        fontWeight = if(selected) FontWeight.Bold else FontWeight.Medium
-                                    ) 
-                                }
-                            },
-                            colors = NavigationBarItemDefaults.colors(
-                                indicatorColor = MaterialTheme.colorScheme.primaryContainer,
-                                selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                                selectedTextColor = MaterialTheme.colorScheme.primary,
-                                unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+    AnimatedVisibility(
+        visible = bottomBarVisible,
+        enter = slideInVertically { it },
+        exit = slideOutVertically { it }
+    ) {
+        NavigationBar(
+            containerColor = MaterialTheme.colorScheme.background,
+            tonalElevation = 0.dp
+        ) {
+            bottomNavItems.forEach { screen ->
+                val selected = currentDestination?.hierarchy?.any { it.route?.substringBefore('?') == screen.baseRoute } == true
+                
+                NavigationBarItem(
+                    selected = selected,
+                    alwaysShowLabel = true,
+                    onClick = {
+                        navController.navigate(screen.route) {
+                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    icon = {
+                        val icon = if (selected) screen.selectedIcon else screen.unselectedIcon
+                        icon?.let { Icon(imageVector = it, contentDescription = screen.title) }
+                    },
+                    label = {
+                        screen.title?.let {
+                            Text(
+                                text = it,
+                                style = MaterialTheme.typography.labelSmall,
+                                fontFamily = Outfit,
+                                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
                             )
-                        )
-                    }
-                }
+                        }
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                        selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                )
             }
         }
-    ) { innerPadding ->
-        if (!uiState.isReady) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
-        } else {
-            NavHost(
-                navController = navController,
-                startDestination = startDestination.destination,
-                modifier = Modifier.padding(innerPadding),
-                enterTransition = { fadeIn() },
-                exitTransition = { fadeOut() },
-            ) {
-                composable(Screen.Onboarding.route) {
-                    OnboardingScreen(onOnboardingComplete = {
-                        mainViewModel.onOnboardingComplete()
-                        navController.navigate(Screen.Home.route) { popUpTo(Screen.Onboarding.route) { inclusive = true } }
-                    })
+    }
+}
+
+@Composable
+private fun LoadingScreen() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { 
+        CircularProgressIndicator() 
+    }
+}
+
+@Composable
+private fun NavigationGraph(
+    navController: NavHostController,
+    startDestination: String,
+    modifier: Modifier,
+    viewModel: MainViewModel,
+    currentTheme: String,
+    currentPalette: AccentPalette
+) {
+    NavHost(
+        navController = navController,
+        startDestination = startDestination,
+        modifier = modifier,
+        enterTransition = { fadeIn() },
+        exitTransition = { fadeOut() },
+    ) {
+        composable(Screen.Onboarding.route) {
+            OnboardingScreen(onOnboardingComplete = {
+                viewModel.onOnboardingComplete()
+                navController.navigate(Screen.Home.route) { 
+                    popUpTo(Screen.Onboarding.route) { inclusive = true } 
                 }
-                composable(Screen.Home.route) { HomeScreen() }
-                composable(Screen.Filters.route) { FiltersScreen(navController) }
-                composable(Screen.GeneratedGames.route) { GeneratedGamesScreen(navController = navController) }
-                composable(route = Screen.Checker.route, arguments = Screen.Checker.arguments) { CheckerScreen() }
-                composable(Screen.About.route) {
-                    AboutScreen(
-                        currentTheme = themeMode,
-                        currentPalette = accentPalette,
-                        onThemeChange = mainViewModel::setThemeMode,
-                        onPaletteChange = mainViewModel::setAccentPalette
-                    )
-                }
-            }
+            })
+        }
+        composable(Screen.Home.route) { HomeScreen() }
+        composable(Screen.Filters.route) { FiltersScreen(navController) }
+        composable(Screen.GeneratedGames.route) { GeneratedGamesScreen(navController = navController) }
+        composable(route = Screen.Checker.route, arguments = Screen.Checker.arguments) { CheckerScreen() }
+        composable(Screen.About.route) {
+            AboutScreen(
+                currentTheme = currentTheme,
+                currentPalette = currentPalette,
+                onThemeChange = viewModel::setThemeMode,
+                onPaletteChange = viewModel::setAccentPalette
+            )
         }
     }
 }

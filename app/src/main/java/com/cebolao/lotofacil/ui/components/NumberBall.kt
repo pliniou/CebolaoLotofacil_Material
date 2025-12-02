@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,10 +21,18 @@ import androidx.compose.ui.unit.dp
 import com.cebolao.lotofacil.ui.theme.AppConfig
 import com.cebolao.lotofacil.ui.theme.Dimen
 import com.cebolao.lotofacil.ui.theme.FontFamilyNumeric
+import com.cebolao.lotofacil.ui.theme.SuccessGreen
 import com.cebolao.lotofacil.util.DEFAULT_NUMBER_FORMAT
 
 enum class NumberBallSize { Large, Medium, Small }
 enum class NumberBallVariant { Primary, Secondary, Neutral, Hit, Miss }
+
+@Immutable
+private data class BallColors(
+    val container: Color,
+    val content: Color,
+    val border: Color
+)
 
 @Composable
 fun NumberBall(
@@ -47,22 +56,26 @@ fun NumberBall(
     }
 
     val colors = resolveBallColors(isSelected, variant)
-    val bgColor by animateColorAsState(colors.first, label = "bgColor")
-    val contentColor by animateColorAsState(colors.second, label = "contentColor")
-    val borderColor = colors.third
+    
+    val animatedBg by animateColorAsState(colors.container, label = "bgColor")
+    val animatedContent by animateColorAsState(colors.content, label = "contentColor")
 
     Box(
         modifier = modifier
             .size(size)
             .alpha(if (isDisabled) AppConfig.UI.ALPHA_DISABLED else 1f)
             .clip(CircleShape)
-            .background(bgColor)
-            .then(if (borderColor != Color.Transparent) Modifier.border(1.dp, borderColor, CircleShape) else Modifier),
+            .background(animatedBg)
+            .then(
+                if (colors.border != Color.Transparent) 
+                    Modifier.border(1.dp, colors.border, CircleShape) 
+                else Modifier
+            ),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = DEFAULT_NUMBER_FORMAT.format(number),
-            color = contentColor,
+            color = animatedContent,
             fontFamily = FontFamilyNumeric,
             fontSize = fontSize,
             fontWeight = FontWeight.Bold
@@ -71,14 +84,15 @@ fun NumberBall(
 }
 
 @Composable
-private fun resolveBallColors(isSelected: Boolean, variant: NumberBallVariant): Triple<Color, Color, Color> {
+private fun resolveBallColors(isSelected: Boolean, variant: NumberBallVariant): BallColors {
     val scheme = MaterialTheme.colorScheme
+    
     return when {
-        isSelected -> Triple(scheme.primary, scheme.onPrimary, Color.Transparent)
-        variant == NumberBallVariant.Hit -> Triple(com.cebolao.lotofacil.ui.theme.SuccessGreen, Color.White, Color.Transparent)
-        variant == NumberBallVariant.Miss -> Triple(scheme.errorContainer, scheme.onErrorContainer, Color.Transparent)
-        variant == NumberBallVariant.Secondary -> Triple(scheme.secondaryContainer, scheme.onSecondaryContainer, Color.Transparent)
-        variant == NumberBallVariant.Neutral -> Triple(scheme.surfaceContainerHigh, scheme.onSurface, Color.Transparent)
-        else -> Triple(scheme.surface, scheme.onSurface, scheme.outlineVariant.copy(alpha = 0.5f))
+        isSelected -> BallColors(scheme.primary, scheme.onPrimary, Color.Transparent)
+        variant == NumberBallVariant.Hit -> BallColors(SuccessGreen, Color.White, Color.Transparent)
+        variant == NumberBallVariant.Miss -> BallColors(scheme.errorContainer, scheme.onErrorContainer, Color.Transparent)
+        variant == NumberBallVariant.Secondary -> BallColors(scheme.secondaryContainer, scheme.onSecondaryContainer, Color.Transparent)
+        variant == NumberBallVariant.Neutral -> BallColors(scheme.surfaceContainerHigh, scheme.onSurface, Color.Transparent)
+        else -> BallColors(scheme.surface, scheme.onSurface, scheme.outlineVariant.copy(alpha = 0.5f))
     }
 }

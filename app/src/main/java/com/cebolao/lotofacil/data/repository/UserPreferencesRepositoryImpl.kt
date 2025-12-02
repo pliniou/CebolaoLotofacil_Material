@@ -51,8 +51,6 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     override val pinnedGames: Flow<Set<String>> = getValue(Keys.PINNED, emptySet())
     override val themeMode: Flow<String> = getValue(Keys.THEME, THEME_MODE_LIGHT)
     override val hasCompletedOnboarding: Flow<Boolean> = getValue(Keys.ONBOARDING, false)
-
-    // Correção: DEFAULT -> AZUL
     override val accentPalette: Flow<String> = getValue(Keys.PALETTE, AccentPalette.AZUL.name)
 
     override suspend fun savePinnedGames(games: Set<String>) = setValue(Keys.PINNED, games)
@@ -81,8 +79,12 @@ class UserPreferencesRepositoryImpl @Inject constructor(
 
     private fun <T> getValue(key: Preferences.Key<T>, default: T): Flow<T> = dataStore.data
         .catch { e ->
-            if (e is IOException) Log.e(TAG, "Error reading prefs", e) else throw e
-            emit(emptyPreferences())
+            if (e is IOException) {
+                Log.e(TAG, "Error reading prefs", e)
+                emit(emptyPreferences())
+            } else {
+                throw e
+            }
         }
         .map { it[key] ?: default }
 

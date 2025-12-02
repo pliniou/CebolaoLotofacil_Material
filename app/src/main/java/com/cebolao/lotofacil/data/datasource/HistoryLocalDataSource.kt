@@ -11,10 +11,11 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private const val TAG = "HistoryLocalDataSource"
+private const val TAG = "HistoryLocalDS"
 private const val ASSET_FILENAME = "lotofacil_resultados.txt"
 
 interface HistoryLocalDataSource {
@@ -30,22 +31,21 @@ class HistoryLocalDataSourceImpl @Inject constructor(
 ) : HistoryLocalDataSource {
 
     private val cacheMutex = Mutex()
-    // Cache em memória é vital pois o parse de texto é caro, 
-    // mas só carregamos se necessário.
     private var assetCache: List<HistoricalDraw>? = null
 
     override suspend fun getLocalHistory(): List<HistoricalDraw> = withContext(ioDispatcher) {
         val prefsHistory = loadFromPreferences()
         val staticHistory = getOrLoadAssetCache()
 
-        // Combina e remove duplicatas (priorizando prefs que podem ter updates)
-        // Otimização: Se prefs estiver vazio, retorna direto o assetCache
         if (prefsHistory.isEmpty()) {
             staticHistory
         } else {
-            (prefsHistory + staticHistory)
+            // Combina, remove duplicatas de concurso e ordena.
+            // Sequência usada para evitar múltiplas listas intermediárias.
+            (prefsHistory.asSequence() + staticHistory.asSequence())
                 .distinctBy { it.contestNumber }
                 .sortedByDescending { it.contestNumber }
+                .toList()
         }
     }
 
@@ -55,7 +55,7 @@ class HistoryLocalDataSourceImpl @Inject constructor(
         withContext(ioDispatcher) {
             val formattedEntries = newDraws.map { HistoryParser.formatLine(it) }.toSet()
             userPreferencesRepository.addDynamicHistoryEntries(formattedEntries)
-            Log.d(TAG, "Persisted ${newDraws.size} new contests.")
+            Log.d(TAG, "Persisted ${newDraws.size} new contests to local prefs.")
         }
     }
 
@@ -72,15 +72,19 @@ class HistoryLocalDataSourceImpl @Inject constructor(
 
     private fun loadFromAssets(): List<HistoricalDraw> {
         return try {
-            context.assets.open(ASSET_FILENAME).bufferedReader().use { reader ->
-                // useLines é preguiçoso (Sequence), economiza memória durante a leitura
-                reader.lineSequence()
-                    .filter { it.isNotBlank() }
-                    .mapNotNull { HistoryParser.parseLine(it) }
-                    .toList() // Materializa a lista apenas no final
+            context.assets.open(ASSET_FILENAME).use { inputStream ->
+                inputStream.bufferedReader().useLines { lines ->
+                    lines
+                        .filter { it.isNotBlank() }
+                        .mapNotNull { HistoryParser.parseLine(it) }
+                        .toList()
+                }
             }
+        } catch (e: IOException) {
+            Log.e(TAG, "Error reading assets file: $ASSET_FILENAME", e)
+            emptyList()
         } catch (e: Exception) {
-            Log.e(TAG, "Error reading assets file", e)
+            Log.e(TAG, "Unexpected error parsing assets", e)
             emptyList()
         }
     }

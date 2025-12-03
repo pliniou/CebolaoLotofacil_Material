@@ -18,7 +18,6 @@ private const val MIN_HISTORY_FOR_HEURISTIC = 10
 private const val HISTORY_LOOKUP_SIZE = 200
 private const val MIN_HOT_NUMBERS = 8
 private const val MAX_HOT_NUMBERS = 13
-private const val SAFETY_LOOP_MULTIPLIER = 100
 private const val HOT_POOL_SIZE = 15
 
 class GameGenerator @Inject constructor(
@@ -29,7 +28,7 @@ class GameGenerator @Inject constructor(
 
         val activeFilters = filters.filter { it.isEnabled }
 
-        // Caminho rápido: Sem filtros, geração puramente aleatória
+        // Caminho Rápido: Sem filtros
         if (activeFilters.isEmpty()) {
             emit(GenerationProgress.step(GenerationStep.RANDOM_START, 0, quantity))
             val randomGames = generateRandomGames(quantity)
@@ -37,12 +36,13 @@ class GameGenerator @Inject constructor(
             return@flow
         }
 
-        // Carregar histórico
+        // Carregar histórico necessário
         val history = historyRepository.getHistory().take(HISTORY_LOOKUP_SIZE)
         val lastDrawNumbers = history.firstOrNull()?.numbers
 
-        // Validação de pré-requisitos para heurística
+        // Validação Heurística
         if (history.size < MIN_HISTORY_FOR_HEURISTIC || lastDrawNumbers == null) {
+            // Se filtro de repetidas estiver ativo mas sem histórico, falha.
             if (activeFilters.any { it.type == FilterType.REPETIDAS_CONCURSO_ANTERIOR }) {
                 emit(GenerationProgress.failed(GenerationFailureReason.NO_HISTORY))
                 return@flow
@@ -52,9 +52,8 @@ class GameGenerator @Inject constructor(
             emit(GenerationProgress.step(GenerationStep.HEURISTIC_START, 0, quantity))
         }
 
-        // Preparação dos Pools
+        // Preparação
         val (hotPool, coldPool) = prepareNumberPools(history)
-        
         val generatedGames = LinkedHashSet<LotofacilGame>(quantity)
         var attempts = 0
         var gamesSinceLastEmit = 0
@@ -63,9 +62,7 @@ class GameGenerator @Inject constructor(
             if (!currentCoroutineContext().isActive) return@flow
 
             repeat(BATCH_SIZE) {
-                // Otimização: Evita shuffled() completo em loop quente
                 val candidateGame = createHeuristicCandidate(hotPool, coldPool)
-
                 if (validateGame(candidateGame, activeFilters, lastDrawNumbers ?: emptySet())) {
                     if (generatedGames.add(candidateGame)) {
                         gamesSinceLastEmit++
@@ -74,16 +71,13 @@ class GameGenerator @Inject constructor(
             }
 
             attempts += BATCH_SIZE
-
             if (gamesSinceLastEmit > 0) {
                 emit(GenerationProgress.attempt(generatedGames.size, quantity))
                 gamesSinceLastEmit = 0
             }
-
-            if (generatedGames.size == quantity) break
         }
 
-        // Fallback: Completa com aleatórios se necessário
+        // Fallback: Completa com aleatórios se a heurística falhou em encontrar o suficiente
         if (generatedGames.size < quantity) {
             emit(GenerationProgress.step(GenerationStep.RANDOM_FALLBACK, generatedGames.size, quantity))
             val remainingNeeded = quantity - generatedGames.size
@@ -122,47 +116,31 @@ class GameGenerator @Inject constructor(
         val hotCount = Random.nextInt(minHot, maxHot + 1)
         val coldCount = LotofacilConstants.GAME_SIZE - hotCount
 
-        // Otimização: pickRandomItems é mais eficiente que shuffled().take() repetidamente
-        val selectedHot = hotPool.pickRandomItems(hotCount)
-        val selectedCold = coldPool.pickRandomItems(coldCount)
+        val selectedHot = hotPool.shuffled().take(hotCount)
+        val selectedCold = coldPool.shuffled().take(coldCount)
 
         return LotofacilGame((selectedHot + selectedCold).toSet())
     }
 
-    /**
-     * Seleciona N itens aleatórios de uma lista sem criar cópia completa para shuffle.
-     * Ideal para pools pequenos.
-     */
-    private fun <T> List<T>.pickRandomItems(count: Int): List<T> {
-        if (count >= this.size) return this
-        if (count == 0) return emptyList()
-        
-        // Para listas pequenas, shuffled().take() é aceitável, mas para evitar alocação excessiva
-        // em loop, usamos uma amostragem simples.
-        // Como a lista fonte é pequena (max 15), shuffled() ainda é rápido, 
-        // mas esta implementação evita criar a lista intermediária completa do shuffle.
-        return this.asSequence().shuffled(Random).take(count).toList()
-    }
+    private fun generateRandomGames(quantity: Int, exclude: Set<LotofacilGame> = emptySet()): List<LotofacilGame> {
+        val result = mutableSetOf<LotofacilGame>()
+        var safety = 0
+        // Limite de segurança para evitar loop infinito teórico
+        val maxTries = quantity * 20 
 
-    private fun generateRandomGames(
-        quantity: Int,
-        exclude: Set<LotofacilGame> = emptySet()
-    ): List<LotofacilGame> {
-        val games = exclude.toMutableSet()
-        val targetSize = games.size + quantity
-        var safetyCounter = 0
-        val maxLoops = quantity * SAFETY_LOOP_MULTIPLIER
-
-        while (games.size < targetSize && safetyCounter < maxLoops) {
+        while (result.size < quantity && safety < maxTries) {
             val numbers = LotofacilConstants.ALL_NUMBERS.shuffled().take(LotofacilConstants.GAME_SIZE).toSet()
-            games.add(LotofacilGame(numbers))
-            safetyCounter++
+            val game = LotofacilGame(numbers)
+            if (!exclude.contains(game)) {
+                result.add(game)
+            }
+            safety++
         }
-        return games.toList().takeLast(quantity)
+        return result.toList()
     }
 
     private fun validateGame(game: LotofacilGame, filters: List<FilterState>, lastDrawNumbers: Set<Int>): Boolean {
-        // Fail-fast: retorna false assim que o primeiro filtro falhar
+        // Fail-fast
         return filters.all { filter ->
             val valueToCheck = when (filter.type) {
                 FilterType.SOMA_DEZENAS -> game.sum

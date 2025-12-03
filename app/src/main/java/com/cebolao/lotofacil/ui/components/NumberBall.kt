@@ -6,11 +6,13 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -43,6 +45,7 @@ fun NumberBall(
     isDisabled: Boolean = false,
     variant: NumberBallVariant = NumberBallVariant.Primary
 ) {
+    // 1. Otimização de Tamanho e Fonte (Cálculo simples, não precisa de remember complexo)
     val size = when (sizeVariant) {
         NumberBallSize.Large -> Dimen.BallSizeLarge
         NumberBallSize.Medium -> Dimen.BallSizeMedium
@@ -55,8 +58,13 @@ fun NumberBall(
         NumberBallSize.Small -> Dimen.BallTextSmall
     }
 
-    val colors = resolveBallColors(isSelected, variant)
+    // 2. Otimização de Cores: Cacheia o resultado até que o estado ou o tema mudem.
+    val colorScheme = MaterialTheme.colorScheme
+    val colors = remember(isSelected, variant, colorScheme) {
+        resolveBallColors(isSelected, variant, colorScheme)
+    }
     
+    // Animação apenas se as cores mudarem
     val animatedBg by animateColorAsState(colors.container, label = "bgColor")
     val animatedContent by animateColorAsState(colors.content, label = "contentColor")
 
@@ -83,10 +91,12 @@ fun NumberBall(
     }
 }
 
-@Composable
-private fun resolveBallColors(isSelected: Boolean, variant: NumberBallVariant): BallColors {
-    val scheme = MaterialTheme.colorScheme
-    
+// Função pura (não @Composable) para cálculo rápido de cores
+private fun resolveBallColors(
+    isSelected: Boolean, 
+    variant: NumberBallVariant, 
+    scheme: ColorScheme
+): BallColors {
     return when {
         isSelected -> BallColors(scheme.primary, scheme.onPrimary, Color.Transparent)
         variant == NumberBallVariant.Hit -> BallColors(SuccessGreen, Color.White, Color.Transparent)

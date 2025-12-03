@@ -2,10 +2,6 @@ package com.cebolao.lotofacil.di
 
 import android.content.Context
 import androidx.work.WorkManager
-import com.cebolao.lotofacil.domain.repository.HistoryRepository
-import com.cebolao.lotofacil.domain.service.FilterSuccessCalculator
-import com.cebolao.lotofacil.domain.service.GameGenerator
-import com.cebolao.lotofacil.domain.service.StatisticsAnalyzer
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -35,21 +31,9 @@ object AppModule {
     fun provideWorkManager(@ApplicationContext context: Context): WorkManager =
         WorkManager.getInstance(context)
 
-    @Provides
-    @Singleton
-    fun provideGameGenerator(
-        historyRepository: HistoryRepository
-    ): GameGenerator = GameGenerator(historyRepository)
-
-    @Provides
-    @Singleton
-    fun provideStatisticsAnalyzer(@DefaultDispatcher dispatcher: CoroutineDispatcher): StatisticsAnalyzer =
-        StatisticsAnalyzer(dispatcher)
-
-    @Provides
-    @Singleton
-    fun provideFilterSuccessCalculator(): FilterSuccessCalculator =
-        FilterSuccessCalculator()
+    // Removido provideGameGenerator (Usa @Inject constructor)
+    // Removido provideStatisticsAnalyzer (Usa @Inject constructor)
+    // Removido provideFilterSuccessCalculator (Usa @Inject constructor)
 
     @DefaultDispatcher
     @Provides

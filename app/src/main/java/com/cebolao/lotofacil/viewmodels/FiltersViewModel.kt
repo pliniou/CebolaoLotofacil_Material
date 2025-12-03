@@ -8,11 +8,7 @@ import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.data.FilterPreset
 import com.cebolao.lotofacil.data.FilterState
 import com.cebolao.lotofacil.data.FilterType
-import com.cebolao.lotofacil.domain.service.FilterSuccessCalculator
-import com.cebolao.lotofacil.domain.service.GenerationFailureReason
-import com.cebolao.lotofacil.domain.service.GenerationProgress
-import com.cebolao.lotofacil.domain.service.GenerationProgressType
-import com.cebolao.lotofacil.domain.service.GenerationStep
+import com.cebolao.lotofacil.domain.service.*
 import com.cebolao.lotofacil.domain.usecase.GenerateGamesUseCase
 import com.cebolao.lotofacil.domain.usecase.GetLastDrawUseCase
 import com.cebolao.lotofacil.domain.usecase.SaveGeneratedGamesUseCase
@@ -20,17 +16,7 @@ import com.cebolao.lotofacil.util.STATE_IN_TIMEOUT_MS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.math.roundToInt
@@ -38,7 +24,7 @@ import kotlin.math.roundToInt
 @Stable
 sealed interface NavigationEvent {
     data object NavigateToGeneratedGames : NavigationEvent
-    data class ShowSnackbar(@param:StringRes val messageRes: Int) : NavigationEvent
+    data class ShowSnackbar(@StringRes val messageRes: Int) : NavigationEvent
 }
 
 @Stable
@@ -55,7 +41,7 @@ data class FiltersScreenState(
 sealed interface GenerationUiState {
     data object Idle : GenerationUiState
     data class Loading(
-        @param:StringRes val messageRes: Int,
+        @StringRes val messageRes: Int,
         val progress: Int = 0,
         val total: Int = 0
     ) : GenerationUiState
@@ -80,38 +66,25 @@ class FiltersViewModel @Inject constructor(
 
     private var generationJob: Job? = null
 
-    private val _probability = _filterStates
-        .map { filters -> filterSuccessCalculator(filters.filter { it.isEnabled }) }
-        .distinctUntilChanged()
-
-    // Combinação em etapas para garantir Type Safety (evitando cast não checado de List<Any>)
-    private val _uiStateBase = combine(
+    // Combinação unificada para garantir consistência de estado
+    val uiState: StateFlow<FiltersScreenState> = combine(
         _filterStates,
         _generationState,
-        _lastDraw
-    ) { filters, genState, lastDraw ->
-        Triple(filters, genState, lastDraw)
-    }
-
-    private val _uiStateOverlay = combine(
-        _probability,
+        _lastDraw,
         _showResetDialog,
         _filterInfoToShow
-    ) { prob, showDialog, info ->
-        Triple(prob, showDialog, info)
-    }
-
-    val uiState: StateFlow<FiltersScreenState> = combine(
-        _uiStateBase,
-        _uiStateOverlay
-    ) { (filters, genState, lastDraw), (prob, showDialog, info) ->
+    ) { filters, genState, lastDraw, showReset, infoDialog ->
+        
+        // Cálculo reativo on-the-fly evita estados desincronizados
+        val probability = filterSuccessCalculator(filters.filter { it.isEnabled })
+        
         FiltersScreenState(
             filterStates = filters,
             generationState = genState,
             lastDraw = lastDraw,
-            successProbability = prob,
-            showResetDialog = showDialog,
-            filterInfoToShow = info
+            successProbability = probability,
+            showResetDialog = showReset,
+            filterInfoToShow = infoDialog
         )
     }.stateIn(
         scope = viewModelScope,
@@ -199,7 +172,7 @@ class FiltersViewModel @Inject constructor(
         }
     }
 
-    private fun updateLoading(msgRes: Int, current: Int, total: Int) {
+    private fun updateLoading(@StringRes msgRes: Int, current: Int, total: Int) {
         _generationState.value = GenerationUiState.Loading(msgRes, current, total)
     }
 

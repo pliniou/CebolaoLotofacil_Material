@@ -1,6 +1,5 @@
 package com.cebolao.lotofacil.ui.screens
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -9,17 +8,18 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -41,39 +41,85 @@ import com.cebolao.lotofacil.ui.components.PrimaryActionButton
 import com.cebolao.lotofacil.ui.theme.Dimen
 import kotlinx.coroutines.launch
 
-private data class OnboardingPage(val imageRes: Int, val title: Int, val desc: Int)
-
-@Composable
-private fun rememberOnboardingPages(): List<OnboardingPage> = remember {
-    listOf(
-        OnboardingPage(R.drawable.img_onboarding_step_1, R.string.onboarding_title_1, R.string.onboarding_desc_1),
-        OnboardingPage(R.drawable.img_onboarding_step_2, R.string.onboarding_title_2, R.string.onboarding_desc_2),
-        OnboardingPage(R.drawable.img_onboarding_step_3, R.string.onboarding_title_3, R.string.onboarding_desc_3),
-        OnboardingPage(R.drawable.img_onboarding_step_4, R.string.onboarding_title_4, R.string.onboarding_desc_4)
-    )
-}
+private data class OnboardingPage(val imageRes: Int, val titleRes: Int, val descRes: Int)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun OnboardingScreen(onOnboardingComplete: () -> Unit) {
-    val pages = rememberOnboardingPages()
+    val pages = remember {
+        listOf(
+            OnboardingPage(R.drawable.img_onboarding_step_1, R.string.onboarding_title_1, R.string.onboarding_desc_1),
+            OnboardingPage(R.drawable.img_onboarding_step_2, R.string.onboarding_title_2, R.string.onboarding_desc_2),
+            OnboardingPage(R.drawable.img_onboarding_step_3, R.string.onboarding_title_3, R.string.onboarding_desc_3),
+            OnboardingPage(R.drawable.img_onboarding_step_4, R.string.onboarding_title_4, R.string.onboarding_desc_4)
+        )
+    }
+
     val pagerState = rememberPagerState(pageCount = { pages.size })
+    val scope = rememberCoroutineScope()
+    val isLastPage = pagerState.currentPage == pages.lastIndex
 
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-        Column(modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.statusBars)) {
+        Column(
+            modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.statusBars)
+        ) {
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.weight(1f)
             ) { pageIndex ->
-                OnboardingPageContent(page = pages[pageIndex])
+                PageContent(pages[pageIndex])
             }
-            OnboardingControls(pagerState = pagerState, onOnboardingComplete = onOnboardingComplete)
+
+            // Controls Footer
+            Row(
+                modifier = Modifier
+                    .navigationBarsPadding()
+                    .padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.LargePadding)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Skip Button
+                Box(modifier = Modifier.weight(1f)) {
+                    // CORREÇÃO: AnimatedVisibility genérico dentro do Box
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = !isLastPage,
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        TextButton(onClick = onOnboardingComplete) {
+                            Text(stringResource(R.string.onboarding_skip))
+                        }
+                    }
+                }
+
+                // Indicator
+                PagerIndicator(
+                    pageCount = pages.size,
+                    currentPage = pagerState.currentPage,
+                    modifier = Modifier.weight(1f)
+                )
+
+                // Next/Start Button
+                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
+                    val label = stringResource(if (isLastPage) R.string.onboarding_start else R.string.onboarding_next)
+                    PrimaryActionButton(
+                        text = label,
+                        onClick = {
+                            if (isLastPage) onOnboardingComplete()
+                            else scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
+                        },
+                        modifier = Modifier.widthIn(min = 100.dp),
+                        isFullWidth = false
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun OnboardingPageContent(page: OnboardingPage) {
+private fun PageContent(page: OnboardingPage) {
     Column(
         modifier = Modifier.fillMaxSize().padding(horizontal = Dimen.LargePadding),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -90,71 +136,19 @@ private fun OnboardingPageContent(page: OnboardingPage) {
         )
 
         Text(
-            text = stringResource(page.title),
+            text = stringResource(page.titleRes),
             style = MaterialTheme.typography.displaySmall,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onBackground
         )
 
-        Box(modifier = Modifier.padding(top = Dimen.MediumPadding)) {
-            Text(
-                text = stringResource(page.desc),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
-            )
-        }
-    }
-}
+        Spacer(modifier = Modifier.height(Dimen.MediumPadding))
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun OnboardingControls(pagerState: PagerState, onOnboardingComplete: () -> Unit) {
-    val scope = rememberCoroutineScope()
-    val isLastPage = pagerState.currentPage == pagerState.pageCount - 1
-
-    Row(
-        modifier = Modifier
-            .navigationBarsPadding()
-            .padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.LargePadding)
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        // Botão Pular
-        AnimatedVisibility(
-            visible = !isLastPage,
-            enter = fadeIn(),
-            exit = fadeOut(),
-            modifier = Modifier.weight(1f)
-        ) {
-            TextButton(onClick = onOnboardingComplete) {
-                Text(stringResource(R.string.onboarding_skip))
-            }
-        }
-
-        if (isLastPage) Box(modifier = Modifier.weight(1f))
-
-        // Indicador
-        PagerIndicator(
-            pageCount = pagerState.pageCount,
-            currentPage = pagerState.currentPage,
-            modifier = Modifier.weight(1f)
+        Text(
+            text = stringResource(page.descRes),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
         )
-
-        // Botão Ação
-        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
-            val text = stringResource(if (isLastPage) R.string.onboarding_start else R.string.onboarding_next)
-
-            PrimaryActionButton(
-                text = text,
-                onClick = {
-                    if (isLastPage) onOnboardingComplete()
-                    else scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
-                },
-                modifier = Modifier.widthIn(min = 100.dp),
-                isFullWidth = false
-            )
-        }
     }
 }

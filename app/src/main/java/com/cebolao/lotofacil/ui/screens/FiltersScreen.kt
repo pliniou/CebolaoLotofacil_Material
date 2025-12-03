@@ -74,11 +74,12 @@ fun FiltersScreen(navController: NavController, viewModel: FiltersViewModel = hi
                         restoreState = true
                     }
                 }
-                is NavigationEvent.ShowSnackbar -> { }
+                is NavigationEvent.ShowSnackbar -> { /* Implementar Snackbar se necessário */ }
             }
         }
     }
 
+    // Dialogs
     if (uiState.showResetDialog) {
         AppConfirmationDialog(
             title = R.string.filters_reset_dialog_title,
@@ -160,7 +161,8 @@ fun FiltersScreen(navController: NavController, viewModel: FiltersViewModel = hi
                     filterState = filter,
                     onToggle = { isEnabled -> viewModel.onFilterToggle(filter.type, isEnabled) },
                     onRangeChange = { range -> viewModel.onRangeAdjust(filter.type, range) },
-                    onInfoClick = { viewModel.showFilterInfo(filter.type) }
+                    onInfoClick = { viewModel.showFilterInfo(filter.type) },
+                    lastDrawNumbers = uiState.lastDraw
                 )
             }
         }

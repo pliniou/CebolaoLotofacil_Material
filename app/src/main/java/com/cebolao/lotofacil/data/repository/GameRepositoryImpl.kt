@@ -12,14 +12,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
@@ -32,98 +25,81 @@ private const val TAG = "GameRepository"
 @Singleton
 class GameRepositoryImpl @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
-    @param:ApplicationScope private val scope: CoroutineScope,
-    @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    @ApplicationScope private val scope: CoroutineScope,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val json: Json
 ) : GameRepository {
 
-    private val _allGames = MutableStateFlow<List<LotofacilGame>>(emptyList())
+    // Jogos gerados na sessão atual (não salvos ainda)
+    private val _sessionGames = MutableStateFlow<List<LotofacilGame>>(emptyList())
 
-    // Comparador: Pinned primeiro, depois mais recentes
-    private val gameComparator = compareByDescending<LotofacilGame> { it.isPinned }
-        .thenByDescending { it.creationTimestamp }
-
-    override val pinnedGames: StateFlow<ImmutableList<LotofacilGame>> = _allGames
-        .map { list -> list.filter { it.isPinned }.toImmutableList() }
-        .distinctUntilChanged()
+    override val unpinnedGames: StateFlow<ImmutableList<LotofacilGame>> = _sessionGames
+        .map { it.toImmutableList() }
         .stateIn(scope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), persistentListOf())
 
-    override val unpinnedGames: StateFlow<ImmutableList<LotofacilGame>> = _allGames
-        .map { list -> list.filter { !it.isPinned }.toImmutableList() }
-        .distinctUntilChanged()
-        .stateIn(scope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), persistentListOf())
-
-    init {
-        scope.launch { loadPinnedGames() }
-    }
-
-    private suspend fun loadPinnedGames() = withContext(ioDispatcher) {
-        val savedJson = userPreferencesRepository.pinnedGames.first()
-        val games = savedJson.mapNotNull { str ->
-            runCatching { json.decodeFromString<LotofacilGame>(str) }
-                .onFailure { Log.w(TAG, "Error decoding game: $str") }
-                .getOrNull()
+    // Jogos salvos vêm diretamente do DataStore
+    override val pinnedGames: StateFlow<ImmutableList<LotofacilGame>> = userPreferencesRepository.pinnedGames
+        .map { stringSet ->
+            stringSet.mapNotNull { str ->
+                runCatching { json.decodeFromString<LotofacilGame>(str) }
+                    .onFailure { Log.w(TAG, "Error decoding pinned game", it) }
+                    .getOrNull()
+            }.sortedByDescending { it.creationTimestamp }.toImmutableList()
         }
-        _allGames.value = games
-    }
+        .flowOn(ioDispatcher)
+        .stateIn(scope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), persistentListOf())
 
     override suspend fun addGeneratedGames(newGames: List<LotofacilGame>) {
-        if (newGames.isEmpty()) return
-        updateGames { current ->
-            (current + newGames).distinctBy { it.numbers }.sortedWith(gameComparator)
+        _sessionGames.update { current ->
+            (newGames + current).distinctBy { it.numbers } // Novos no topo
         }
     }
 
     override suspend fun clearUnpinnedGames() {
-        updateGames { current -> current.filter { it.isPinned } }
+        _sessionGames.value = emptyList()
     }
 
     override suspend fun togglePinState(gameToToggle: LotofacilGame) {
-        updateGames { current ->
-            val updated = gameToToggle.copy(isPinned = !gameToToggle.isPinned)
-            current.map { if (it.numbers == updated.numbers) updated else it }
-                .sortedWith(gameComparator)
+        if (gameToToggle.isPinned) {
+            // Unpin: Remove do DataStore e, opcionalmente, devolve para sessão se desejado
+            // (Neste design, unpin remove dos salvos mas não adiciona aos gerados automaticamente para evitar lixo)
+            removeFromPinned(gameToToggle)
+        } else {
+            // Pin: Adiciona ao DataStore e remove da sessão
+            addToPinned(gameToToggle)
+            _sessionGames.update { list -> list.filterNot { it.numbers == gameToToggle.numbers } }
         }
     }
 
     override suspend fun deleteGame(gameToDelete: LotofacilGame) {
-        updateGames { current ->
-            current.filterNot { it.numbers == gameToDelete.numbers }
+        if (gameToDelete.isPinned) {
+            removeFromPinned(gameToDelete)
+        } else {
+            _sessionGames.update { list -> list.filterNot { it.numbers == gameToDelete.numbers } }
         }
     }
 
     override suspend fun exportGames(): String = withContext(ioDispatcher) {
-        json.encodeToString(_allGames.value)
+        val all = pinnedGames.value + unpinnedGames.value
+        json.encodeToString(all)
     }
 
-    /**
-     * Atualiza o estado da memória e persiste se houve mudança nos jogos fixados.
-     * Usa update (atômico) e lança persistência em background.
-     */
-    private inline fun updateGames(crossinline transform: (List<LotofacilGame>) -> List<LotofacilGame>) {
-        var oldPinned: List<LotofacilGame>? = null
-        var newPinned: List<LotofacilGame>? = null
-
-        _allGames.update { current ->
-            val updated = transform(current)
-            
-            // Captura estado para verificação de persistência fora do update para evitar side-effects
-            oldPinned = current.filter { it.isPinned }
-            newPinned = updated.filter { it.isPinned }
-            
-            updated
-        }
-
-        // Se a lista de fixados mudou, persiste (fora do loop de update atômico)
-        if (oldPinned != newPinned && newPinned != null) {
-            persistPinnedAsync(newPinned!!)
-        }
+    private suspend fun addToPinned(game: LotofacilGame) {
+        val pinnedGame = game.copy(isPinned = true)
+        val currentJsonSet = userPreferencesRepository.pinnedGames.first()
+        val newJson = json.encodeToString(pinnedGame)
+        userPreferencesRepository.savePinnedGames(currentJsonSet + newJson)
     }
 
-    private fun persistPinnedAsync(pinned: List<LotofacilGame>) {
-        scope.launch(ioDispatcher) {
-            val jsonSet = pinned.map { json.encodeToString(it) }.toSet()
-            userPreferencesRepository.savePinnedGames(jsonSet)
-        }
+    private suspend fun removeFromPinned(game: LotofacilGame) {
+        // Recria o objeto pinned para garantir match na serialização, ou busca por conteúdo
+        val currentSet = userPreferencesRepository.pinnedGames.first()
+        // Filtra removendo o jogo que tem os mesmos números
+        val newSet = currentSet.filter { str ->
+            val decoded = runCatching { json.decodeFromString<LotofacilGame>(str) }.getOrNull()
+            decoded?.numbers != game.numbers
+        }.toSet()
+        
+        userPreferencesRepository.savePinnedGames(newSet)
     }
 }

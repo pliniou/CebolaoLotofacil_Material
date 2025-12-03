@@ -10,15 +10,11 @@ import com.cebolao.lotofacil.data.LotofacilConstants
 import com.cebolao.lotofacil.data.LotofacilGame
 import com.cebolao.lotofacil.domain.repository.GameRepository
 import com.cebolao.lotofacil.domain.usecase.AnalyzeGameUseCase
+import com.cebolao.lotofacil.util.STATE_IN_TIMEOUT_MS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import javax.inject.Inject
@@ -53,7 +49,7 @@ sealed interface GameAnalysisUiState {
     data object Idle : GameAnalysisUiState
     data object Loading : GameAnalysisUiState
     data class Success(val result: GameAnalysisResult) : GameAnalysisUiState
-    data class Error(@param:StringRes val messageResId: Int) : GameAnalysisUiState
+    data class Error(@StringRes val messageResId: Int) : GameAnalysisUiState
 }
 
 @HiltViewModel
@@ -65,52 +61,50 @@ class GameViewModel @Inject constructor(
     val unpinnedGames = gameRepository.unpinnedGames
     val pinnedGames = gameRepository.pinnedGames
 
-    private val _uiState = MutableStateFlow(GameScreenUiState())
-    val uiState = _uiState.asStateFlow()
-
+    private val _gameToDelete = MutableStateFlow<LotofacilGame?>(null)
     private val _analysisState = MutableStateFlow<GameAnalysisUiState>(GameAnalysisUiState.Idle)
-    val analysisState = _analysisState.asStateFlow()
-
     private val _eventFlow = MutableSharedFlow<GameScreenEvent>()
+    
+    val analysisState = _analysisState.asStateFlow()
     val events = _eventFlow.asSharedFlow()
 
-    private var analyzeJob: Job? = null
+    val uiState: StateFlow<GameScreenUiState> = combine(
+        unpinnedGames,
+        pinnedGames,
+        _gameToDelete
+    ) { unpinned, pinned, gameToDelete ->
+        val total = unpinned.size + pinned.size
+        
+        GameScreenUiState(
+            gameToDelete = gameToDelete,
+            summary = GameSummary(
+                totalGames = total,
+                pinnedGames = pinned.size,
+                totalCost = LotofacilConstants.GAME_COST.multiply(BigDecimal(total))
+            )
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), GameScreenUiState())
 
-    init {
-        viewModelScope.launch {
-            combine(unpinnedGames, pinnedGames) { unpinned, pinned ->
-                val total = unpinned.size + pinned.size
-                GameSummary(
-                    totalGames = total,
-                    pinnedGames = pinned.size,
-                    totalCost = LotofacilConstants.GAME_COST.multiply(BigDecimal(total))
-                )
-            }.collect { summary ->
-                _uiState.update { it.copy(summary = summary) }
-            }
-        }
-    }
+    private var analyzeJob: Job? = null
 
     fun togglePinState(game: LotofacilGame) = viewModelScope.launch {
         gameRepository.togglePinState(game)
     }
 
     fun requestDeleteGame(game: LotofacilGame) {
-        _uiState.update { it.copy(gameToDelete = game) }
+        _gameToDelete.value = game
     }
 
     fun confirmDeleteGame() {
-        _uiState.value.gameToDelete?.let { game ->
+        _gameToDelete.value?.let { game ->
             viewModelScope.launch {
                 gameRepository.deleteGame(game)
-                _uiState.update { it.copy(gameToDelete = null) }
+                _gameToDelete.value = null
             }
         }
     }
 
-    fun dismissDeleteDialog() {
-        _uiState.update { it.copy(gameToDelete = null) }
-    }
+    fun dismissDeleteDialog() { _gameToDelete.value = null }
 
     fun clearUnpinned() = viewModelScope.launch {
         gameRepository.clearUnpinnedGames()

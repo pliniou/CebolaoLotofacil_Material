@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen
@@ -21,7 +20,6 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cebolao.lotofacil.data.repository.THEME_MODE_DARK
 import com.cebolao.lotofacil.ui.screens.MainScreen
-import com.cebolao.lotofacil.ui.theme.AccentPalette
 import com.cebolao.lotofacil.ui.theme.AppConfig
 import com.cebolao.lotofacil.ui.theme.CebolaoLotofacilTheme
 import com.cebolao.lotofacil.viewmodels.MainViewModel
@@ -45,14 +43,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             val uiState by mainViewModel.uiState.collectAsStateWithLifecycle()
             val themeMode by mainViewModel.themeMode.collectAsStateWithLifecycle()
-            val accentPaletteName by mainViewModel.accentPalette.collectAsStateWithLifecycle()
+            // Refatorado: Consome objeto tipado diretamente
+            val accentPalette by mainViewModel.accentPalette.collectAsStateWithLifecycle()
 
-            // Keep splash until ViewModel is ready
             splash.setKeepOnScreenCondition { !uiState.isReady }
-
-            val accentPalette = remember(accentPaletteName) {
-                AccentPalette.entries.find { it.name == accentPaletteName } ?: AccentPalette.AZUL
-            }
 
             CebolaoLotofacilTheme(
                 darkTheme = themeMode == THEME_MODE_DARK,

@@ -2,6 +2,7 @@ package com.cebolao.lotofacil.domain.model
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import com.cebolao.lotofacil.data.CheckResult
 import com.cebolao.lotofacil.data.HistoricalDraw
 import com.cebolao.lotofacil.data.StatisticsReport
 
@@ -29,5 +30,6 @@ data class HomeScreenData(
     val lastDraw: HistoricalDraw?,
     val initialStats: StatisticsReport,
     val nextDrawInfo: NextDrawInfo?,
-    val winnerData: List<WinnerData>
+    val winnerData: List<WinnerData>,
+    val lastDrawCheckResult: CheckResult? = null // Adicionado para suportar a lógica
 )

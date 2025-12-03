@@ -14,28 +14,26 @@ import javax.inject.Singleton
 private const val TOP_NUMBERS_COUNT = 5
 private const val CACHE_SIZE = 50
 
-// Tamanhos de Histogramas (Max Value + 1)
-private const val HIST_SIZE_EVENS = 16    // 0..15
-private const val HIST_SIZE_PRIMES = 16   // 0..15 (teoricamente max 9 primos, mas mantemos margem)
-private const val HIST_SIZE_FRAME = 17    // 0..16
-private const val HIST_SIZE_PORTRAIT = 16 // 0..15
-private const val HIST_SIZE_FIB = 16      // 0..15
-private const val HIST_SIZE_MULT3 = 16    // 0..15
-private const val HIST_SIZE_SUM = 300     // Soma máx teórica 25*15 + margem
+// Histogram sizes
+private const val HIST_SIZE_EVENS = 16
+private const val HIST_SIZE_PRIMES = 16
+private const val HIST_SIZE_FRAME = 17
+private const val HIST_SIZE_PORTRAIT = 16
+private const val HIST_SIZE_FIB = 16
+private const val HIST_SIZE_MULT3 = 16
+private const val HIST_SIZE_SUM = 300
 
 @Singleton
 class StatisticsAnalyzer @Inject constructor(
-    @param:DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
+    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
 ) {
 
-    // Chave composta para cache: "Qtd_Inicio_Fim"
     private val analysisCache = LruCache<String, StatisticsReport>(CACHE_SIZE)
 
     suspend fun analyze(draws: List<HistoricalDraw>, timeWindow: Int = 0): StatisticsReport =
         withContext(defaultDispatcher) {
             if (draws.isEmpty()) return@withContext StatisticsReport()
 
-            // Define janela de análise
             val drawsToAnalyze = if (timeWindow > 0) draws.take(timeWindow) else draws
             if (drawsToAnalyze.isEmpty()) return@withContext StatisticsReport()
 
@@ -53,16 +51,10 @@ class StatisticsAnalyzer @Inject constructor(
             report
         }
 
-    /**
-     * Executa análise em passagem única (Single Pass Loop) para performance.
-     * Utiliza IntArrays para evitar alocação excessiva de objetos Integer (Autoboxing).
-     */
     private fun calculateStatistics(draws: List<HistoricalDraw>): StatisticsReport {
-        // Inicialização de Arrays de Frequência
         val frequencies = IntArray(LotofacilConstants.MAX_NUMBER + 1)
         val lastSeen = IntArray(LotofacilConstants.MAX_NUMBER + 1) { -1 }
         
-        // Histogramas
         val evensDist = IntArray(HIST_SIZE_EVENS)
         val primesDist = IntArray(HIST_SIZE_PRIMES)
         val frameDist = IntArray(HIST_SIZE_FRAME)
@@ -74,9 +66,7 @@ class StatisticsAnalyzer @Inject constructor(
         var sumAccumulator = 0L
         val latestContest = draws.first().contestNumber
 
-        // Single Pass Loop O(N * 15)
         for (draw in draws) {
-            // Stats por número individual
             for (num in draw.numbers) {
                 frequencies.safeIncrement(num)
                 if (lastSeen[num] == -1) {
@@ -84,7 +74,6 @@ class StatisticsAnalyzer @Inject constructor(
                 }
             }
             
-            // Stats globais do concurso
             evensDist.safeIncrement(draw.evens)
             primesDist.safeIncrement(draw.primes)
             frameDist.safeIncrement(draw.frame)
@@ -92,14 +81,12 @@ class StatisticsAnalyzer @Inject constructor(
             fibonacciDist.safeIncrement(draw.fibonacci)
             mult3Dist.safeIncrement(draw.multiplesOf3)
             
-            // Bucket da soma (arredonda para dezena mais próxima: 184 -> 180)
             val sumBucket = (draw.sum / 10) * 10
             sumDist.safeIncrement(sumBucket)
             
             sumAccumulator += draw.sum
         }
 
-        // Materialização dos resultados
         val mostFrequent = createFrequencyList(frequencies, null, TOP_NUMBERS_COUNT)
         val mostOverdue = createFrequencyList(null, lastSeen, TOP_NUMBERS_COUNT, latestContest)
 
@@ -130,7 +117,6 @@ class StatisticsAnalyzer @Inject constructor(
         return map
     }
 
-    @Suppress("SameParameterValue")
     private fun createFrequencyList(
         counts: IntArray?,
         lastSeen: IntArray?,

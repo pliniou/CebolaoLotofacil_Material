@@ -49,11 +49,8 @@ fun MainScreen(mainViewModel: MainViewModel = hiltViewModel()) {
     val uiState by mainViewModel.uiState.collectAsStateWithLifecycle()
     val startDestination by mainViewModel.startDestination.collectAsStateWithLifecycle()
     val themeMode by mainViewModel.themeMode.collectAsStateWithLifecycle()
-    val accentPaletteName by mainViewModel.accentPalette.collectAsStateWithLifecycle()
-
-    val accentPalette = remember(accentPaletteName) {
-        AccentPalette.entries.find { it.name == accentPaletteName } ?: AccentPalette.AZUL
-    }
+    // Consumo direto do tipo correto
+    val accentPalette by mainViewModel.accentPalette.collectAsStateWithLifecycle()
 
     Scaffold(
         bottomBar = {

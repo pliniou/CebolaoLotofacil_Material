@@ -15,8 +15,11 @@ class AnalyzeGameUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(game: LotofacilGame): Result<GameAnalysisResult> = withContext(dispatcher) {
         runCatching {
+            // CheckGame envolve DB, então é assíncrono/Flow
             val checkResult = checkGameUseCase(game.numbers).first().getOrThrow()
-            val simpleStats = getGameSimpleStatsUseCase(game).first().getOrThrow()
+            
+            // SimpleStats agora é síncrono e imediato
+            val simpleStats = getGameSimpleStatsUseCase(game)
 
             GameAnalysisResult(
                 game = game,

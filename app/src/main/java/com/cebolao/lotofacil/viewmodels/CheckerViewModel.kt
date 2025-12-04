@@ -30,7 +30,7 @@ sealed interface CheckerUiState {
     data object Idle : CheckerUiState
     data object Loading : CheckerUiState
     data class Success(val result: CheckResult, val simpleStats: ImmutableList<Pair<String, String>>) : CheckerUiState
-    data class Error(@StringRes val messageResId: Int) : CheckerUiState
+    data class Error(@param:StringRes val messageResId: Int) : CheckerUiState
 }
 
 @HiltViewModel

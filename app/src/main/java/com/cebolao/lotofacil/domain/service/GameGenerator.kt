@@ -12,7 +12,7 @@ import kotlinx.coroutines.isActive
 import javax.inject.Inject
 import kotlin.random.Random
 
-private const val MAX_GENERATION_ATTEMPTS = 500_000
+private const val MAX_GENERATION_ATTEMPTS = 250_000
 private const val BATCH_SIZE = 200
 private const val MIN_HISTORY_FOR_HEURISTIC = 10
 private const val HISTORY_LOOKUP_SIZE = 200

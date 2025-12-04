@@ -39,11 +39,10 @@ fun NextContestHeroCard(info: NextDrawInfo?) {
 
     val colorScheme = MaterialTheme.colorScheme
 
-    // Gradiente diagonal para dar profundidade
     val backgroundBrush = Brush.linearGradient(
         colors = listOf(
-            colorScheme.primaryContainer.copy(alpha = 0.9f),
-            colorScheme.surfaceContainerHigh.copy(alpha = 0.95f)
+            colorScheme.primaryContainer.copy(alpha = 0.75f),
+            colorScheme.surfaceContainerHigh.copy(alpha = 0.5f)
         )
     )
 

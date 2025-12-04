@@ -21,7 +21,7 @@
     <string name="onboarding_skip">Pular</string>
     <string name="onboarding_next">Próximo</string>
     <string name="onboarding_start">Começar</string>
-    <string name="onboarding_title_1">Bem-vindo</string>
+    <string name="onboarding_title_1">Bem-vindo nobre apostador!</string>
     <string name="onboarding_desc_1">Descubra o poder da estatística aplicada à Lotofácil.</string>
     <string name="onboarding_title_2">Análises Precisas</string>
     <string name="onboarding_desc_2">Visualize padrões históricos, tendências e frequências.</string>
@@ -35,7 +35,7 @@
     <string name="home_subtitle">Sua sorte falsamente calculada</string>
     <string name="home_next_contest">Próximo: %1$d</string>
     <string name="home_prize_estimate">Estimativa de Prêmio</string>
-    <string name="home_statistics_center">Laboratório Estatístico</string>
+    <string name="home_statistics_center">Estatísticas da Lotofácil</string>
     <string name="home_sync_button_description">Sincronizar resultados</string>
     <string name="home_sync_success_message">Base de dados atualizada com sucesso!</string>
     <string name="home_sync_failed_message">Não foi possível sincronizar. Verifique a internet.</string>
@@ -45,14 +45,14 @@
     <string name="home_winner_count_one">%1$d ganhador</string>
     <string name="home_winner_count_other">%1$d ganhadores</string>
     <string name="home_understanding_stats">Entendendo os Números</string>
-    <string name="home_hot_numbers">Números Quentes</string>
-    <string name="home_overdue_numbers">Mais Atrasados</string>
+    <string name="home_hot_numbers">Dezenas mais Frequentes</string>
+    <string name="home_overdue_numbers">Dezenas mais Atrasadas</string>
     <string name="home_suffix_times">vezes</string>
     <string name="home_suffix_ago">atrás</string>
     <string name="home_analysis_period">Período</string>
     <string name="home_all_contests">Todo o Histórico</string>
     <string name="home_last_contests_format">Últimos %1$d</string>
-    <string name="stats_distribution_title_format">Distribuição: %1$s</string>
+    <string name="stats_distribution_title_format">%1$s</string>
     
     <!-- Educational Info -->
     <string name="edu_hot_cold_title">Números + e - Frequentes</string>
@@ -72,12 +72,12 @@
     <string name="filters_reset_confirm">Restaurar</string>
     <string name="filters_quantity_decrease">Menos jogos</string>
     <string name="filters_quantity_increase">Mais jogos</string>
-    <string name="filters_info_dialog_title_format">Sobre o Filtro: %1$s</string>
+    <string name="filters_info_dialog_title_format">%1$s</string>
     <string name="filters_analysis_title">Probabilidade Teórica</string>
     <string name="filters_success_chance">Chance de Sucesso</string>
-    <string name="filters_no_active_filters">Modo Aleatório (Sem filtros)</string>
+    <string name="filters_no_active_filters">Modo Aleatório</string>
     <string name="filters_unavailable_data">Dados indisponíveis</string>
-    <string name="filters_info_button_description">Sobre o filtro</string>
+    <string name="filters_info_button_description">O que é?</string>
     <string name="filters_min_label">Mín</string>
     <string name="filters_max_label">Máx</string>
 
@@ -128,7 +128,7 @@
     <string name="games_analysis_last_prize_label">Última Premiação</string>
     <string name="games_analysis_last_prize_value">Conc. #%1$s (%2$s pts)</string>
     <string name="games_share_chooser_title">Compartilhar via…</string>
-    <string name="games_share_game_subject">Minha aposta feita pelo Cebolão Lotofácil Generator</string>
+    <string name="games_share_game_subject">Aposta feita via Cebolão Lotofácil Generator</string>
     <string name="share_game_message_template"><![CDATA[🎲 <b>Cebolão Lotofácil Generator</b> calculou em uma extensa base de dados estatistica e sugeriu:<br/><br/>%1$s<br/><br/>Boa sorte com a aposta!]]></string>
 
     <!-- Game Card Feedback -->
@@ -153,11 +153,11 @@
     <string name="checker_score_breakdown_hits_format">%1$d acertos</string>
     <string name="checker_score_breakdown_times_format_one">vez</string>
     <string name="checker_score_breakdown_times_format_other">vezes</string>
-    <string name="checker_last_hit_info">Última ocorrência: #%1$s (%2$s acertos)</string>
+    <string name="checker_last_hit_info">Última vez premiado: #%1$s (%2$s acertos)</string>
     <string name="checker_no_wins_message">Esta combinação nunca alcançou 14 ou 15 pontos em toda a história.</string>
     <string name="checker_simple_stats_title">Estatísticas do Jogo</string>
     <string name="checker_recent_hits_chart_title">Desempenho Recente</string>
-    <string name="checker_selection_instruction">Selecione %1$d números no volante para conferir.</string>
+    <string name="checker_selection_instruction">Coloque abaixo os %1$d números no volante para conferir!</string>
     <string name="checker_performance_analysis">Análise de Desempenho</string>
     <string name="checker_how_it_works_title">Como funciona?</string>
     <string name="checker_how_it_works_desc">Selecione 15 dezenas e veja o histórico de premiação dessa combinação em todos os concursos.</string>
@@ -165,7 +165,7 @@
     <!-- About & Settings -->
     <string name="about_title">Sobre</string>
     <string name="about_subtitle">Configurações e Informações</string>
-    <string name="about_theme_title">Thema do App</string>
+    <string name="about_theme_title">Personalização</string>
     <string name="about_theme_light">Claro</string>
     <string name="about_theme_dark">Escuro</string>
     <string name="about_personalization_title">Cores disponíveis</string>
@@ -180,13 +180,14 @@
     <string name="about_privacy_policy">Política de Privacidade</string>
     <string name="about_version_format">Versão %1$s</string>
     <string name="about_disclaimer">Este aplicativo é uma ferramenta de análise estatística e não realiza apostas reais. Não possuímos vínculo com a Caixa Econômica Federal. Simule sem moderação</string>
+    <string name="open_external_link">Links externos</string>
 
     <!-- Greetings & Date -->
-    <string name="greeting_morning">É dia!</string>
-    <string name="greeting_afternoon">Tarde…</string>
+    <string name="greeting_morning">É dia</string>
+    <string name="greeting_afternoon">Boua Tarde</string>
     <string name="greeting_night">Boa noite</string>
     <string name="greeting_generic">Olá</string>
-    <string name="welcome_message_format">%1$s, jovem sonhador!</string>
+    <string name="welcome_message_format">%1$s, sonhador!</string>
     <string name="date_format_full">Hoje é %1$s, %2$s</string>
 
     <!-- Motivational Quotes -->

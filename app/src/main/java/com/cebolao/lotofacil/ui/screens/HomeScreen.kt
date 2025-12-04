@@ -67,6 +67,8 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                 StatisticsPanel(stats, Modifier.padding(horizontal = Dimen.ScreenPadding), viewModel::onTimeWindowSelected, uiState.selectedTimeWindow, uiState.isStatsLoading)
                 Spacer(Modifier.height(Dimen.MediumPadding))
                 DistributionChartsCard(stats, uiState.selectedPattern, viewModel::onPatternSelected, Modifier.padding(horizontal = Dimen.ScreenPadding))
+                Spacer(Modifier.height(Dimen.MediumPadding))
+                StatisticsExplanationCard(modifier = Modifier.padding(horizontal = Dimen.ScreenPadding))
             } ?: if (uiState.isStatsLoading) LinearProgressIndicator(Modifier.fillMaxWidth().padding(Dimen.ScreenPadding)) else Unit
 
             Spacer(Modifier.height(Dimen.SectionSpacing))

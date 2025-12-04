@@ -53,7 +53,7 @@ fun FilterCard(
 
 @Composable private fun Content(state: FilterState, onRange: (ClosedFloatingPointRange<Float>) -> Unit) {
     val alpha by animateFloatAsState(1f, label = "alpha")
-    Column(Modifier.padding(top = Dimen.MediumPadding).alpha(alpha)) {
+    Column(Modifier.padding(top = Dimen.SmallPadding).alpha(alpha)) {
         Row(Modifier.fillMaxWidth().padding(horizontal = Dimen.SmallPadding), Arrangement.SpaceBetween) {
             Label(stringResource(R.string.filters_min_label), state.selectedRange.start.toInt())
             Label(stringResource(R.string.filters_max_label), state.selectedRange.endInclusive.toInt(), Alignment.End)
@@ -71,6 +71,6 @@ fun FilterCard(
 @Composable private fun Label(txt: String, value: Int, align: Alignment.Horizontal = Alignment.Start) {
     Column(horizontalAlignment = align) {
         Text(txt, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text("$value", style = MaterialTheme.typography.titleLarge, fontFamily = FontFamilyNumeric, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+        Text("$value", style = MaterialTheme.typography.titleMedium, fontFamily = FontFamilyDisplay, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)
     }
 }

@@ -17,7 +17,7 @@ object AppConfig {
         const val SUM_STEP = 10
 
         // Opções de Interface
-        val TIME_WINDOWS = listOf(0, 20, 50, 100, 200, 500)
+        val TIME_WINDOWS = listOf(0, 20, 50, 75, 100, 200, 500)
         val GAME_QUANTITY_OPTIONS = listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 
         // Alphas & Opacities

@@ -22,7 +22,7 @@ import kotlin.math.roundToInt
 
 sealed interface NavigationEvent {
     data object NavigateToGeneratedGames : NavigationEvent
-    data class ShowSnackbar(@StringRes val messageRes: Int) : NavigationEvent
+    data class ShowSnackbar(@param:StringRes val messageRes: Int) : NavigationEvent
 }
 
 data class FiltersScreenState(
@@ -36,7 +36,7 @@ data class FiltersScreenState(
 
 sealed interface GenerationUiState {
     data object Idle : GenerationUiState
-    data class Loading(@StringRes val messageRes: Int, val progress: Int = 0, val total: Int = 0) : GenerationUiState
+    data class Loading(@param:StringRes val messageRes: Int, val progress: Int = 0, val total: Int = 0) : GenerationUiState
 }
 
 @HiltViewModel

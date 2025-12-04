@@ -16,6 +16,6 @@ enum class StatisticPattern(val title: String, val icon: ImageVector) {
     PRIMES("Primos", Icons.Outlined.Percent),
     FRAME("Moldura do Volante", Icons.Outlined.Grid4x4),
     PORTRAIT("Miolo do Volante", Icons.Outlined.CropSquare),
-    FIBONACCI("Fibonacci", Icons.Outlined.Timeline),
-    MULTIPLES_OF_3("Multi 3", Icons.Outlined.Numbers)
+    FIBONACCI("Sequencia deFibonacci", Icons.Outlined.Timeline),
+    MULTIPLES_OF_3("Multiplos de 3", Icons.Outlined.Numbers)
 }

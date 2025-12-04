@@ -49,18 +49,15 @@ fun StatisticsPanel(
                     if(isStatsLoading) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp
+                            strokeWidth = 4.dp
                         )
                     }
                 }
-
                 TimeWindowSelector(
                     selectedWindow = selectedWindow,
                     onTimeWindowSelected = onTimeWindowSelected
                 )
-
                 AppDivider()
-
                 AnimatedContent(
                     targetState = stats,
                     transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(300)) },
@@ -68,16 +65,17 @@ fun StatisticsPanel(
                 ) { targetStats ->
                     Column(verticalArrangement = Arrangement.spacedBy(Dimen.SectionSpacing)) {
                         StatRow(
-                            title = stringResource(R.string.home_hot_numbers),
-                            numbers = targetStats.mostFrequentNumbers.toImmutableList(),
-                            icon = Icons.Default.LocalFireDepartment,
-                            suffix = stringResource(R.string.home_suffix_times)
-                        )
-                        StatRow(
                             title = stringResource(R.string.home_overdue_numbers),
                             numbers = targetStats.mostOverdueNumbers.toImmutableList(),
                             icon = Icons.Default.HourglassEmpty,
                             suffix = stringResource(R.string.home_suffix_ago)
+                        )
+                        AppDivider()
+                        StatRow(
+                            title = stringResource(R.string.home_hot_numbers),
+                            numbers = targetStats.mostFrequentNumbers.toImmutableList(),
+                            icon = Icons.Default.LocalFireDepartment,
+                            suffix = stringResource(R.string.home_suffix_times)
                         )
                     }
                 }
@@ -94,7 +92,7 @@ private fun TimeWindowSelector(
     Column(verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
         Text(
             stringResource(R.string.home_analysis_period),
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         LazyRow(horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
@@ -104,7 +102,6 @@ private fun TimeWindowSelector(
                 } else {
                     stringResource(R.string.home_last_contests_format, window)
                 }
-
                 TimeWindowChip(
                     isSelected = window == selectedWindow,
                     onClick = { onTimeWindowSelected(window) },

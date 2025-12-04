@@ -24,9 +24,9 @@ fun StudioHero(modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)
         ) {
             Image(
-                painter = painterResource(id = R.drawable.ic_splash_logo),
+                painter = painterResource(id = R.drawable.ic_lotofacil_logo),
                 contentDescription = stringResource(R.string.studio_name),
-                modifier = Modifier.size(Dimen.Logo) // 96dp agora
+                modifier = Modifier.size(Dimen.Logo)
             )
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(

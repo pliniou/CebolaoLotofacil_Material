@@ -35,17 +35,6 @@ fun InfoListCard(
 }
 
 @Composable
-fun InfoListCard(
-    title: String,
-    subtitle: String,
-    @DrawableRes iconRes: Int,
-    modifier: Modifier = Modifier,
-    trailingIcon: ImageVector = Icons.AutoMirrored.Filled.ArrowForward
-) {
-    InfoListCardImpl(title, subtitle, IconSource.Resource(iconRes), modifier, trailingIcon)
-}
-
-@Composable
 private fun InfoListCardImpl(
     title: String,
     subtitle: String,

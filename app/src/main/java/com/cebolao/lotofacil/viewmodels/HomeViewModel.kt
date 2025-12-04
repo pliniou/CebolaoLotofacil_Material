@@ -22,7 +22,7 @@ import javax.inject.Inject
 
 sealed interface HomeScreenState {
     data object Loading : HomeScreenState
-    data class Error(@StringRes val messageResId: Int) : HomeScreenState
+    data class Error(@param:StringRes val messageResId: Int) : HomeScreenState
     data class Success(
         val lastDraw: HistoricalDraw?,
         val lastDrawSimpleStats: ImmutableList<Pair<String, String>>,
@@ -44,8 +44,7 @@ data class HomeUiState(
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    // REMOVIDO: historyRepository (Clean Architecture)
-    private val observeSyncStatusUseCase: ObserveSyncStatusUseCase, // NOVO
+    observeSyncStatusUseCase: ObserveSyncStatusUseCase,
     private val syncHistoryUseCase: SyncHistoryUseCase,
     private val getHomeScreenDataUseCase: GetHomeScreenDataUseCase,
     private val getAnalyzedStatsUseCase: GetAnalyzedStatsUseCase,

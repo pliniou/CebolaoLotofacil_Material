@@ -118,7 +118,7 @@ private fun FilterStatistics(filters: List<FilterState>) {
         if (filters.isEmpty()) {
             Text(
                 stringResource(R.string.filters_no_active_filters),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
             )
         } else {
@@ -138,7 +138,7 @@ private fun FilterStatRow(filter: FilterState) {
     ) {
         Text(
             text = stringResource(filter.type.titleRes), 
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurface
         )
         RestrictivenessChip(filter.restrictivenessCategory)
@@ -167,7 +167,7 @@ private fun RestrictivenessChip(category: RestrictivenessCategory) {
     Surface(
         color = containerColor,
         shape = MaterialTheme.shapes.extraSmall,
-        modifier = Modifier.height(24.dp), // Chip compacto
+        modifier = Modifier.height(24.dp),
     ) {
         Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(horizontal = 8.dp)) {
             Text(

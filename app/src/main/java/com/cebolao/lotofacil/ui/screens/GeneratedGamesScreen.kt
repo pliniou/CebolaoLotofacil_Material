@@ -204,8 +204,8 @@ private fun GameSummarySection(summary: GameSummary) {
     val formatter = rememberCurrencyFormatter()
     SectionCard(modifier = Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.MediumPadding)) {
         Row(Modifier.fillMaxWidth(), Arrangement.SpaceAround) {
-            SummaryItem("Gerados", "${summary.totalGames}")
-            SummaryItem("Investimento", formatter.format(summary.totalCost))
+            SummaryItem("Volantes Gerados", "${summary.totalGames}")
+            SummaryItem("Gasto", formatter.format(summary.totalCost))
         }
     }
 }

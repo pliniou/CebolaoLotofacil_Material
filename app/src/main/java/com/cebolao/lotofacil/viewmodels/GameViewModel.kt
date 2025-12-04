@@ -44,7 +44,7 @@ sealed interface GameAnalysisUiState {
     data object Idle : GameAnalysisUiState
     data object Loading : GameAnalysisUiState
     data class Success(val result: GameAnalysisResult) : GameAnalysisUiState
-    data class Error(@StringRes val messageResId: Int) : GameAnalysisUiState
+    data class Error(@param:StringRes val messageResId: Int) : GameAnalysisUiState
 }
 
 @HiltViewModel

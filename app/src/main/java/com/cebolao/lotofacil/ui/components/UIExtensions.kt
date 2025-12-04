@@ -15,6 +15,7 @@ fun Modifier.bounceClick(
     scaleDown: Float = 0.95f,
     onClick: (() -> Unit)? = null
 ) = composed {
+
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(if (isPressed) scaleDown else 1f, spring(dampingRatio = 0.6f, stiffness = 400f), label = "bounce")

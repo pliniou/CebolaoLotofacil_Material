@@ -18,7 +18,7 @@ data class StartDestinationState(val destination: String = Screen.Onboarding.rou
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val observeAppConfigUseCase: ObserveAppConfigUseCase,
+    observeAppConfigUseCase: ObserveAppConfigUseCase,
     private val updateAppConfigUseCase: UpdateAppConfigUseCase
 ) : ViewModel() {
 

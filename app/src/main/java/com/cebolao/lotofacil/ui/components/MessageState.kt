@@ -59,7 +59,6 @@ fun MessageState(
         if (actionLabel != null && onActionClick != null) {
             Spacer(Modifier.height(Dimen.SectionSpacing))
             
-            // Correção da chamada do PrimaryActionButton
             PrimaryActionButton(
                 text = actionLabel,
                 onClick = onActionClick,

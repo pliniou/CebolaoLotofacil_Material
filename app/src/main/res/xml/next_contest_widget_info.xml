@@ -4,7 +4,7 @@
     android:description="@string/widget_next_contest_description"
     android:initialLayout="@layout/widget_next_contest"
     android:minWidth="200dp"
-    android:minHeight="110dp"
+    android:minHeight="60dp"
     android:previewImage="@drawable/ic_widget_proximo"
     android:resizeMode="horizontal|vertical"
     android:targetCellWidth="3"

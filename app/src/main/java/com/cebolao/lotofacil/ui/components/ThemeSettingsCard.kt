@@ -37,7 +37,6 @@ fun ThemeSettingsCard(
 ) {
     SectionCard(modifier = modifier) {
         Column(verticalArrangement = Arrangement.spacedBy(Dimen.LargePadding)) {
-            // Seção de Tema (Dia/Noite)
             Column(verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
                 Text(
                     text = stringResource(R.string.about_theme_title),

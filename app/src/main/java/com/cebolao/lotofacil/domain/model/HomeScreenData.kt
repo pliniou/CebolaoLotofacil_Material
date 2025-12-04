@@ -31,5 +31,5 @@ data class HomeScreenData(
     val initialStats: StatisticsReport,
     val nextDrawInfo: NextDrawInfo?,
     val winnerData: List<WinnerData>,
-    val lastDrawCheckResult: CheckResult? = null // Adicionado para suportar a lógica
+    val lastDrawCheckResult: CheckResult? = null
 )

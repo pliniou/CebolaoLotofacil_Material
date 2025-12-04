@@ -47,7 +47,7 @@ object FilterPresets {
             id = "surprise",
             labelRes = R.string.preset_surprise,
             rules = mapOf(
-                FilterType.REPETIDAS_CONCURSO_ANTERIOR to 9f..9f, // Força 9 repetidas (Estatística mais forte)
+                FilterType.REPETIDAS_CONCURSO_ANTERIOR to 9f..9f,
                 FilterType.PARES to 5f..7f
             )
         )

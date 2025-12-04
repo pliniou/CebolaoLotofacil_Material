@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_background"
-    android:padding="16dp">
+    android:padding="@dimen/widget_content_padding">
 
     <LinearLayout
         android:id="@+id/header_container"
@@ -14,21 +13,19 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="@dimen/icon_size_medium"
+            android:layout_height="@dimen/icon_size_medium"
             android:src="@drawable/ic_widget_fixado"
             android:contentDescription="@null"
-            app:tint="@color/light_text_primary" />
+            android:tint="@color/light_text_primary" />
 
         <TextView
             android:id="@+id/widget_title"
+            style="@style/Widget.Cebolao.Title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="12dp"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@color/light_text_primary"
+            android:layout_marginStart="@dimen/spacing_small"
             android:text="@string/widget_pinned_game_title" />
 
         <ImageButton
@@ -39,7 +36,7 @@
             android:src="@drawable/ic_refresh"
             android:padding="6dp"
             android:tint="@color/light_text_secondary"
-            android:contentDescription="@string/home_sync_button_description"/>
+            android:contentDescription="@string/content_desc_refresh"/>
     </LinearLayout>
 
     <LinearLayout
@@ -49,16 +46,15 @@
         android:layout_centerInParent="true"
         android:gravity="center"
         android:orientation="vertical"
-        android:layout_marginTop="8dp">
-        <!-- Bolas infladas dinamicamente -->
+        android:layout_marginTop="@dimen/spacing_small">
     </LinearLayout>
 
     <TextView
         android:id="@+id/widget_loading_text"
+        style="@style/Widget.Cebolao.Text.Secondary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:textColor="@color/light_text_secondary"
         android:text="@string/widget_no_pinned_games"
         android:visibility="gone"/>
 

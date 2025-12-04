@@ -18,9 +18,7 @@ import com.cebolao.lotofacil.ui.theme.Dimen
 @Composable
 fun StandardPageLayout(
     modifier: Modifier = Modifier,
-    // Padding vindo do Scaffold (TopBar)
     scaffoldPadding: PaddingValues = PaddingValues(),
-    // Se deve adicionar espaço extra no fim (para BottomBar/FAB)
     addBottomSpace: Boolean = true,
     content: LazyListScope.() -> Unit
 ) {

@@ -6,7 +6,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
 val Typography = Typography(
-    // Display: Números grandes, telas de sucesso, splash
     displayLarge = TextStyle(
         fontFamily = FontFamilyDisplay,
         fontWeight = FontWeight.Black,
@@ -26,8 +25,6 @@ val Typography = Typography(
         fontSize = 36.sp,
         lineHeight = 44.sp
     ),
-
-    // Headline: Títulos de páginas
     headlineLarge = TextStyle(
         fontFamily = FontFamilyBody,
         fontWeight = FontWeight.Bold,
@@ -46,8 +43,6 @@ val Typography = Typography(
         fontSize = 24.sp,
         lineHeight = 32.sp
     ),
-
-    // Title: Subtítulos de cartões
     titleLarge = TextStyle(
         fontFamily = FontFamilyBody,
         fontWeight = FontWeight.Medium,
@@ -68,8 +63,6 @@ val Typography = Typography(
         lineHeight = 20.sp,
         letterSpacing = 0.1.sp
     ),
-
-    // Body: Texto corrido
     bodyLarge = TextStyle(
         fontFamily = FontFamilyBody,
         fontWeight = FontWeight.Normal,
@@ -91,8 +84,6 @@ val Typography = Typography(
         lineHeight = 16.sp,
         letterSpacing = 0.4.sp
     ),
-
-    // Label: Botões, Chips, Tags (Usa fonte Numérica/Técnica para distinção)
     labelLarge = TextStyle(
         fontFamily = FontFamilyNumeric,
         fontWeight = FontWeight.SemiBold,

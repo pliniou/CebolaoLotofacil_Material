@@ -32,7 +32,7 @@ fun InfoValueRow(
         Text(
             text = value,
             style = if (isHighlighed) MaterialTheme.typography.titleLarge else MaterialTheme.typography.titleMedium,
-            fontFamily = StackSans, // Garante fonte numérica
+            fontFamily = StackSans,
             fontWeight = if (isHighlighed) FontWeight.Black else FontWeight.Bold,
             color = if (isHighlighed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
         )

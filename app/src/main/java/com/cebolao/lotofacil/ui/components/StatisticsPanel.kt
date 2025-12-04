@@ -23,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.data.StatisticsReport
@@ -41,19 +40,13 @@ fun StatisticsPanel(
 ) {
     SectionCard(modifier = modifier.fillMaxWidth()) {
         Box {
-            Column(verticalArrangement = Arrangement.spacedBy(Dimen.CardPadding)) {
+            Column(verticalArrangement = Arrangement.spacedBy(Dimen.CardContentPadding)) {
                 // Header
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = stringResource(id = R.string.home_statistics_center),
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
-                    )
                     if(isStatsLoading) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(20.dp),

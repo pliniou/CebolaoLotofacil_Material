@@ -31,10 +31,6 @@ object AppModule {
     fun provideWorkManager(@ApplicationContext context: Context): WorkManager =
         WorkManager.getInstance(context)
 
-    // Removido provideGameGenerator (Usa @Inject constructor)
-    // Removido provideStatisticsAnalyzer (Usa @Inject constructor)
-    // Removido provideFilterSuccessCalculator (Usa @Inject constructor)
-
     @DefaultDispatcher
     @Provides
     fun providesDefaultDispatcher(): CoroutineDispatcher = Dispatchers.Default

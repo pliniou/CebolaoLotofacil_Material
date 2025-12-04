@@ -31,8 +31,6 @@ class HistoryRepositoryImpl @Inject constructor(
 
     private val writeMutex = Mutex()
 
-    // Cache Volátil: Permite leituras de UI (Main Thread) sem travar no Mutex.
-    // A lista é imutável e substituída atomicamente.
     @Volatile
     private var cachedHistory: List<HistoricalDraw> = emptyList()
     
@@ -46,13 +44,11 @@ class HistoryRepositoryImpl @Inject constructor(
         scope.launch {
             val local = localDataSource.getLocalHistory()
             updateCache(local)
-            // Tenta sync inicial em background
             syncHistory()
         }
     }
 
     override suspend fun getHistory(): List<HistoricalDraw> {
-        // Se vazio, tenta carregar síncrono (caso o init ainda não tenha completado)
         if (cachedHistory.isEmpty()) {
             writeMutex.withLock {
                 if (cachedHistory.isEmpty()) {
@@ -75,7 +71,6 @@ class HistoryRepositoryImpl @Inject constructor(
     }
 
     override fun syncHistory(): Job = scope.launch {
-        // Debounce: Se já estiver sincronizando ou não conseguir o lock, aborta.
         if (_syncStatus.value is SyncStatus.Syncing || !writeMutex.tryLock()) return@launch
 
         try {
@@ -104,14 +99,12 @@ class HistoryRepositoryImpl @Inject constructor(
             val newDraws = remoteDataSource.getDrawsInRange((currentMax + 1)..remoteMax)
             if (newDraws.isNotEmpty()) {
                 localDataSource.saveNewContests(newDraws)
-                // Atualiza cache: Novos + Antigos
                 updateCache(newDraws + cachedHistory)
             }
         }
     }
 
     private fun updateCache(allDraws: List<HistoricalDraw>) {
-        // Garante ordenação e unicidade antes de publicar para a variável volátil
         cachedHistory = allDraws
             .distinctBy { it.contestNumber }
             .sortedByDescending { it.contestNumber }

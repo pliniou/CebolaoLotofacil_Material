@@ -43,7 +43,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             val uiState by mainViewModel.uiState.collectAsStateWithLifecycle()
             val themeMode by mainViewModel.themeMode.collectAsStateWithLifecycle()
-            // Refatorado: Consome objeto tipado diretamente
             val accentPalette by mainViewModel.accentPalette.collectAsStateWithLifecycle()
 
             splash.setKeepOnScreenCondition { !uiState.isReady }
@@ -57,7 +56,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     if (uiState.isReady) {
-                        MainScreen(mainViewModel = mainViewModel)
+                        MainScreen()
                     }
                 }
             }

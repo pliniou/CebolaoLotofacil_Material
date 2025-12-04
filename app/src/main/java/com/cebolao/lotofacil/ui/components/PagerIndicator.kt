@@ -24,8 +24,8 @@ fun PagerIndicator(
     pageCount: Int,
     currentPage: Int,
     modifier: Modifier = Modifier,
-    activeIndicatorWidth: Dp = 32.dp, // Aumentado
-    indicatorHeight: Dp = 10.dp,      // Aumentado
+    activeIndicatorWidth: Dp = 32.dp,
+    indicatorHeight: Dp = 10.dp,
     indicatorSpacing: Dp = 8.dp
 ) {
     Row(

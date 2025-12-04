@@ -39,7 +39,6 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GeneratedGamesScreen(navController: NavController, viewModel: GameViewModel = hiltViewModel()) {
-
     val unpinned by viewModel.unpinnedGames.collectAsStateWithLifecycle()
     val pinned by viewModel.pinnedGames.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -49,7 +48,6 @@ fun GeneratedGamesScreen(navController: NavController, viewModel: GameViewModel 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val pagerState = rememberPagerState(pageCount = { 2 })
-    
     var showClearDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -84,16 +82,10 @@ fun GeneratedGamesScreen(navController: NavController, viewModel: GameViewModel 
         }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(top = innerPadding.calculateTopPadding())) {
-            
             if (unpinned.isNotEmpty() || pinned.isNotEmpty()) {
                 GameSummarySection(uiState.summary)
             }
-
-            GameTabs(
-                selectedIndex = pagerState.currentPage,
-                onTabSelected = { index -> scope.launch { pagerState.animateScrollToPage(index) } }
-            )
-            
+            GameTabs(pagerState.currentPage) { index -> scope.launch { pagerState.animateScrollToPage(index) } }
             HorizontalPager(state = pagerState, modifier = Modifier.weight(1f)) { page ->
                 val games = if (page == 0) unpinned else pinned
                 GameList(
@@ -121,8 +113,6 @@ fun GeneratedGamesScreen(navController: NavController, viewModel: GameViewModel 
     }
 }
 
-// --- FUNÇÕES AUXILIARES ---
-
 @Composable
 private fun GameList(
     games: List<LotofacilGame>,
@@ -136,13 +126,9 @@ private fun GameList(
         StandardPageLayout(scaffoldPadding = PaddingValues()) {
             items(
                 items = games,
-                // CORREÇÃO AQUI: Usar numbers.hashCode() garante estabilidade.
-                // Se usássemos 'it.hashCode()', alterar o estado 'isPinned' mudaria o ID,
-                // fazendo o Compose recriar o item e perder animações.
-                key = { it.numbers.hashCode() }, 
+                key = { it.numbers.hashCode() },
                 contentType = { "game_card" }
             ) { game ->
-                // Modifier.animateItemPlacement() poderia ser adicionado aqui se usássemos LazyColumn direto
                 AnimateOnEntry {
                     GameCard(game) { action -> onAction(action, game) }
                 }
@@ -170,7 +156,6 @@ private fun ConfirmationsHandler(
             icon = Icons.Default.DeleteSweep
         )
     }
-    
     if (gameToDelete != null) {
         AppConfirmationDialog(
             title = R.string.games_delete_dialog_title,
@@ -198,23 +183,12 @@ private fun EmptyState(isNewGamesTab: Boolean, onGenerateRequest: () -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun GameTabs(selectedIndex: Int, onTabSelected: (Int) -> Unit) {
-    val titles = listOf(R.string.games_tab_new, R.string.games_tab_pinned)
-    SecondaryTabRow(
-        selectedTabIndex = selectedIndex,
-        containerColor = MaterialTheme.colorScheme.background,
-        divider = {}
-    ) {
-        titles.forEachIndexed { index, titleRes ->
+    SecondaryTabRow(selectedTabIndex = selectedIndex, containerColor = MaterialTheme.colorScheme.background, divider = {}) {
+        listOf(R.string.games_tab_new, R.string.games_tab_pinned).forEachIndexed { index, titleRes ->
             Tab(
                 selected = selectedIndex == index,
                 onClick = { onTabSelected(index) },
-                text = { 
-                    Text(
-                        stringResource(titleRes), 
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = if(selectedIndex == index) FontWeight.Bold else FontWeight.Normal
-                    ) 
-                }
+                text = { Text(stringResource(titleRes), style = MaterialTheme.typography.titleMedium, fontWeight = if(selectedIndex == index) FontWeight.Bold else FontWeight.Normal) }
             )
         }
     }
@@ -243,11 +217,7 @@ private fun SummaryItem(label: String, value: String) {
 private fun AnalysisDialogHandler(state: GameAnalysisUiState, onDismiss: () -> Unit, snackbarHostState: SnackbarHostState) {
     when (state) {
         is GameAnalysisUiState.Success -> GameAnalysisDialog(state.result, onDismiss)
-        is GameAnalysisUiState.Loading -> LoadingDialog(
-            title = stringResource(R.string.games_analysis_dialog_title),
-            message = stringResource(R.string.general_loading_analysis),
-            onDismissRequest = {}
-        )
+        is GameAnalysisUiState.Loading -> LoadingDialog(stringResource(R.string.games_analysis_dialog_title), stringResource(R.string.general_loading_analysis), {})
         is GameAnalysisUiState.Error -> {
             val message = stringResource(R.string.general_analysis_failed_snackbar)
             LaunchedEffect(state) {
@@ -261,13 +231,10 @@ private fun AnalysisDialogHandler(state: GameAnalysisUiState, onDismiss: () -> U
 
 private fun Context.shareGameIntent(numbers: List<Int>) {
     val numbersStr = numbers.joinToString(", ") { "%02d".format(it) }
-    val template = getString(R.string.share_game_message_template, numbersStr)
-    val htmlText = HtmlCompat.fromHtml(template, HtmlCompat.FROM_HTML_MODE_COMPACT).toString()
-    
     val intent = Intent(Intent.ACTION_SEND).apply {
         type = MIME_TYPE_TEXT_PLAIN
         putExtra(Intent.EXTRA_SUBJECT, getString(R.string.games_share_game_subject))
-        putExtra(Intent.EXTRA_TEXT, htmlText)
+        putExtra(Intent.EXTRA_TEXT, HtmlCompat.fromHtml(getString(R.string.share_game_message_template, numbersStr), HtmlCompat.FROM_HTML_MODE_COMPACT).toString())
     }
     startActivity(Intent.createChooser(intent, getString(R.string.games_share_chooser_title)))
 }

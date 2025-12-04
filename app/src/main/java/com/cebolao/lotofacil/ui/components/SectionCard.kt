@@ -1,12 +1,7 @@
 package com.cebolao.lotofacil.ui.components
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -21,7 +16,7 @@ import com.cebolao.lotofacil.ui.theme.Dimen
 @Composable
 fun SectionCard(
     modifier: Modifier = Modifier,
-    backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerLow, 
+    backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerLow,
     contentSpacing: Dp = Dimen.ItemSpacing,
     header: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
@@ -30,26 +25,13 @@ fun SectionCard(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = BorderStroke(
-            // Correção: Referência hierárquica
-            width = Dimen.Border.Hairline,
-            color = MaterialTheme.colorScheme.outlineVariant
-        )
+        elevation = CardDefaults.cardElevation(0.dp),
+        border = BorderStroke(Dimen.Border.Hairline, MaterialTheme.colorScheme.outlineVariant)
     ) {
-        Column(
-            modifier = Modifier.padding(all = Dimen.CardContentPadding),
-            verticalArrangement = Arrangement.spacedBy(contentSpacing)
-        ) {
+        Column(Modifier.padding(Dimen.CardContentPadding), verticalArrangement = Arrangement.spacedBy(contentSpacing)) {
             if (header != null) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    header()
-                }
-                AppDivider(modifier = Modifier.padding(vertical = Dimen.SmallPadding))
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) { header() }
+                AppDivider(Modifier.padding(vertical = Dimen.SmallPadding))
             }
             content()
         }

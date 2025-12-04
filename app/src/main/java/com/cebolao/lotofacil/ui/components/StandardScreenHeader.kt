@@ -28,7 +28,6 @@ fun StandardScreenHeader(
             Column(modifier = Modifier.padding(start = 4.dp)) {
                 Text(
                     text = title,
-                    // CORREÇÃO: Reduzido de displaySmall para headlineSmall para evitar cortes
                     style = MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,

@@ -7,10 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -29,13 +26,9 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Consumo de eventos de mensagem (Sync Success/Fail)
     uiState.syncMessageRes?.let { msgId ->
-        val message = stringResource(msgId)
-        LaunchedEffect(msgId) {
-            snackbarHostState.showSnackbar(message)
-            viewModel.onMessageShown()
-        }
+        val msg = stringResource(msgId)
+        LaunchedEffect(msgId) { snackbarHostState.showSnackbar(msg); viewModel.onMessageShown() }
     }
 
     AppScreen(
@@ -44,152 +37,43 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
         snackbarHost = { SnackbarHost(snackbarHostState) },
         actions = {
             IconButton(onClick = viewModel::forceSync, enabled = !uiState.isSyncing) {
-                if (uiState.isSyncing) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(Dimen.SmallIcon),
-                        strokeWidth = 2.dp,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                } else {
-                    Icon(
-                        Icons.Default.Refresh,
-                        stringResource(R.string.home_sync_button_description)
-                    )
+                if (uiState.isSyncing) CircularProgressIndicator(Modifier.size(Dimen.SmallIcon), strokeWidth = 2.dp)
+                else Icon(Icons.Default.Refresh, stringResource(R.string.home_sync_button_description))
+            }
+        }
+    ) { inner ->
+        Column(Modifier.padding(inner).fillMaxSize().verticalScroll(rememberScrollState()).padding(bottom = Dimen.BottomBarSpacer)) {
+            Box(Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.SmallPadding)) { WelcomeCard() }
+
+            val screenState = uiState.screenState
+            
+            Box(Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.MediumPadding)) {
+                when (screenState) {
+                    is HomeScreenState.Success -> NextContestHeroCard(screenState.nextDrawInfo)
+                    is HomeScreenState.Loading -> Box(Modifier.fillMaxWidth().height(150.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                    else -> Unit
                 }
             }
-        }
-    ) { innerPadding ->
-        HomeContent(
-            uiState = uiState,
-            onTimeWindowSelected = viewModel::onTimeWindowSelected,
-            onPatternSelected = viewModel::onPatternSelected,
-            contentPadding = innerPadding
-        )
-    }
-}
 
-@Composable
-private fun HomeContent(
-    uiState: com.cebolao.lotofacil.viewmodels.HomeUiState,
-    onTimeWindowSelected: (Int) -> Unit,
-    onPatternSelected: (com.cebolao.lotofacil.domain.model.StatisticPattern) -> Unit,
-    contentPadding: PaddingValues
-) {
-    Column(
-        modifier = Modifier
-            .padding(contentPadding)
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(bottom = Dimen.BottomBarSpacer)
-    ) {
-        Box(modifier = Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.SmallPadding)) {
-            WelcomeCard()
-        }
-
-        Box(modifier = Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.MediumPadding)) {
-            when (val state = uiState.screenState) {
-                is HomeScreenState.Success -> NextContestHeroCard(state.nextDrawInfo)
-                is HomeScreenState.Loading -> LoadingCard()
-                is HomeScreenState.Error -> { /* Error handled by Snackbar or Placeholder */ }
+            if (screenState is HomeScreenState.Success) {
+                screenState.lastDraw?.let { draw ->
+                    SectionHeader(stringResource(R.string.home_last_contest_format, draw.contestNumber))
+                    LastDrawCard(draw, screenState.winnerData, Modifier.padding(horizontal = Dimen.ScreenPadding))
+                }
             }
-        }
 
-        if (uiState.screenState is HomeScreenState.Success) {
-            uiState.screenState.lastDraw?.let { draw ->
-                SectionHeader(stringResource(R.string.home_last_contest_format, draw.contestNumber))
-                LastDrawCard(
-                    draw = draw,
-                    winnerData = uiState.screenState.winnerData,
-                    modifier = Modifier.padding(horizontal = Dimen.ScreenPadding)
-                )
-            }
-        }
+            SectionHeader(stringResource(R.string.home_statistics_center))
+            uiState.statistics?.let { stats ->
+                StatisticsPanel(stats, Modifier.padding(horizontal = Dimen.ScreenPadding), viewModel::onTimeWindowSelected, uiState.selectedTimeWindow, uiState.isStatsLoading)
+                Spacer(Modifier.height(Dimen.MediumPadding))
+                DistributionChartsCard(stats, uiState.selectedPattern, viewModel::onPatternSelected, Modifier.padding(horizontal = Dimen.ScreenPadding))
+            } ?: if (uiState.isStatsLoading) LinearProgressIndicator(Modifier.fillMaxWidth().padding(Dimen.ScreenPadding)) else Unit
 
-        SectionHeader(stringResource(R.string.home_statistics_center))
-
-        uiState.statistics?.let { stats ->
-            StatisticsPanel(
-                stats = stats,
-                modifier = Modifier.padding(horizontal = Dimen.ScreenPadding),
-                selectedWindow = uiState.selectedTimeWindow,
-                onTimeWindowSelected = onTimeWindowSelected,
-                isStatsLoading = uiState.isStatsLoading
-            )
-
-            Spacer(Modifier.height(Dimen.MediumPadding))
-
-            DistributionChartsCard(
-                stats = stats,
-                selectedPattern = uiState.selectedPattern,
-                onPatternSelected = onPatternSelected,
-                modifier = Modifier.padding(horizontal = Dimen.ScreenPadding)
-            )
-        } ?: if (uiState.isStatsLoading) LoadingStats() else Unit
-
-        Spacer(Modifier.height(Dimen.SectionSpacing))
-        InfoTipCard(modifier = Modifier.padding(horizontal = Dimen.ScreenPadding))
-    }
-}
-
-@Composable
-private fun SectionHeader(title: String) {
-    Text(
-        text = title,
-        style = MaterialTheme.typography.titleLarge,
-        fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.onSurface,
-        modifier = Modifier.padding(
-            start = Dimen.ScreenPadding,
-            top = Dimen.LargePadding,
-            bottom = Dimen.SmallPadding
-        )
-    )
-}
-
-@Composable
-private fun LoadingCard() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(150.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        CircularProgressIndicator()
-    }
-}
-
-@Composable
-private fun LoadingStats() {
-    Column(Modifier.padding(Dimen.ScreenPadding)) {
-        LinearProgressIndicator(Modifier.fillMaxWidth())
-        Text(
-            text = stringResource(R.string.general_loading_analysis),
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(top = Dimen.SmallPadding),
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
-
-@Composable
-private fun InfoTipCard(modifier: Modifier = Modifier) {
-    OutlinedCard(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.outlinedCardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-        )
-    ) {
-        Row(
-            modifier = Modifier.padding(Dimen.MediumPadding),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(Icons.Outlined.Info, null, tint = MaterialTheme.colorScheme.primary)
-            Spacer(Modifier.width(Dimen.MediumPadding))
-            Text(
-                text = stringResource(R.string.general_disclaimer_responsibility),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Spacer(Modifier.height(Dimen.SectionSpacing))
+            InfoTipCard()
         }
     }
 }
+
+@Composable private fun SectionHeader(title: String) { Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = Dimen.ScreenPadding, top = Dimen.LargePadding, bottom = Dimen.SmallPadding)) }
+@Composable private fun InfoTipCard() { OutlinedCard(Modifier.fillMaxWidth().padding(horizontal = Dimen.ScreenPadding), colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) { Row(Modifier.padding(Dimen.MediumPadding), verticalAlignment = Alignment.CenterVertically) { Icon(Icons.Outlined.Info, null, tint = MaterialTheme.colorScheme.primary); Spacer(Modifier.width(Dimen.MediumPadding)); Text(stringResource(R.string.general_disclaimer_responsibility), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) } } }

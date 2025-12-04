@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_background"
-    android:padding="16dp">
+    android:padding="@dimen/widget_content_padding">
 
     <LinearLayout
         android:id="@+id/header_container"
@@ -15,24 +13,20 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="@dimen/icon_size_medium"
+            android:layout_height="@dimen/icon_size_medium"
             android:src="@drawable/ic_widget_proximo"
             android:contentDescription="@null"
-            app:tint="@color/widget_primary" />
+            android:tint="@color/widget_primary" />
 
         <TextView
             android:id="@+id/widget_title"
+            style="@style/Widget.Cebolao.Title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="12dp"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="@color/light_text_primary"
-            android:ellipsize="end"
-            android:maxLines="1"
-            tools:text="Concurso 3456" />
+            android:layout_marginStart="@dimen/spacing_small"
+            android:text="@string/widget_next_contest_title" />
 
         <ImageButton
             android:id="@+id/widget_refresh_button"
@@ -42,7 +36,7 @@
             android:src="@drawable/ic_refresh"
             android:padding="6dp"
             android:tint="@color/light_text_secondary"
-            android:contentDescription="@string/home_sync_button_description"/>
+            android:contentDescription="@string/content_desc_refresh"/>
     </LinearLayout>
 
     <LinearLayout
@@ -55,29 +49,26 @@
 
         <TextView
             android:id="@+id/widget_prize"
+            style="@style/Widget.Cebolao.Text.Highlight"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/widget_primary"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            tools:text="R$ 1.700.000" />
+            android:text="--" />
 
         <TextView
             android:id="@+id/widget_date"
+            style="@style/Widget.Cebolao.Text.Secondary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:textColor="@color/light_text_secondary"
-            android:textSize="12sp"
-            tools:text="17/10/2025" />
+            android:text="--/--" />
     </LinearLayout>
 
     <TextView
         android:id="@+id/widget_loading_text"
+        style="@style/Widget.Cebolao.Text.Secondary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:textColor="@color/light_text_secondary"
         android:text="@string/general_loading"
         android:visibility="gone"/>
 

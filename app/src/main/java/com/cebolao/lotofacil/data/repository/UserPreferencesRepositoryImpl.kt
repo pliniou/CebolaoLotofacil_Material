@@ -28,7 +28,6 @@ import javax.inject.Singleton
 private const val DATASTORE_NAME = "user_prefs"
 private const val TAG = "UserPrefsRepo"
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = DATASTORE_NAME)
-
 const val THEME_MODE_LIGHT = "light"
 const val THEME_MODE_DARK = "dark"
 
@@ -39,7 +38,6 @@ class UserPreferencesRepositoryImpl @Inject constructor(
 ) : UserPreferencesRepository {
 
     private val dataStore = context.dataStore
-
     private object Keys {
         val PINNED = stringSetPreferencesKey("pinned_games")
         val HISTORY = stringSetPreferencesKey("dynamic_history")

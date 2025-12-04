@@ -61,17 +61,15 @@ fun ColorPaletteCard(
     }
 
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
-        // Correção: Uso de recurso de string se disponível, ou manter hardcoded se não crítico, 
-        // mas idealmente extrair. Usando personalização como fallback.
         Text(
             stringResource(R.string.about_personalization_title), 
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
         
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(Dimen.MediumPadding),
+            horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding),
             contentPadding = PaddingValues(end = Dimen.ScreenPadding)
         ) {
             items(palettes) { palette ->
@@ -106,16 +104,15 @@ private fun PalettePreviewCard(
             .width(Dimen.PaletteCardWidth)
             .height(Dimen.PaletteCardHeight)
             .clickable { onClick() },
-        shape = MaterialTheme.shapes.medium,
+        shape = MaterialTheme.shapes.small,
         colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
-        // Correção: Referência a Dimen.Border e Dimen.Elevation
         border = BorderStroke(if (isSelected) Dimen.Border.Thick else Dimen.Border.Hairline, borderColor),
         elevation = CardDefaults.cardElevation(if (isSelected) Dimen.Elevation.Medium else Dimen.Elevation.Low)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(Dimen.MediumPadding),
+                .padding(Dimen.SmallPadding),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Row(
@@ -136,7 +133,7 @@ private fun PalettePreviewCard(
                 Text(
                     text = name,
                     style = MaterialTheme.typography.labelSmall,
-                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
                     color = colorScheme.onSurface,
                     maxLines = 1
                 )
@@ -145,7 +142,7 @@ private fun PalettePreviewCard(
                         imageVector = Icons.Filled.CheckCircle,
                         contentDescription = stringResource(R.string.general_selected),
                         tint = colorScheme.primary,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(8.dp)
                     )
                 }
             }
@@ -157,11 +154,10 @@ private fun PalettePreviewCard(
 private fun ColorSwatch(color: Color, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
-            .height(24.dp)
+            .height(16.dp)
             .clip(MaterialTheme.shapes.extraSmall)
             .background(color)
             .border(
-                // Correção: Referência a Dimen.Border
                 width = Dimen.Border.Hairline,
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
                 shape = MaterialTheme.shapes.extraSmall

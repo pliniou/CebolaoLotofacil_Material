@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.Color
 
 enum class AccentPalette(val paletteName: String, val seed: Color) {
     AZUL("Clássico", BrandAzul),
-    ROXO("Criativo", BrandRoxo),
+    ROXO("Lotofácil", BrandRoxo),
     VERDE("Sorte", BrandVerde),
     ROSA("Vibrante", BrandRosa),
     AMARELO("Luz", Color(0xFF686000))

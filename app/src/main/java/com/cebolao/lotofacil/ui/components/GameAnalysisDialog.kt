@@ -44,7 +44,7 @@ fun GameAnalysisDialog(
                 modifier = Modifier
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(Dimen.CardPadding)
+                verticalArrangement = Arrangement.spacedBy(Dimen.CardContentPadding)
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
                     Text(
@@ -57,8 +57,7 @@ fun GameAnalysisDialog(
                         verticalArrangement = Arrangement.spacedBy(Dimen.ExtraSmallPadding),
                         maxItemsInEachRow = AppConfig.UI.NUMBER_GRID_ITEMS_PER_ROW
                     ) {
-                        result.game.numbers.sorted().forEach {
-                            // Correção: Uso de sizeVariant em vez de size
+                        result.game.numbers.sorted().forEach {                            
                             NumberBall(
                                 number = it,
                                 sizeVariant = NumberBallSize.Medium, 

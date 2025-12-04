@@ -38,7 +38,6 @@ fun AnimateOnEntry(
         modifier = modifier,
         visible = isVisible,
         enter = slideInVertically(
-            // Entrada suave de baixo para cima
             initialOffsetY = { fullHeight -> (fullHeight * VERTICAL_SLIDE_OFFSET_FACTOR).toInt() },
             animationSpec = spring(
                 dampingRatio = Spring.DampingRatioLowBouncy,

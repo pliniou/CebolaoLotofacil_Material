@@ -19,13 +19,11 @@ class FilterSuccessCalculator @Inject constructor() {
     operator fun invoke(activeFilters: List<FilterState>): Float {
         if (activeFilters.isEmpty()) return MAX_PROBABILITY
 
-        // Calcula a força de cada filtro baseada na taxa histórica e restritividade do range
         val strengths = activeFilters.map { filter ->
             val rangeFactor = max(filter.rangePercentage, MIN_RANGE_FACTOR)
             (filter.type.historicalSuccessRate * rangeFactor).coerceIn(MIN_PROBABILITY_FLOOR, MAX_PROBABILITY)
         }
 
-        // Média geométrica das probabilidades
         val logSum = strengths.sumOf { ln(it.toDouble()) }
         val geometricMean = exp(logSum / strengths.size).toFloat()
 

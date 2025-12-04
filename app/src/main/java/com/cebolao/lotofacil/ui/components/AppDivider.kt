@@ -7,12 +7,6 @@ import androidx.compose.ui.Modifier
 import com.cebolao.lotofacil.ui.theme.Dimen
 
 @Composable
-fun AppDivider(
-    modifier: Modifier = Modifier
-) {
-    HorizontalDivider(
-        modifier = modifier,
-        thickness = Dimen.Border.Hairline,
-        color = MaterialTheme.colorScheme.outlineVariant
-    )
+fun AppDivider(modifier: Modifier = Modifier) {
+    HorizontalDivider(modifier, thickness = Dimen.Border.Hairline, color = MaterialTheme.colorScheme.outlineVariant)
 }

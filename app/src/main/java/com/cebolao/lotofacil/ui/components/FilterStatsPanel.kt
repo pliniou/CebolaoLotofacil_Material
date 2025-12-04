@@ -47,7 +47,7 @@ fun FilterStatsPanel(
     ) {
         Column(
             modifier = Modifier.padding(Dimen.CardContentPadding),
-            verticalArrangement = Arrangement.spacedBy(Dimen.CardPadding)
+            verticalArrangement = Arrangement.spacedBy(Dimen.CardContentPadding)
         ) {
             Text(
                 text = stringResource(R.string.filters_analysis_title), 

@@ -20,21 +20,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.cebolao.lotofacil.ui.theme.AppConfig
-import com.cebolao.lotofacil.ui.theme.Dimen
-import com.cebolao.lotofacil.ui.theme.FontFamilyNumeric
-import com.cebolao.lotofacil.ui.theme.SuccessGreen
+import com.cebolao.lotofacil.ui.theme.*
 import com.cebolao.lotofacil.util.DEFAULT_NUMBER_FORMAT
 
 enum class NumberBallSize { Large, Medium, Small }
 enum class NumberBallVariant { Primary, Secondary, Neutral, Hit, Miss }
 
-@Immutable
-private data class BallColors(
-    val container: Color,
-    val content: Color,
-    val border: Color
-)
+@Immutable private data class BallColors(val container: Color, val content: Color, val border: Color)
 
 @Composable
 fun NumberBall(
@@ -45,45 +37,35 @@ fun NumberBall(
     isDisabled: Boolean = false,
     variant: NumberBallVariant = NumberBallVariant.Primary
 ) {
-    // 1. Otimização de Tamanho e Fonte (Cálculo simples, não precisa de remember complexo)
     val size = when (sizeVariant) {
         NumberBallSize.Large -> Dimen.BallSizeLarge
         NumberBallSize.Medium -> Dimen.BallSizeMedium
         NumberBallSize.Small -> Dimen.BallSizeSmall
     }
-    
     val fontSize = when (sizeVariant) {
         NumberBallSize.Large -> Dimen.BallTextLarge
         NumberBallSize.Medium -> Dimen.BallTextMedium
         NumberBallSize.Small -> Dimen.BallTextSmall
     }
 
-    // 2. Otimização de Cores: Cacheia o resultado até que o estado ou o tema mudem.
-    val colorScheme = MaterialTheme.colorScheme
-    val colors = remember(isSelected, variant, colorScheme) {
-        resolveBallColors(isSelected, variant, colorScheme)
-    }
-    
-    // Animação apenas se as cores mudarem
-    val animatedBg by animateColorAsState(colors.container, label = "bgColor")
-    val animatedContent by animateColorAsState(colors.content, label = "contentColor")
+    val scheme = MaterialTheme.colorScheme
+    val colors = remember(isSelected, variant, scheme) { resolveColors(isSelected, variant, scheme) }
+
+    val bg by animateColorAsState(colors.container, label = "bg")
+    val content by animateColorAsState(colors.content, label = "content")
 
     Box(
         modifier = modifier
             .size(size)
             .alpha(if (isDisabled) AppConfig.UI.ALPHA_DISABLED else 1f)
             .clip(CircleShape)
-            .background(animatedBg)
-            .then(
-                if (colors.border != Color.Transparent) 
-                    Modifier.border(1.dp, colors.border, CircleShape) 
-                else Modifier
-            ),
+            .background(bg)
+            .then(if (colors.border != Color.Transparent) Modifier.border(1.dp, colors.border, CircleShape) else Modifier),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = DEFAULT_NUMBER_FORMAT.format(number),
-            color = animatedContent,
+            color = content,
             fontFamily = FontFamilyNumeric,
             fontSize = fontSize,
             fontWeight = FontWeight.Bold
@@ -91,18 +73,11 @@ fun NumberBall(
     }
 }
 
-// Função pura (não @Composable) para cálculo rápido de cores
-private fun resolveBallColors(
-    isSelected: Boolean, 
-    variant: NumberBallVariant, 
-    scheme: ColorScheme
-): BallColors {
-    return when {
-        isSelected -> BallColors(scheme.primary, scheme.onPrimary, Color.Transparent)
-        variant == NumberBallVariant.Hit -> BallColors(SuccessGreen, Color.White, Color.Transparent)
-        variant == NumberBallVariant.Miss -> BallColors(scheme.errorContainer, scheme.onErrorContainer, Color.Transparent)
-        variant == NumberBallVariant.Secondary -> BallColors(scheme.secondaryContainer, scheme.onSecondaryContainer, Color.Transparent)
-        variant == NumberBallVariant.Neutral -> BallColors(scheme.surfaceContainerHigh, scheme.onSurface, Color.Transparent)
-        else -> BallColors(scheme.surface, scheme.onSurface, scheme.outlineVariant.copy(alpha = 0.5f))
-    }
+private fun resolveColors(isSelected: Boolean, variant: NumberBallVariant, s: ColorScheme): BallColors = when {
+    isSelected -> BallColors(s.primary, s.onPrimary, Color.Transparent)
+    variant == NumberBallVariant.Hit -> BallColors(SuccessGreen, Color.White, Color.Transparent)
+    variant == NumberBallVariant.Miss -> BallColors(s.errorContainer, s.onErrorContainer, Color.Transparent)
+    variant == NumberBallVariant.Secondary -> BallColors(s.secondaryContainer, s.onSecondaryContainer, Color.Transparent)
+    variant == NumberBallVariant.Neutral -> BallColors(s.surfaceContainerHigh, s.onSurface, Color.Transparent)
+    else -> BallColors(s.surface, s.onSurface, s.outlineVariant.copy(alpha = 0.5f))
 }

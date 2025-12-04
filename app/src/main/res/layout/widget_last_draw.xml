@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_background"
-    android:padding="16dp">
+    android:padding="@dimen/widget_content_padding">
 
     <!-- Header -->
     <LinearLayout
@@ -16,24 +14,20 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="@dimen/icon_size_medium"
+            android:layout_height="@dimen/icon_size_medium"
             android:src="@drawable/ic_lotofacil_logo"
             android:contentDescription="@null"
             android:scaleType="fitCenter" />
 
         <TextView
             android:id="@+id/widget_title"
+            style="@style/Widget.Cebolao.Title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="12dp"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@color/light_text_primary"
-            android:ellipsize="end"
-            android:maxLines="1"
-            tools:text="Último: 3455" />
+            android:layout_marginStart="@dimen/spacing_small"
+            android:text="@string/widget_last_draw_title" />
 
         <ImageButton
             android:id="@+id/widget_refresh_button"
@@ -43,11 +37,11 @@
             android:src="@drawable/ic_refresh"
             android:scaleType="fitCenter"
             android:padding="6dp"
-            android:contentDescription="@string/home_sync_button_description"
-            app:tint="@color/light_text_secondary" />
+            android:contentDescription="@string/content_desc_refresh"
+            android:tint="@color/light_text_secondary" />
     </LinearLayout>
 
-    <!-- Conteúdo Centralizado (Bolas) -->
+    <!-- Conteúdo (Bolas) -->
     <LinearLayout
         android:id="@+id/widget_numbers_container"
         android:layout_width="match_parent"
@@ -55,18 +49,17 @@
         android:layout_centerInParent="true"
         android:orientation="vertical"
         android:gravity="center"
-        android:layout_marginTop="8dp">
-        <!-- Linhas de bolas infladas via código -->
+        android:layout_marginTop="@dimen/spacing_small">
+        <!-- Inflado via código -->
     </LinearLayout>
 
-    <!-- Loading / Erro -->
+    <!-- Loading -->
     <TextView
         android:id="@+id/widget_loading_text"
+        style="@style/Widget.Cebolao.Text.Secondary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:textColor="@color/light_text_secondary"
-        android:textSize="14sp"
         android:text="@string/general_loading"
         android:visibility="gone" />
 

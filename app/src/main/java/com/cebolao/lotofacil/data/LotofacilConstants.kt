@@ -9,12 +9,8 @@ object LotofacilConstants {
     const val MIN_PRIZE_SCORE = 11
 
     val NUMBER_RANGE = MIN_NUMBER..MAX_NUMBER
-    // Alias restaurado para compatibilidade
-    val VALID_NUMBER_RANGE = NUMBER_RANGE
-
     val ALL_NUMBERS: List<Int> = NUMBER_RANGE.toList()
     val GAME_COST: BigDecimal = BigDecimal("3.50")
-
     val PRIMOS: Set<Int> = setOf(2, 3, 5, 7, 11, 13, 17, 19, 23)
     val FIBONACCI: Set<Int> = setOf(1, 2, 3, 5, 8, 13, 21)
     val MOLDURA: Set<Int> = setOf(1, 2, 3, 4, 5, 6, 10, 11, 15, 16, 20, 21, 22, 23, 24, 25)

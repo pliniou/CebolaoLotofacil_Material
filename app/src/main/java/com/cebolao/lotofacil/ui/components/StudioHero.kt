@@ -31,7 +31,7 @@ fun StudioHero(modifier: Modifier = Modifier) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = stringResource(id = R.string.studio_name),
-                    style = MaterialTheme.typography.displaySmall, // Fonte de impacto
+                    style = MaterialTheme.typography.displaySmall,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(

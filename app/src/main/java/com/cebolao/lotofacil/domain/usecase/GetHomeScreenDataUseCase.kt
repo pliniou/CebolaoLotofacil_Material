@@ -10,43 +10,26 @@ import com.cebolao.lotofacil.domain.repository.HistoryRepository
 import com.cebolao.lotofacil.util.DEFAULT_PLACEHOLDER
 import com.cebolao.lotofacil.util.Formatters
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
-private const val TAG = "GetHomeScreenDataUseCase"
+private const val TAG = "GetHomeScreenDataUC"
 
 class GetHomeScreenDataUseCase @Inject constructor(
     private val historyRepository: HistoryRepository,
     private val getAnalyzedStatsUseCase: GetAnalyzedStatsUseCase,
-    private val checkGameUseCase: CheckGameUseCase, // Injeção Nova
+    private val checkGameUseCase: CheckGameUseCase,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
 ) {
     operator fun invoke(): Flow<Result<HomeScreenData>> = flow {
         val history = historyRepository.getHistory()
+        if (history.isEmpty()) throw IllegalStateException("Nenhum histórico encontrado.")
 
-        if (history.isEmpty()) {
-            throw IllegalStateException("Nenhum histórico de sorteio encontrado.")
-        }
-
-        val latestApi = historyRepository.getLatestApiResult()
         val lastDraw = history.first()
-
-        // Executa estatísticas (Síncrono/Rápido devido a otimização anterior)
         val stats = getAnalyzedStatsUseCase(timeWindow = 0).getOrThrow()
-
-        // Processa dados da API (Síncrono/Memória)
-        val (nextDraw, winners) = processApiResult(latestApi)
-
-        // Processa CheckResult (Assíncrono/DB)
-        // Coleta o primeiro valor do flow do CheckGameUseCase.
-        // Como estamos dentro de um Flow builder, é seguro suspender aqui.
-        val lastDrawCheckResult = checkGameUseCase(lastDraw.numbers)
-            .first()
-            .getOrNull()
+        val (nextDraw, winners) = processApiResult(historyRepository.getLatestApiResult())
+        
+        val lastDrawCheckResult = checkGameUseCase(lastDraw.numbers).first().getOrNull()
 
         emit(Result.success(
             HomeScreenData(
@@ -54,11 +37,7 @@ class GetHomeScreenDataUseCase @Inject constructor(
                 initialStats = stats,
                 nextDrawInfo = nextDraw,
                 winnerData = winners,
-                // O HomeScreenData original já tinha esse campo? 
-                // Se não, vamos precisar adicionar ao Data Class. 
-                // Verificando o arquivo HomeScreenData.kt... Sim, existe!
-                // Mas no código anterior ele estava sendo preenchido no ViewModel.
-                // Agora injetamos aqui.
+                lastDrawCheckResult = lastDrawCheckResult
             )
         ))
     }.catch { e ->
@@ -80,16 +59,15 @@ class GetHomeScreenDataUseCase @Inject constructor(
 
         val winnerData = apiResult.listaRateioPremio.mapNotNull { rateio ->
             val hits = rateio.descricaoFaixa.filter { it.isDigit() }.toIntOrNull()
-            if (hits != null) {
+            hits?.let {
                 WinnerData(
-                    hits = hits,
+                    hits = it,
                     description = rateio.descricaoFaixa,
                     winnerCount = rateio.numeroDeGanhadores,
                     prize = rateio.valorPremio
                 )
-            } else null
+            }
         }
-
         return nextDrawInfo to winnerData
     }
 }

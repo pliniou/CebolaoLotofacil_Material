@@ -4,7 +4,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 object Dimen {
-    // --- Spacing System (8pt Grid) ---
+    // --- Spacing System ---
     val ExtraSmallPadding = 4.dp
     val SmallPadding = 8.dp
     val MediumPadding = 16.dp
@@ -15,14 +15,12 @@ object Dimen {
 
     // --- Layout ---
     val ScreenPadding = MediumPadding
-    val CardPadding = MediumPadding
     val CardContentPadding = MediumPadding
     val BottomContentPadding = 100.dp
     val BottomBarSpacer = 88.dp
 
     // --- Component Sizes ---
     val LargeButtonHeight = 56.dp
-    val ButtonHeight = 56.dp // Alias
     val PaletteCardWidth = 120.dp
     val PaletteCardHeight = 100.dp
     val ProgressBarHeight = 12.dp
@@ -32,10 +30,6 @@ object Dimen {
     val MediumIcon = 24.dp
     val LargeIcon = 32.dp
     val Logo = 96.dp
-
-    // --- Shapes ---
-    val CardCornerRadius = 16.dp
-    val SheetCornerRadius = 28.dp
 
     // --- Lotofácil Balls ---
     val BallSizeLarge = 44.dp

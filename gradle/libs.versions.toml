@@ -1,37 +1,24 @@
 [versions]
 # Build & Kotlin
-#noinspection AndroidGradlePluginVersion
 agp = "8.5.1"
 kotlin = "2.0.0"
-ksp = "2.0.0-1.0.22" # Deve casar com a versão do Kotlin
-#noinspection GradleDependency,GradleDependency
+ksp = "2.0.0-1.0.22"
 desugar = "2.0.4"
 
 # Android Core & Compose
-#noinspection GradleDependency
 coreKtx = "1.13.1"
-#noinspection GradleDependency,GradleDependency
 lifecycle = "2.8.3"
-#noinspection GradleDependency
 activityCompose = "1.9.0"
-#noinspection GradleDependency
 composeBom = "2024.06.00"
-#noinspection GradleDependency
 navigationCompose = "2.7.7"
-#noinspection GradleDependency
 material3 = "1.2.1"
-#noinspection GradleDependency
-materialComponents = "1.12.0" # XML Legacy support if needed
-#noinspection GradleDependency
+# Correção: Adicionada versão do SplashScreen
 splashScreen = "1.0.1"
 
 # Architecture
 hilt = "2.51.1"
-#noinspection GradleDependency,GradleDependency,GradleDependency
 androidxHilt = "1.2.0"
-#noinspection GradleDependency
 workRuntimeKtx = "2.9.0"
-#noinspection GradleDependency
 datastore = "1.1.1"
 
 # Data & Network
@@ -43,15 +30,14 @@ coil = "2.6.0"
 
 # Testing
 junit = "4.13.2"
-#noinspection GradleDependency
 junitVersion = "1.1.5"
-#noinspection GradleDependency
 espresso = "3.6.1"
 coroutines = "1.8.1"
 
 [libraries]
 # Android Core
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+# Correção: Adicionada biblioteca do SplashScreen
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashScreen" }
 android-desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugar" }
 
@@ -69,7 +55,6 @@ androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
-google-material = { group = "com.google.android.material", name = "material", version.ref = "materialComponents" } # Theme Fix
 
 # Hilt (DI)
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
@@ -101,18 +86,18 @@ kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" } # New in Kotlin 2.0
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 
 [bundles]
 compose = [
-    "androidx-ui", 
-    "androidx-ui-graphics", 
-    "androidx-ui-tooling-preview", 
-    "androidx-material3", 
-    "androidx-material-icons-extended", 
+    "androidx-ui",
+    "androidx-ui-graphics",
+    "androidx-ui-tooling-preview",
+    "androidx-material3",
+    "androidx-material-icons-extended",
     "coil-compose",
     "androidx-activity-compose",
     "androidx-lifecycle-runtime-compose",

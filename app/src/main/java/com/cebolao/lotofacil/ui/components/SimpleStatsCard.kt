@@ -17,7 +17,7 @@ fun SimpleStatsCard(
     modifier: Modifier = Modifier
 ) {
     SectionCard(modifier = modifier) {
-        Column(verticalArrangement = Arrangement.spacedBy(Dimen.CardPadding)) {
+        Column(verticalArrangement = Arrangement.spacedBy(Dimen.CardContentPadding)) {
             Text(
                 text = stringResource(R.string.checker_simple_stats_title),
                 style = MaterialTheme.typography.titleMedium

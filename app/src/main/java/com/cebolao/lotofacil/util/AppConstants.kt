@@ -1,21 +1,21 @@
 package com.cebolao.lotofacil.util
 
-// Constantes de localização para formatação
+// Location
 const val LOCALE_LANGUAGE = "pt"
 const val LOCALE_COUNTRY = "BR"
 
-// Constantes de formatação e strings
+// Formatting
 const val DEFAULT_NUMBER_FORMAT = "%02d"
 const val DEFAULT_PLACEHOLDER = "--"
 const val CHECKER_ARG_SEPARATOR = ','
 
-// Constantes de MIME Type
+// MIME & Intents
 const val MIME_TYPE_TEXT_PLAIN = "text/plain"
 
-// Constantes de Widget
+// Widget
 const val ACTION_REFRESH = "com.cebolao.lotofacil.ACTION_REFRESH_WIDGET"
 const val WIDGET_UPDATE_INTERVAL_HOURS = 12L
 const val WIDGET_UPDATE_WORK_NAME = "widget_update_work"
 
-// Constantes de Flow/State
+// Flow
 const val STATE_IN_TIMEOUT_MS = 5000L

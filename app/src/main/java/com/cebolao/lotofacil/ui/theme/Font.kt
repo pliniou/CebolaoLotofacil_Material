@@ -5,7 +5,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import com.cebolao.lotofacil.R
 
-// Fonte de Display: Gabarito
 val Gabarito = FontFamily(
     Font(R.font.gabarito_regular, FontWeight.Normal),
     Font(R.font.gabarito_medium, FontWeight.Medium),
@@ -15,7 +14,6 @@ val Gabarito = FontFamily(
     Font(R.font.gabarito_black, FontWeight.Black)
 )
 
-// Fonte de UI/Corpo: Outfit
 val Outfit = FontFamily(
     Font(R.font.outfit_thin, FontWeight.Thin),
     Font(R.font.outfit_light, FontWeight.Light),
@@ -27,7 +25,6 @@ val Outfit = FontFamily(
     Font(R.font.outfit_black, FontWeight.Black)
 )
 
-// Fonte Numérica: Stack Sans Notch
 val StackSans = FontFamily(
     Font(R.font.stacksansnotch_light, FontWeight.Light),
     Font(R.font.stacksansnotch_regular, FontWeight.Normal),
@@ -36,11 +33,7 @@ val StackSans = FontFamily(
     Font(R.font.stacksansnotch_bold, FontWeight.Bold)
 )
 
-// Aliases Semânticos
+// Semantic Aliases
 val FontFamilyDisplay = Gabarito
 val FontFamilyBody = Outfit
 val FontFamilyNumeric = StackSans
-// Aliases de Compatibilidade (caso ainda sejam usados)
-val FontFamilyUI = Outfit
-val BBTitulos = Gabarito
-val BBTextos = Outfit

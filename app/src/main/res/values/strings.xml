@@ -1,33 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- App Identity -->
-    <string name="app_name">Cebolão Lotofácil Generator</string>
+    <string name="app_name">Cebolão Lotofácil</string>
 
-    <!-- General Actions & States -->
-    <string name="general_loading">Carregando os dados…</string>
-    <string name="general_loading_analysis">Aguarde, analisando padrões estatísticos…</string>
-    <string name="general_processing">Processando… Seu pedido é uma ordem</string>
-    <string name="general_error_title">Algo deu errado</string>
-    <string name="general_retry">Tentar novamente</string>
-    <string name="general_save">Salvar</string>
-    <string name="general_delete">Excluir</string>
-    <string name="general_share">Compartilhar</string>
-    <string name="general_close">Fechar</string>
-    <string name="general_selected">Selecionado</string>
-    <string name="general_cancel">Cancelar</string>
-    <string name="general_success">Sucesso ao carregar os dados!</string>
-    <string name="general_failed_to_load_data">Falha ao carregar dados. Verifique sua conexão ou clique no botão 'refresh'.</string>
-    <string name="general_analysis_failed_snackbar">Não foi possível analisar o jogo no momento, tente novamente.</string>
-    <string name="general_disclaimer_responsibility">Lembre-se: Probabilidade não é certeza. Jogue com responsabilidade, simule sem moderação.</string>
-
-    <!-- Accessibility (Content Descriptions) -->
-    <string name="content_desc_refresh">Atualizar dados</string>
-    <string name="content_desc_filter">Filtrar</string>
-    <string name="content_desc_options">Mais opções</string>
+    <!-- Common -->
     <string name="content_desc_close">Fechar tela</string>
     <string name="content_desc_back">Voltar</string>
     <string name="content_desc_info">Informações</string>
     <string name="number_ball_content_description">Bola número %1$d, %2$s</string>
+    <string name="general_selected">Selecionado</string>
+    <string name="general_cancel">Cancelar</string>
+    <string name="general_close">Fechar</string>
+    <string name="general_delete">Excluir</string>
+    <string name="general_share">Compartilhar</string>
+    <string name="general_save">Salvar</string>
+    <string name="general_error_title">Erro</string>
+    <string name="general_loading_analysis">Analisando…</string>
+    <string name="general_analysis_failed_snackbar">Falha na análise.</string>
+    <string name="general_disclaimer_responsibility">Use por sua conta e risco.</string>
 
     <!-- Onboarding Screen -->
     <string name="onboarding_skip">Pular</string>
@@ -68,7 +56,7 @@
     
     <!-- Educational Info -->
     <string name="edu_hot_cold_title">Números + e - Frequentes</string>
-    <string name="edu_hot_cold_desc">Números "quentes" são os que mais saíram no período selecionado e "frios" são os que estão demorando a sair.</string>
+    <string name="edu_hot_cold_desc">Números \"quentes\" são os que mais saíram no período selecionado e \"frios\" são os que estão demorando a sair.</string>
     <string name="edu_distribution_title">Curva Normal</string>
     <string name="edu_distribution_desc">A maioria dos resultados segue padrões da distribuição normal (leia sobre Leis dos Grandes Números). Jogar fora desses padrões pode diminuir estatisticamente suas chances teóricas. Contudo, Entretanto, Todavia, sabemos que os resultados anteriores não influenciam os seguintes.</string>
 
@@ -141,7 +129,7 @@
     <string name="games_analysis_last_prize_value">Conc. #%1$s (%2$s pts)</string>
     <string name="games_share_chooser_title">Compartilhar via…</string>
     <string name="games_share_game_subject">Minha aposta feita pelo Cebolão Lotofácil Generator</string>
-    <string name="share_game_message_template">🎲 *Cebolão Lotofácil Generator* calculou em uma extensa base de dados estatistica e sugeriu:\n\n%1$s\n\nBoa sorte com a aposta!</string>
+    <string name="share_game_message_template"><![CDATA[🎲 <b>Cebolão Lotofácil Generator</b> calculou em uma extensa base de dados estatistica e sugeriu:<br/><br/>%1$s<br/><br/>Boa sorte com a aposta!]]></string>
 
     <!-- Game Card Feedback -->
     <string name="game_card_pinned">Aposta salva!</string>
@@ -195,8 +183,8 @@
 
     <!-- Greetings & Date -->
     <string name="greeting_morning">É dia!</string>
-    <string name="greeting_afternoon">Tarde...</string>
-    <string name="greeting_night">'Boa noite'</string>
+    <string name="greeting_afternoon">Tarde…</string>
+    <string name="greeting_night">Boa noite</string>
     <string name="greeting_generic">Olá</string>
     <string name="welcome_message_format">%1$s, jovem sonhador!</string>
     <string name="date_format_full">Hoje é %1$s, %2$s</string>
@@ -211,7 +199,7 @@
         <item>A esperança é a última que morre, mas morre.</item>
         <item>Seus números da sorte não sabem que você os considera assim.</item>
         <item>A fé move montanhas, mas não dá os números sorteados.</item>
-        <item>Sorte é o que acontece quando... Não sei, nunca tive sorte.</item>
+        <item>Sorte é o que acontece quando… Não sei, nunca tive sorte.</item>
         <item>A diferença entre um sonho e um objetivo é de mais ou menos 47,9.</item>
         <item>Acreditar é o primeiro passo para a decepção.</item>
         <item>Estatística é a arte de torturar os números até que eles confessem o que você quer.</item>
@@ -241,6 +229,8 @@
     <string name="game_generator_failure_generic">Erro ao gerar jogos. Tente novamente.</string>
 
     <!-- Widget -->
+    <string name="content_desc_refresh">Atualizar</string>
+    <string name="general_loading">Carregando…</string>
     <string name="widget_next_contest_title_generic">Próximo Concurso Previsto</string>
     <string name="widget_error_load">Erro</string>
     <string name="widget_last_draw_title">Último Sorteio Realizado</string>

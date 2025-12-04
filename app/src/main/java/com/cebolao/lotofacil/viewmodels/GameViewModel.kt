@@ -6,9 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.data.CheckResult
 import com.cebolao.lotofacil.data.LotofacilConstants
-import com.cebolao.lotofacil.data.LotofacilGame
-import com.cebolao.lotofacil.domain.repository.GameRepository
-import com.cebolao.lotofacil.domain.usecase.AnalyzeGameUseCase
+// Import atualizado para o novo pacote de domínio
+import com.cebolao.lotofacil.domain.model.LotofacilGame 
+import com.cebolao.lotofacil.domain.usecase.*
 import com.cebolao.lotofacil.util.STATE_IN_TIMEOUT_MS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
@@ -49,12 +49,19 @@ sealed interface GameAnalysisUiState {
 
 @HiltViewModel
 class GameViewModel @Inject constructor(
-    private val gameRepository: GameRepository,
+    observeUnpinnedGamesUseCase: ObserveUnpinnedGamesUseCase,
+    observePinnedGamesUseCase: ObservePinnedGamesUseCase,
+    private val togglePinStateUseCase: TogglePinStateUseCase,
+    private val deleteGameUseCase: DeleteGameUseCase,
+    private val clearUnpinnedGamesUseCase: ClearUnpinnedGamesUseCase,
     private val analyzeGameUseCase: AnalyzeGameUseCase
 ) : ViewModel() {
 
-    val unpinnedGames = gameRepository.unpinnedGames
-    val pinnedGames = gameRepository.pinnedGames
+    val unpinnedGames = observeUnpinnedGamesUseCase()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), kotlinx.collections.immutable.persistentListOf())
+
+    val pinnedGames = observePinnedGamesUseCase()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), kotlinx.collections.immutable.persistentListOf())
 
     private val _gameToDelete = MutableStateFlow<LotofacilGame?>(null)
     private val _analysisState = MutableStateFlow<GameAnalysisUiState>(GameAnalysisUiState.Idle)
@@ -63,7 +70,6 @@ class GameViewModel @Inject constructor(
     val analysisState = _analysisState.asStateFlow()
     val events = _events.receiveAsFlow()
 
-    // Otimização: Combina fluxos apenas quando necessário para calcular o resumo
     val uiState: StateFlow<GameScreenUiState> = combine(
         unpinnedGames, pinnedGames, _gameToDelete
     ) { unpinned, pinned, gameToDelete ->
@@ -81,7 +87,7 @@ class GameViewModel @Inject constructor(
     private var analyzeJob: Job? = null
 
     fun togglePinState(game: LotofacilGame) = viewModelScope.launch {
-        gameRepository.togglePinState(game)
+        togglePinStateUseCase(game)
     }
 
     fun requestDeleteGame(game: LotofacilGame) { _gameToDelete.value = game }
@@ -90,14 +96,14 @@ class GameViewModel @Inject constructor(
     fun confirmDeleteGame() {
         _gameToDelete.value?.let { game ->
             viewModelScope.launch {
-                gameRepository.deleteGame(game)
+                deleteGameUseCase(game)
                 _gameToDelete.value = null
             }
         }
     }
 
     fun clearUnpinned() = viewModelScope.launch {
-        gameRepository.clearUnpinnedGames()
+        clearUnpinnedGamesUseCase()
     }
 
     fun analyzeGame(game: LotofacilGame) {

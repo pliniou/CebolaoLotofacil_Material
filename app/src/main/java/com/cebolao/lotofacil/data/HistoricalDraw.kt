@@ -1,5 +1,6 @@
 package com.cebolao.lotofacil.data
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.runtime.Immutable
 import com.cebolao.lotofacil.data.network.LotofacilApiResult
@@ -11,6 +12,7 @@ import kotlinx.serialization.Serializable
 
 private const val TAG = "HistoricalDraw"
 
+@SuppressLint("UnsafeOptInUsageError")
 @Immutable
 @Serializable
 data class HistoricalDraw(

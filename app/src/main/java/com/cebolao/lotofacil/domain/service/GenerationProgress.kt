@@ -1,6 +1,6 @@
 package com.cebolao.lotofacil.domain.service
 
-import com.cebolao.lotofacil.data.LotofacilGame
+import com.cebolao.lotofacil.domain.model.LotofacilGame // Corrigido
 
 enum class GenerationStep {
     RANDOM_START,
@@ -13,10 +13,6 @@ enum class GenerationFailureReason {
     GENERIC_ERROR
 }
 
-/**
- * Representa o tipo de evento de progresso durante a geração de jogos.
- * Refatorado para não carregar Strings de UI, apenas estados.
- */
 sealed interface GenerationProgressType {
     data object Started : GenerationProgressType
     data class Step(val step: GenerationStep) : GenerationProgressType
@@ -31,7 +27,7 @@ data class GenerationProgress(
     val progressType: GenerationProgressType
 ) {
     companion object {
-        fun started(total: Int) = 
+        fun started(total: Int) =
             GenerationProgress(0, total, GenerationProgressType.Started)
 
         fun step(step: GenerationStep, current: Int, total: Int) =

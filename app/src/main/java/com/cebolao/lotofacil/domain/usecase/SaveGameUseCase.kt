@@ -1,7 +1,7 @@
 package com.cebolao.lotofacil.domain.usecase
 
-import com.cebolao.lotofacil.data.LotofacilGame
 import com.cebolao.lotofacil.di.IoDispatcher
+import com.cebolao.lotofacil.domain.model.LotofacilGame
 import com.cebolao.lotofacil.domain.repository.GameRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext

@@ -48,7 +48,7 @@ fun GenerationActionsPanel(
             Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
                 if (loading) FilledIconButton(onCancel, colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.errorContainer, contentColor = MaterialTheme.colorScheme.onErrorContainer)) { Icon(Icons.Default.Cancel, null) }
                 PrimaryActionButton(
-                    text = if (loading) (if (state is GenerationUiState.Loading && state.total > 0) stringResource(R.string.filters_button_generating_progress, state.progress, state.total) else stringResource(state.messageRes)) else stringResource(R.string.filters_button_generate),
+                    text = if (loading) (if (state.total > 0) stringResource(R.string.filters_button_generating_progress, state.progress, state.total) else stringResource(state.messageRes)) else stringResource(R.string.filters_button_generate),
                     modifier = Modifier.weight(1f),
                     enabled = !loading,
                     isLoading = loading,

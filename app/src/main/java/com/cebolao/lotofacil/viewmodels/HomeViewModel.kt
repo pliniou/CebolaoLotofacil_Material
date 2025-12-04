@@ -5,9 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.*
 import com.cebolao.lotofacil.R
-import com.cebolao.lotofacil.data.*
+import com.cebolao.lotofacil.data.HistoricalDraw
+import com.cebolao.lotofacil.data.CheckResult
 import com.cebolao.lotofacil.domain.model.*
-import com.cebolao.lotofacil.domain.repository.HistoryRepository
 import com.cebolao.lotofacil.domain.repository.SyncStatus
 import com.cebolao.lotofacil.domain.usecase.*
 import com.cebolao.lotofacil.util.*
@@ -44,7 +44,8 @@ data class HomeUiState(
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    historyRepository: HistoryRepository,
+    // REMOVIDO: historyRepository (Clean Architecture)
+    private val observeSyncStatusUseCase: ObserveSyncStatusUseCase, // NOVO
     private val syncHistoryUseCase: SyncHistoryUseCase,
     private val getHomeScreenDataUseCase: GetHomeScreenDataUseCase,
     private val getAnalyzedStatsUseCase: GetAnalyzedStatsUseCase,
@@ -56,9 +57,11 @@ class HomeViewModel @Inject constructor(
     private val _selectedPattern = MutableStateFlow(StatisticPattern.SUM)
     private val _syncMessageEvent = MutableStateFlow<Int?>(null)
 
+    val syncStatus = observeSyncStatusUseCase()
+
     // Flow principal de dados da Home, recarregado quando o sync termina
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val homeDataFlow = historyRepository.syncStatus
+    private val homeDataFlow = syncStatus
         .flatMapLatest { getHomeScreenDataUseCase() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Result.success(null))
 
@@ -73,8 +76,8 @@ class HomeViewModel @Inject constructor(
     }
 
     val uiState: StateFlow<HomeUiState> = combine(
-        homeDataFlow, statsFlow, historyRepository.syncStatus, settingsFlow, _syncMessageEvent
-    ) { homeResult: Result<HomeScreenData?>, statsResult: Result<StatisticsReport>, syncStatus: SyncStatus, settings: Pair<Int, StatisticPattern>, syncMsg: Int? ->
+        homeDataFlow, statsFlow, syncStatus, settingsFlow, _syncMessageEvent
+    ) { homeResult: Result<HomeScreenData?>, statsResult: Result<StatisticsReport>, status: SyncStatus, settings: Pair<Int, StatisticPattern>, syncMsg: Int? ->
 
         val (window, pattern) = settings
 
@@ -90,13 +93,13 @@ class HomeViewModel @Inject constructor(
             null to true
         }
 
-        val finalMsg = syncMsg ?: when (syncStatus) {
+        val finalMsg = syncMsg ?: when (status) {
             is SyncStatus.Success -> R.string.home_sync_success_message
             is SyncStatus.Failed -> R.string.home_sync_failed_message
             else -> null
         }
 
-        HomeUiState(screenState, stats, statsLoading, syncStatus is SyncStatus.Syncing, pattern, window, finalMsg)
+        HomeUiState(screenState, stats, statsLoading, status is SyncStatus.Syncing, pattern, window, finalMsg)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HomeUiState())
 
     init {

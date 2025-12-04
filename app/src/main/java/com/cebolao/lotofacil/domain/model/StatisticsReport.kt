@@ -1,9 +1,8 @@
-package com.cebolao.lotofacil.data
+package com.cebolao.lotofacil.domain.model
 
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import com.cebolao.lotofacil.data.model.NumberFrequency
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient

@@ -24,7 +24,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.cebolao.lotofacil.R
-import com.cebolao.lotofacil.data.LotofacilGame
+import com.cebolao.lotofacil.domain.model.LotofacilGame
 import com.cebolao.lotofacil.navigation.Screen
 import com.cebolao.lotofacil.navigation.navigateToChecker
 import com.cebolao.lotofacil.ui.components.*
@@ -43,7 +43,7 @@ fun GeneratedGamesScreen(navController: NavController, viewModel: GameViewModel 
     val pinned by viewModel.pinnedGames.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val analysisState by viewModel.analysisState.collectAsStateWithLifecycle()
-    
+
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -98,7 +98,7 @@ fun GeneratedGamesScreen(navController: NavController, viewModel: GameViewModel 
                             restoreState = true
                         }
                     },
-                    onAction = { action, game -> 
+                    onAction = { action, game ->
                         when (action) {
                             GameCardAction.Analyze -> viewModel.analyzeGame(game)
                             GameCardAction.Pin -> viewModel.togglePinState(game)
@@ -126,7 +126,12 @@ private fun GameList(
         StandardPageLayout(scaffoldPadding = PaddingValues()) {
             items(
                 items = games,
-                key = { it.numbers.hashCode() },
+                // CORREÇÃO CRÍTICA:
+                // Alterado de `it.numbers.hashCode()` para `it.numbers.toString()`.
+                // O hashCode de Set<Int> é apenas a soma dos elementos. Jogos diferentes
+                // com a mesma soma (ex: 186) causavam crash por chave duplicada.
+                // O toString() garante uma chave única para cada combinação.
+                key = { it.numbers.toString() },
                 contentType = { "game_card" }
             ) { game ->
                 AnimateOnEntry {
@@ -217,7 +222,7 @@ private fun SummaryItem(label: String, value: String) {
 private fun AnalysisDialogHandler(state: GameAnalysisUiState, onDismiss: () -> Unit, snackbarHostState: SnackbarHostState) {
     when (state) {
         is GameAnalysisUiState.Success -> GameAnalysisDialog(state.result, onDismiss)
-        is GameAnalysisUiState.Loading -> LoadingDialog(stringResource(R.string.games_analysis_dialog_title), stringResource(R.string.general_loading_analysis), {})
+        is GameAnalysisUiState.Loading -> LoadingDialog(stringResource(R.string.games_analysis_dialog_title), stringResource(R.string.general_loading_analysis)) {}
         is GameAnalysisUiState.Error -> {
             val message = stringResource(R.string.general_analysis_failed_snackbar)
             LaunchedEffect(state) {

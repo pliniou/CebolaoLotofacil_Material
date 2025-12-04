@@ -17,7 +17,7 @@ import com.cebolao.lotofacil.util.DEFAULT_NUMBER_FORMAT
 import com.cebolao.lotofacil.util.Formatters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.first
 
 private const val TAG = "WidgetUpdateWorker"
 private const val NUMBERS_PER_ROW = 5
@@ -44,7 +44,7 @@ class WidgetUpdateWorker @AssistedInject constructor(
         val ids = getWidgetIds(LastDrawWidgetProvider::class.java)
         if (ids.isEmpty()) return
         val lastDraw = historyRepository.getLastDraw()
-        
+
         ids.forEach { id ->
             val views = createRemoteViews(R.layout.widget_last_draw, LastDrawWidgetProvider::class.java, id)
             if (lastDraw != null) {
@@ -76,7 +76,9 @@ class WidgetUpdateWorker @AssistedInject constructor(
     private suspend fun updatePinnedGameWidgets() {
         val ids = getWidgetIds(PinnedGameWidgetProvider::class.java)
         if (ids.isEmpty()) return
-        val pinned = gameRepository.pinnedGames.firstOrNull()?.firstOrNull()
+
+        // Uso correto de first() pois pinnedGames é um StateFlow que sempre tem valor
+        val pinned = gameRepository.pinnedGames.first().firstOrNull()
 
         ids.forEach { id ->
             val views = createRemoteViews(R.layout.widget_pinned_game, PinnedGameWidgetProvider::class.java, id)

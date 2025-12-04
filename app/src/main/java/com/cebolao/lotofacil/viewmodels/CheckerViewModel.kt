@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.data.CheckResult
 import com.cebolao.lotofacil.data.LotofacilConstants
-import com.cebolao.lotofacil.data.LotofacilGame
+import com.cebolao.lotofacil.domain.model.LotofacilGame
 import com.cebolao.lotofacil.domain.usecase.AnalyzeGameUseCase
 import com.cebolao.lotofacil.domain.usecase.SaveGameUseCase
 import com.cebolao.lotofacil.navigation.Screen
@@ -16,7 +16,13 @@ import com.cebolao.lotofacil.util.STATE_IN_TIMEOUT_MS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -40,7 +46,6 @@ class CheckerViewModel @Inject constructor(
     private val _selectedNumbers = MutableStateFlow<Set<Int>>(emptySet())
     val selectedNumbers = _selectedNumbers.asStateFlow()
 
-    // Deriva o estado de completude reativamente
     val isGameComplete = _selectedNumbers
         .map { it.size == LotofacilConstants.GAME_SIZE }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), false)
@@ -49,7 +54,6 @@ class CheckerViewModel @Inject constructor(
     val events = _events.receiveAsFlow()
 
     init {
-        // Inicializa com argumentos de navegação, se houver
         savedStateHandle.get<String>(Screen.Checker.ARG_NUMBERS)?.let { arg ->
             val numbers = arg.split(CHECKER_ARG_SEPARATOR).mapNotNull { it.toIntOrNull() }.toSet()
             if (numbers.size == LotofacilConstants.GAME_SIZE) {
@@ -84,11 +88,11 @@ class CheckerViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = CheckerUiState.Loading
             analyzeGameUseCase(LotofacilGame(_selectedNumbers.value))
-                .onSuccess { 
-                    _uiState.value = CheckerUiState.Success(it.checkResult, it.simpleStats) 
+                .onSuccess {
+                    _uiState.value = CheckerUiState.Success(it.checkResult, it.simpleStats)
                 }
-                .onFailure { 
-                    _uiState.value = CheckerUiState.Error(R.string.error_analysis_failed) 
+                .onFailure {
+                    _uiState.value = CheckerUiState.Error(R.string.error_analysis_failed)
                 }
         }
     }

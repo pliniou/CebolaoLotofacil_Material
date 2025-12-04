@@ -1,6 +1,6 @@
 package com.cebolao.lotofacil.domain.usecase
 
-import com.cebolao.lotofacil.data.StatisticsReport
+import com.cebolao.lotofacil.domain.model.StatisticsReport
 import com.cebolao.lotofacil.di.DefaultDispatcher
 import com.cebolao.lotofacil.domain.repository.HistoryRepository
 import com.cebolao.lotofacil.domain.service.StatisticsAnalyzer

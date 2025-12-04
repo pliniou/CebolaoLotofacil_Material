@@ -6,7 +6,7 @@
     <!-- WIDGET COLORS -->
     <color name="widget_background_light">#FAFAFA</color>
     <color name="widget_background_dark" tools:keep="@color/widget_background_dark">#16191D</color>
-    <color name="widget_primary" tools:keep="@color/widget_primary">#2962FF</color>
+    <color name="widget_primary">#2962FF</color>
 
     <!-- LEGACY / COMPATIBILITY MAPPINGS -->
     <!-- Mantidos para garantir que drawables/layouts XML antigos compilem corretamente -->
@@ -21,4 +21,6 @@
 
     <color name="light_surface" tools:keep="@color/light_surface">#FFFFFF</color>
     <color name="dark_surface" tools:keep="@color/dark_surface">#16191D</color>
+
+    <color name="ic_launcher_background">#38005F</color>
 </resources>

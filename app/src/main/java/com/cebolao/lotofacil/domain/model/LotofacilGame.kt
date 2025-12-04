@@ -1,8 +1,12 @@
-package com.cebolao.lotofacil.data
+package com.cebolao.lotofacil.domain.model
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.Immutable
+import com.cebolao.lotofacil.data.GameStatisticsProvider
+import com.cebolao.lotofacil.data.LotofacilConstants
 import kotlinx.serialization.Serializable
 
+@SuppressLint("UnsafeOptInUsageError")
 @Immutable
 @Serializable
 data class LotofacilGame(

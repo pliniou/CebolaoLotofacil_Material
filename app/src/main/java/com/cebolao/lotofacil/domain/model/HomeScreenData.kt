@@ -4,7 +4,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import com.cebolao.lotofacil.data.CheckResult
 import com.cebolao.lotofacil.data.HistoricalDraw
-import com.cebolao.lotofacil.data.StatisticsReport
 
 @Stable
 @Immutable

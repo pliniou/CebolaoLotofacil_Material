@@ -9,7 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.cebolao.lotofacil.R
-import com.cebolao.lotofacil.data.StatisticsReport
+import com.cebolao.lotofacil.domain.model.StatisticsReport // Import Corrigido
 import com.cebolao.lotofacil.domain.model.StatisticPattern
 import com.cebolao.lotofacil.ui.theme.AppConfig
 import com.cebolao.lotofacil.ui.theme.Dimen
@@ -28,7 +28,7 @@ fun DistributionChartsCard(
     SectionCard(modifier) {
         Column(verticalArrangement = Arrangement.spacedBy(Dimen.CardContentPadding)) {
             TitleWithIcon(stringResource(R.string.stats_distribution_title_format, selectedPattern.title), iconVector = selectedPattern.icon)
-            
+
             LazyRow(horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
                 items(
                     items = StatisticPattern.entries.toTypedArray(),
@@ -49,7 +49,7 @@ fun DistributionChartsCard(
 }
 
 private fun prepareData(stats: StatisticsReport, pattern: StatisticPattern): List<Pair<String, Int>> {
-    val raw = when (pattern) {
+    val raw: Map<Int, Int> = when (pattern) {
         StatisticPattern.SUM -> stats.sumDistribution
         StatisticPattern.EVENS -> stats.evenDistribution
         StatisticPattern.PRIMES -> stats.primeDistribution
@@ -61,7 +61,12 @@ private fun prepareData(stats: StatisticsReport, pattern: StatisticPattern): Lis
 
     if (pattern == StatisticPattern.SUM) {
         val buckets = (AppConfig.UI.SUM_MIN_RANGE..AppConfig.UI.SUM_MAX_RANGE step AppConfig.UI.SUM_STEP).associateWith { 0 }.toMutableMap()
-        raw.forEach { (k, v) -> if (buckets.containsKey(k)) buckets[k] = v }
+        // Correção: Iteração explícita sobre entries para evitar ambiguidade
+        raw.entries.forEach { entry ->
+            if (buckets.containsKey(entry.key)) {
+                buckets[entry.key] = entry.value
+            }
+        }
         return buckets.entries.sortedBy { it.key }.map { it.key.toString() to it.value }
     }
     return raw.entries.sortedBy { it.key }.map { it.key.toString() to it.value }

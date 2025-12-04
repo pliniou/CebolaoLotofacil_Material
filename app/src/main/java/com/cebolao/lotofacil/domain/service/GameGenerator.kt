@@ -3,7 +3,7 @@ package com.cebolao.lotofacil.domain.service
 import com.cebolao.lotofacil.data.FilterState
 import com.cebolao.lotofacil.data.FilterType
 import com.cebolao.lotofacil.data.LotofacilConstants
-import com.cebolao.lotofacil.data.LotofacilGame
+import com.cebolao.lotofacil.domain.model.LotofacilGame // Import Corrigido
 import com.cebolao.lotofacil.domain.repository.HistoryRepository
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
@@ -42,7 +42,6 @@ class GameGenerator @Inject constructor(
 
         // Validação Heurística
         if (history.size < MIN_HISTORY_FOR_HEURISTIC || lastDrawNumbers == null) {
-            // Se filtro de repetidas estiver ativo mas sem histórico, falha.
             if (activeFilters.any { it.type == FilterType.REPETIDAS_CONCURSO_ANTERIOR }) {
                 emit(GenerationProgress.failed(GenerationFailureReason.NO_HISTORY))
                 return@flow
@@ -52,7 +51,6 @@ class GameGenerator @Inject constructor(
             emit(GenerationProgress.step(GenerationStep.HEURISTIC_START, 0, quantity))
         }
 
-        // Preparação
         val (hotPool, coldPool) = prepareNumberPools(history)
         val generatedGames = LinkedHashSet<LotofacilGame>(quantity)
         var attempts = 0
@@ -61,7 +59,11 @@ class GameGenerator @Inject constructor(
         while (generatedGames.size < quantity && attempts < MAX_GENERATION_ATTEMPTS) {
             if (!currentCoroutineContext().isActive) return@flow
 
+            // CORREÇÃO DE LÓGICA: O repeat executava 200 vezes cegamente.
+            // Agora verificamos a quantidade DENTRO do loop para parar exatamente no alvo.
             repeat(BATCH_SIZE) {
+                if (generatedGames.size >= quantity) return@repeat
+
                 val candidateGame = createHeuristicCandidate(hotPool, coldPool)
                 if (validateGame(candidateGame, activeFilters, lastDrawNumbers ?: emptySet())) {
                     if (generatedGames.add(candidateGame)) {
@@ -77,7 +79,7 @@ class GameGenerator @Inject constructor(
             }
         }
 
-        // Fallback: Completa com aleatórios se a heurística falhou em encontrar o suficiente
+        // Fallback: Se não conseguiu gerar tudo via heurística
         if (generatedGames.size < quantity) {
             emit(GenerationProgress.step(GenerationStep.RANDOM_FALLBACK, generatedGames.size, quantity))
             val remainingNeeded = quantity - generatedGames.size
@@ -112,7 +114,7 @@ class GameGenerator @Inject constructor(
     private fun createHeuristicCandidate(hotPool: List<Int>, coldPool: List<Int>): LotofacilGame {
         val maxHot = minOf(MAX_HOT_NUMBERS, hotPool.size)
         val minHot = minOf(MIN_HOT_NUMBERS, maxHot)
-        
+
         val hotCount = Random.nextInt(minHot, maxHot + 1)
         val coldCount = LotofacilConstants.GAME_SIZE - hotCount
 
@@ -125,8 +127,7 @@ class GameGenerator @Inject constructor(
     private fun generateRandomGames(quantity: Int, exclude: Set<LotofacilGame> = emptySet()): List<LotofacilGame> {
         val result = mutableSetOf<LotofacilGame>()
         var safety = 0
-        // Limite de segurança para evitar loop infinito teórico
-        val maxTries = quantity * 20 
+        val maxTries = quantity * 20
 
         while (result.size < quantity && safety < maxTries) {
             val numbers = LotofacilConstants.ALL_NUMBERS.shuffled().take(LotofacilConstants.GAME_SIZE).toSet()
@@ -140,7 +141,6 @@ class GameGenerator @Inject constructor(
     }
 
     private fun validateGame(game: LotofacilGame, filters: List<FilterState>, lastDrawNumbers: Set<Int>): Boolean {
-        // Fail-fast
         return filters.all { filter ->
             val valueToCheck = when (filter.type) {
                 FilterType.SOMA_DEZENAS -> game.sum

@@ -15,7 +15,7 @@ import com.cebolao.lotofacil.ui.theme.AppConfig
 import com.cebolao.lotofacil.ui.theme.Dimen
 import com.cebolao.lotofacil.util.Formatters
 
-@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun LastDrawCard(
     draw: HistoricalDraw,

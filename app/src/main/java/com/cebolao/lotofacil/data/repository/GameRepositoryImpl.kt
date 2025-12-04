@@ -1,7 +1,7 @@
 package com.cebolao.lotofacil.data.repository
 
 import android.util.Log
-import com.cebolao.lotofacil.data.LotofacilGame
+import com.cebolao.lotofacil.domain.model.LotofacilGame // Corrigido
 import com.cebolao.lotofacil.di.ApplicationScope
 import com.cebolao.lotofacil.di.IoDispatcher
 import com.cebolao.lotofacil.domain.repository.GameRepository
@@ -36,14 +36,12 @@ class GameRepositoryImpl @Inject constructor(
     private val json: Json
 ) : GameRepository {
 
-    // Jogos gerados na sessão atual (não salvos ainda)
     private val _sessionGames = MutableStateFlow<List<LotofacilGame>>(emptyList())
 
     override val unpinnedGames: StateFlow<ImmutableList<LotofacilGame>> = _sessionGames
         .map { it.toImmutableList() }
         .stateIn(scope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), persistentListOf())
 
-    // Jogos salvos vêm diretamente do DataStore
     override val pinnedGames: StateFlow<ImmutableList<LotofacilGame>> = userPreferencesRepository.pinnedGames
         .map { stringSet ->
             stringSet.mapNotNull { str ->
@@ -57,7 +55,7 @@ class GameRepositoryImpl @Inject constructor(
 
     override suspend fun addGeneratedGames(newGames: List<LotofacilGame>) {
         _sessionGames.update { current ->
-            (newGames + current).distinctBy { it.numbers } // Novos no topo
+            (newGames + current).distinctBy { it.numbers }
         }
     }
 
@@ -67,11 +65,8 @@ class GameRepositoryImpl @Inject constructor(
 
     override suspend fun togglePinState(gameToToggle: LotofacilGame) {
         if (gameToToggle.isPinned) {
-            // Unpin: Remove do DataStore e, opcionalmente, devolve para sessão se desejado
-            // (Neste design, unpin remove dos salvos mas não adiciona aos gerados automaticamente para evitar lixo)
             removeFromPinned(gameToToggle)
         } else {
-            // Pin: Adiciona ao DataStore e remove da sessão
             addToPinned(gameToToggle)
             _sessionGames.update { list -> list.filterNot { it.numbers == gameToToggle.numbers } }
         }
@@ -98,14 +93,12 @@ class GameRepositoryImpl @Inject constructor(
     }
 
     private suspend fun removeFromPinned(game: LotofacilGame) {
-        // Recria o objeto pinned para garantir match na serialização, ou busca por conteúdo
         val currentSet = userPreferencesRepository.pinnedGames.first()
-        // Filtra removendo o jogo que tem os mesmos números
         val newSet = currentSet.filter { str ->
             val decoded = runCatching { json.decodeFromString<LotofacilGame>(str) }.getOrNull()
             decoded?.numbers != game.numbers
         }.toSet()
-        
+
         userPreferencesRepository.savePinnedGames(newSet)
     }
 }

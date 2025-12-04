@@ -3,7 +3,8 @@ package com.cebolao.lotofacil.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cebolao.lotofacil.data.repository.THEME_MODE_LIGHT
-import com.cebolao.lotofacil.domain.repository.UserPreferencesRepository
+import com.cebolao.lotofacil.domain.usecase.ObserveAppConfigUseCase
+import com.cebolao.lotofacil.domain.usecase.UpdateAppConfigUseCase
 import com.cebolao.lotofacil.navigation.Screen
 import com.cebolao.lotofacil.ui.theme.AccentPalette
 import com.cebolao.lotofacil.util.STATE_IN_TIMEOUT_MS
@@ -17,10 +18,11 @@ data class StartDestinationState(val destination: String = Screen.Onboarding.rou
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val userPrefs: UserPreferencesRepository
+    private val observeAppConfigUseCase: ObserveAppConfigUseCase,
+    private val updateAppConfigUseCase: UpdateAppConfigUseCase
 ) : ViewModel() {
 
-    val startDestination = userPrefs.hasCompletedOnboarding
+    val startDestination = observeAppConfigUseCase.hasCompletedOnboarding
         .map { completed ->
             StartDestinationState(if (completed) Screen.Home.route else Screen.Onboarding.route, false)
         }
@@ -29,14 +31,14 @@ class MainViewModel @Inject constructor(
     val uiState = startDestination.map { MainUiState(!it.isLoading) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), MainUiState())
 
-    val themeMode = userPrefs.themeMode
+    val themeMode = observeAppConfigUseCase.themeMode
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), THEME_MODE_LIGHT)
 
-    val accentPalette = userPrefs.accentPalette
+    val accentPalette = observeAppConfigUseCase.accentPalette
         .map { name -> AccentPalette.entries.find { it.name == name } ?: AccentPalette.AZUL }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), AccentPalette.AZUL)
 
-    fun onOnboardingComplete() = viewModelScope.launch { userPrefs.setHasCompletedOnboarding(true) }
-    fun setThemeMode(mode: String) = viewModelScope.launch { userPrefs.setThemeMode(mode) }
-    fun setAccentPalette(palette: AccentPalette) = viewModelScope.launch { userPrefs.setAccentPalette(palette.name) }
+    fun onOnboardingComplete() = viewModelScope.launch { updateAppConfigUseCase.completeOnboarding() }
+    fun setThemeMode(mode: String) = viewModelScope.launch { updateAppConfigUseCase.setThemeMode(mode) }
+    fun setAccentPalette(palette: AccentPalette) = viewModelScope.launch { updateAppConfigUseCase.setAccentPalette(palette.name) }
 }

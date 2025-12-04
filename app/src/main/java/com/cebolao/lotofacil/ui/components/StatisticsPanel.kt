@@ -25,7 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.cebolao.lotofacil.R
-import com.cebolao.lotofacil.data.StatisticsReport
+import com.cebolao.lotofacil.domain.model.StatisticsReport // Import Corrigido
 import com.cebolao.lotofacil.ui.theme.AppConfig
 import com.cebolao.lotofacil.ui.theme.Dimen
 import kotlinx.collections.immutable.toImmutableList
@@ -41,7 +41,6 @@ fun StatisticsPanel(
     SectionCard(modifier = modifier.fillMaxWidth()) {
         Box {
             Column(verticalArrangement = Arrangement.spacedBy(Dimen.CardContentPadding)) {
-                // Header
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -54,7 +53,7 @@ fun StatisticsPanel(
                         )
                     }
                 }
-                
+
                 TimeWindowSelector(
                     selectedWindow = selectedWindow,
                     onTimeWindowSelected = onTimeWindowSelected
@@ -94,8 +93,8 @@ private fun TimeWindowSelector(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
         Text(
-            stringResource(R.string.home_analysis_period), 
-            style = MaterialTheme.typography.labelSmall, 
+            stringResource(R.string.home_analysis_period),
+            style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         LazyRow(horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {

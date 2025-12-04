@@ -1,13 +1,13 @@
 package com.cebolao.lotofacil.domain.service
 
-import android.util.LruCache
 import com.cebolao.lotofacil.data.HistoricalDraw
 import com.cebolao.lotofacil.data.LotofacilConstants
-import com.cebolao.lotofacil.data.StatisticsReport
-import com.cebolao.lotofacil.data.model.NumberFrequency
+import com.cebolao.lotofacil.domain.model.StatisticsReport
+import com.cebolao.lotofacil.domain.model.NumberFrequency
 import com.cebolao.lotofacil.di.DefaultDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import java.util.Collections
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -28,7 +28,14 @@ class StatisticsAnalyzer @Inject constructor(
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
 ) {
 
-    private val analysisCache = LruCache<String, StatisticsReport>(CACHE_SIZE)
+    // Mantendo a correção de LruCache para LinkedHashMap sincronizado
+    private val analysisCache = Collections.synchronizedMap(
+        object : LinkedHashMap<String, StatisticsReport>(CACHE_SIZE, 0.75f, true) {
+            override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, StatisticsReport>?): Boolean {
+                return size > CACHE_SIZE
+            }
+        }
+    )
 
     suspend fun analyze(draws: List<HistoricalDraw>, timeWindow: Int = 0): StatisticsReport =
         withContext(defaultDispatcher) {
@@ -39,15 +46,11 @@ class StatisticsAnalyzer @Inject constructor(
 
             val cacheKey = "${drawsToAnalyze.size}_${drawsToAnalyze.first().contestNumber}_${drawsToAnalyze.last().contestNumber}"
             
-            synchronized(analysisCache) {
-                analysisCache.get(cacheKey)?.let { return@withContext it }
-            }
+            analysisCache[cacheKey]?.let { return@withContext it }
 
             val report = calculateStatistics(drawsToAnalyze)
             
-            synchronized(analysisCache) {
-                analysisCache.put(cacheKey, report)
-            }
+            analysisCache[cacheKey] = report
             report
         }
 

@@ -13,7 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import com.cebolao.lotofacil.data.model.NumberFrequency
+import com.cebolao.lotofacil.domain.model.NumberFrequency // Import Corrigido
 import com.cebolao.lotofacil.ui.theme.Dimen
 import com.cebolao.lotofacil.ui.theme.FontFamilyNumeric
 import kotlinx.collections.immutable.ImmutableList
@@ -30,7 +30,6 @@ fun StatRow(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(Dimen.ItemSpacing)
     ) {
-        // Header da Estatística
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)
@@ -42,35 +41,35 @@ fun StatRow(
                 modifier = Modifier.size(Dimen.MediumIcon)
             )
             Text(
-                text = title, 
+                text = title,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
         }
 
-        // Lista de Bolas e Frequências
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            numbers.forEach { (number, frequency) ->
+            // Correção: Uso explícito do objeto 'nf' para evitar ambiguidade de desestruturação no lambda
+            numbers.forEach { nf ->
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(Dimen.ExtraSmallPadding)
                 ) {
                     NumberBall(
-                        number = number, 
+                        number = nf.number,
                         sizeVariant = NumberBallSize.Small
                     )
-                    
+
                     Text(
-                        text = "$frequency",
+                        text = "${nf.frequency}",
                         style = MaterialTheme.typography.labelLarge,
                         fontFamily = FontFamilyNumeric,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )
-                    
+
                     Text(
                         text = suffix,
                         style = MaterialTheme.typography.labelSmall,

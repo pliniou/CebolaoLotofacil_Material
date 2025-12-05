@@ -22,23 +22,51 @@ class MainViewModel @Inject constructor(
     private val updateAppConfigUseCase: UpdateAppConfigUseCase
 ) : ViewModel() {
 
-    val startDestination = observeAppConfigUseCase.hasCompletedOnboarding
-        .map { completed ->
-            StartDestinationState(if (completed) Screen.Home.route else Screen.Onboarding.route, false)
-        }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), StartDestinationState())
+    private val _onboardingCompleted = observeAppConfigUseCase.hasCompletedOnboarding
 
-    val uiState = startDestination.map { MainUiState(!it.isLoading) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), MainUiState())
+    val startDestination = _onboardingCompleted
+        .map { completed ->
+            val route = if (completed) Screen.Home.route else Screen.Onboarding.route
+            StartDestinationState(route, isLoading = false)
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS),
+            initialValue = StartDestinationState(isLoading = true)
+        )
+
+    val uiState = startDestination
+        .map { MainUiState(isReady = !it.isLoading) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS),
+            initialValue = MainUiState(isReady = false)
+        )
 
     val themeMode = observeAppConfigUseCase.themeMode
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), THEME_MODE_LIGHT)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS),
+            initialValue = THEME_MODE_LIGHT
+        )
 
     val accentPalette = observeAppConfigUseCase.accentPalette
         .map { name -> AccentPalette.entries.find { it.name == name } ?: AccentPalette.AZUL }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), AccentPalette.AZUL)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS),
+            initialValue = AccentPalette.AZUL
+        )
 
-    fun onOnboardingComplete() = viewModelScope.launch { updateAppConfigUseCase.completeOnboarding() }
-    fun setThemeMode(mode: String) = viewModelScope.launch { updateAppConfigUseCase.setThemeMode(mode) }
-    fun setAccentPalette(palette: AccentPalette) = viewModelScope.launch { updateAppConfigUseCase.setAccentPalette(palette.name) }
+    fun onOnboardingComplete() {
+        viewModelScope.launch { updateAppConfigUseCase.completeOnboarding() }
+    }
+
+    fun setThemeMode(mode: String) {
+        viewModelScope.launch { updateAppConfigUseCase.setThemeMode(mode) }
+    }
+
+    fun setAccentPalette(palette: AccentPalette) {
+        viewModelScope.launch { updateAppConfigUseCase.setAccentPalette(palette.name) }
+    }
 }

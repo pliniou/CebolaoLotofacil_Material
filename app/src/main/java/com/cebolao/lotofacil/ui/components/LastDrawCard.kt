@@ -30,13 +30,20 @@ fun LastDrawCard(
                 verticalArrangement = Arrangement.spacedBy(Dimen.BallSpacing),
                 maxItemsInEachRow = AppConfig.UI.NUMBER_GRID_ITEMS_PER_ROW
             ) {
-                draw.numbers.sorted().forEach { NumberBall(it, sizeVariant = NumberBallSize.Medium, variant = NumberBallVariant.Neutral) }
+                draw.numbers.sorted().forEach { 
+                    NumberBall(it, sizeVariant = NumberBallSize.Medium, variant = NumberBallVariant.Neutral) 
+                }
             }
 
             if (winnerData.isNotEmpty()) {
                 AppDivider()
                 Column(verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
-                    Text(stringResource(R.string.home_winners_last_contest), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+                    Text(
+                        text = stringResource(R.string.home_winners_last_contest), 
+                        style = MaterialTheme.typography.titleSmall, 
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )
                     winnerData.take(3).forEach { WinnerRow(it) }
                 }
             }
@@ -45,11 +52,33 @@ fun LastDrawCard(
 }
 
 @Composable private fun WinnerRow(data: WinnerData) {
-    Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
-        Text(stringResource(R.string.home_hits_format, data.hits), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
-        Column(horizontalAlignment = Alignment.End) {
-            Text(Formatters.formatCurrency(data.prize), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
-            Text(if (data.winnerCount == 1) stringResource(R.string.home_winner_count_one, data.winnerCount) else stringResource(R.string.home_winner_count_other, data.winnerCount), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column {
+            Text(
+                text = stringResource(R.string.home_hits_format, data.hits),
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = if (data.winnerCount == 1) 
+                    stringResource(R.string.home_winner_count_one, data.winnerCount) 
+                else 
+                    stringResource(R.string.home_winner_count_other, data.winnerCount),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
+        
+        Text(
+            text = Formatters.formatCurrency(data.prize),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
     }
 }

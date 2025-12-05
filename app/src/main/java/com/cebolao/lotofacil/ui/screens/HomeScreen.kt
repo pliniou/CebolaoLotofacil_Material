@@ -77,5 +77,5 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
     }
 }
 
-@Composable private fun SectionHeader(title: String) { Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = Dimen.ScreenPadding, top = Dimen.LargePadding, bottom = Dimen.SmallPadding)) }
+
 @Composable private fun InfoTipCard() { OutlinedCard(Modifier.fillMaxWidth().padding(horizontal = Dimen.ScreenPadding), colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) { Row(Modifier.padding(Dimen.MediumPadding), verticalAlignment = Alignment.CenterVertically) { Icon(Icons.Outlined.Info, null, tint = MaterialTheme.colorScheme.primary); Spacer(Modifier.width(Dimen.MediumPadding)); Text(stringResource(R.string.general_disclaimer_responsibility), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) } } }

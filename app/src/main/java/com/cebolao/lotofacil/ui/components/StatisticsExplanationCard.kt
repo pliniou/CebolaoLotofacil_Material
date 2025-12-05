@@ -22,14 +22,11 @@ fun StatisticsExplanationCard(
             )
             AppDivider()
             
-            Column(verticalArrangement = Arrangement.spacedBy(Dimen.ExtraSmallPadding)) {
+            Column(verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)) {
                 InfoPoint(
                     title = stringResource(R.string.edu_hot_cold_title),
                     description = stringResource(R.string.edu_hot_cold_desc)
                 )
-            }
-            
-            Column(verticalArrangement = Arrangement.spacedBy(Dimen.ExtraSmallPadding)) {
                 InfoPoint(
                     title = stringResource(R.string.edu_distribution_title),
                     description = stringResource(R.string.edu_distribution_desc)

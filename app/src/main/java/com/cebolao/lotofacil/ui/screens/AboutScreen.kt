@@ -37,11 +37,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.ui.components.FormattedText
+import com.cebolao.lotofacil.ui.components.SectionHeader
 import com.cebolao.lotofacil.ui.components.StudioHero
 import com.cebolao.lotofacil.ui.components.ThemeSettingsCard
 import com.cebolao.lotofacil.ui.theme.AccentPalette
@@ -98,7 +100,7 @@ fun AboutScreen(
     }
 }
 
-@Composable private fun SectionHeader(text: String) = Text(text, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+
 
 @Composable private fun CaixaCard(onClick: () -> Unit) {
     Card(
@@ -113,8 +115,8 @@ fun AboutScreen(
             Icon(Icons.Default.Public, contentDescription = null, modifier = Modifier.size(Dimen.LargeIcon))
             Spacer(Modifier.width(Dimen.LargePadding))
             Column(Modifier.weight(1f)) {
-                Text(stringResource(R.string.about_caixa_title), style = MaterialTheme.typography.titleMedium)
-                Text(stringResource(R.string.about_caixa_desc), style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(0.8f))
+                Text(stringResource(R.string.about_caixa_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.about_caixa_desc), style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(0.9f))
             }
             Spacer(Modifier.width(Dimen.LargePadding))
             Icon(Icons.AutoMirrored.Filled.Launch, contentDescription = stringResource(R.string.open_external_link), tint = CaixaOrange)

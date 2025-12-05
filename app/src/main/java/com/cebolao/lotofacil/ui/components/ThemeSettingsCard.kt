@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
@@ -84,19 +86,20 @@ private fun ThemeModeButton(
     modifier: Modifier = Modifier
 ) {
     val containerColor by animateColorAsState(
-        if (selected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest,
+        if (selected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
         label = "modeContainer"
     )
     val contentColor by animateColorAsState(
-        if (selected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+        if (selected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface,
         label = "modeContent"
     )
 
     Surface(
         onClick = onClick,
         modifier = modifier.height(Dimen.LargeButtonHeight),
-        shape = MaterialTheme.shapes.small,
+        shape = MaterialTheme.shapes.medium,
         color = containerColor,
+        border = if (selected) null else androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -104,7 +107,12 @@ private fun ThemeModeButton(
         ) {
             Icon(imageVector = icon, contentDescription = null, tint = contentColor)
             Spacer(modifier = Modifier.width(Dimen.SmallPadding))
-            Text(text = label, style = MaterialTheme.typography.labelLarge, color = contentColor)
+            Text(
+                text = label, 
+                style = MaterialTheme.typography.labelLarge, 
+                color = contentColor,
+                fontWeight = if(selected) FontWeight.Bold else FontWeight.Normal
+            )
         }
     }
 }

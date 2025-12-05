@@ -44,7 +44,7 @@ fun LastDrawCard(
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
                     )
-                    winnerData.take(3).forEach { WinnerRow(it) }
+                    winnerData.forEach { WinnerRow(it) }
                 }
             }
         }

@@ -53,8 +53,8 @@ import com.cebolao.lotofacil.ui.theme.Dimen
 
 // Constants for URLs to improve readability and maintenance
 private const val URL_CAIXA = "https://loterias.caixa.gov.br/Paginas/Lotofacil.aspx"
-private const val URL_TERMS = "https://github.com/pliniou"
-private const val URL_PRIVACY = "https://github.com/"
+private const val URL_TERMS = "https://github.com/pliniou/CebolaoLotofacil_Material"
+private const val URL_PRIVACY = "https://github.com/pliniou/Lotofacil_v1"
 
 @Composable
 fun AboutScreen(

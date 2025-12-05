@@ -44,7 +44,12 @@ fun FiltersScreen(navController: NavController, viewModel: FiltersViewModel = hi
 
     uiState.filterInfoToShow?.let { type ->
         InfoDialog(stringResource(R.string.filters_info_dialog_title_format, stringResource(type.titleRes)), type.filterIcon, viewModel::dismissFilterInfo) {
-            SectionCard { InfoPoint("Definição", stringResource(R.string.filters_info_button_description)) } // Placeholder desc
+            SectionCard {
+                InfoPoint(
+                    stringResource(R.string.filters_info_button_description),
+                    stringResource(type.descriptionRes)
+                )
+            }
         }
     }
 

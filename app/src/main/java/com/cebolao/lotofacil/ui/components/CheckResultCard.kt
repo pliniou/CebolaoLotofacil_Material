@@ -37,7 +37,7 @@ fun CheckResultCard(result: CheckResult, modifier: Modifier = Modifier) {
                     Icon(Icons.Default.Timeline, null, tint = MaterialTheme.colorScheme.tertiary, modifier = Modifier.size(Dimen.SmallIcon))
                     Text(stringResource(R.string.checker_recent_hits_chart_title), style = MaterialTheme.typography.titleSmall)
                 }
-                BarChart(chartData, LotofacilConstants.GAME_SIZE, Modifier.fillMaxWidth(), 140.dp)
+                BarChart(chartData, LotofacilConstants.GAME_SIZE, Modifier.fillMaxWidth(), Dimen.CheckResultChartHeight)
             }
             AppDivider()
         }

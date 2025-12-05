@@ -43,7 +43,7 @@ fun FilterStatsPanel(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        border = BorderStroke(Dimen.Border.Thin, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Column(
             modifier = Modifier.padding(Dimen.CardContentPadding),
@@ -167,9 +167,9 @@ private fun RestrictivenessChip(category: RestrictivenessCategory) {
     Surface(
         color = containerColor,
         shape = MaterialTheme.shapes.extraSmall,
-        modifier = Modifier.height(24.dp),
+        modifier = Modifier.height(Dimen.MediumIcon),
     ) {
-        Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(horizontal = 8.dp)) {
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(horizontal = Dimen.SmallPadding)) {
             Text(
                 text = stringResource(textRes),
                 style = MaterialTheme.typography.labelSmall,

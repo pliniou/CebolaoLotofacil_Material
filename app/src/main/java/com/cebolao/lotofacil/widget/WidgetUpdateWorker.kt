@@ -14,6 +14,7 @@ import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.domain.repository.GameRepository
 import com.cebolao.lotofacil.domain.repository.HistoryRepository
 import com.cebolao.lotofacil.util.DEFAULT_NUMBER_FORMAT
+import com.cebolao.lotofacil.util.DEFAULT_PLACEHOLDER
 import com.cebolao.lotofacil.util.Formatters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -48,7 +49,7 @@ class WidgetUpdateWorker @AssistedInject constructor(
         ids.forEach { id ->
             val views = createRemoteViews(R.layout.widget_last_draw, LastDrawWidgetProvider::class.java, id)
             if (lastDraw != null) {
-                views.setTextViewText(R.id.widget_title, "Último: ${lastDraw.contestNumber}")
+                views.setTextViewText(R.id.widget_title, "${context.getString(R.string.widget_last_draw_title)}: ${lastDraw.contestNumber}")
                 populateGrid(views, R.id.widget_numbers_container, lastDraw.numbers)
                 showContent(views, R.id.widget_numbers_container)
             } else showError(views, R.id.widget_numbers_container)
@@ -65,7 +66,7 @@ class WidgetUpdateWorker @AssistedInject constructor(
             val views = createRemoteViews(R.layout.widget_next_contest, NextContestWidgetProvider::class.java, id)
             if (apiResult != null) {
                 views.setTextViewText(R.id.widget_title, "${context.getString(R.string.widget_next_contest_title_generic)} ${apiResult.numero + 1}")
-                views.setTextViewText(R.id.widget_date, apiResult.dataProximoConcurso ?: "--/--")
+                views.setTextViewText(R.id.widget_date, apiResult.dataProximoConcurso ?: DEFAULT_PLACEHOLDER)
                 views.setTextViewText(R.id.widget_prize, Formatters.formatCurrency(apiResult.valorEstimadoProximoConcurso))
                 showContent(views, R.id.widget_content)
             } else showError(views, R.id.widget_content)

@@ -51,7 +51,7 @@ fun GameCard(
     val containerColor by animateColorAsState(if (pinned) MaterialTheme.colorScheme.secondaryContainer.copy(0.15f) else MaterialTheme.colorScheme.surface, spring(), label = "bg")
     val borderColor by animateColorAsState(if (pinned) MaterialTheme.colorScheme.secondary.copy(0.5f) else MaterialTheme.colorScheme.outlineVariant.copy(0.3f), label = "border")
 
-    Card(modifier.fillMaxWidth(), shape = MaterialTheme.shapes.medium, colors = CardDefaults.cardColors(containerColor), border = BorderStroke(1.dp, borderColor)) {
+    Card(modifier.fillMaxWidth(), shape = MaterialTheme.shapes.medium, colors = CardDefaults.cardColors(containerColor), border = BorderStroke(Dimen.Border.Thin, borderColor)) {
         Column(Modifier.padding(Dimen.CardContentPadding)) {
             Header(game.hashCode(), pinned) { onAction(GameCardAction.Pin) }
             Spacer(Modifier.height(Dimen.SmallPadding))
@@ -65,12 +65,12 @@ fun GameCard(
 @Composable private fun Header(hash: Int, pinned: Boolean, onPin: () -> Unit) {
     Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(if (pinned) Icons.Default.Star else Icons.Default.Tag, null, tint = if (pinned) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
-            Spacer(Modifier.width(4.dp))
+            Icon(if (pinned) Icons.Default.Star else Icons.Default.Tag, null, tint = if (pinned) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(Dimen.SmallIcon))
+            Spacer(Modifier.width(Dimen.ExtraSmallPadding))
             Text("Aposta #${hash.absoluteValue.toString().takeLast(4)}", style = MaterialTheme.typography.labelMedium, color = if (pinned) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        IconButton(onPin, Modifier.size(32.dp)) {
-            Icon(if (pinned) Icons.Filled.PushPin else Icons.Outlined.PushPin, if (pinned) stringResource(R.string.game_card_unpinned) else stringResource(R.string.game_card_pinned), tint = if (pinned) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.outline, modifier = Modifier.size(20.dp))
+        IconButton(onPin, Modifier.size(Dimen.LargeIcon)) {
+            Icon(if (pinned) Icons.Filled.PushPin else Icons.Outlined.PushPin, if (pinned) stringResource(R.string.game_card_unpinned) else stringResource(R.string.game_card_pinned), tint = if (pinned) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.outline, modifier = Modifier.size(Dimen.ActionIconSize))
         }
     }
 }
@@ -80,8 +80,8 @@ fun GameCard(
         IconButton(onDelete) { Icon(Icons.Default.DeleteOutline, stringResource(R.string.general_delete), tint = MaterialTheme.colorScheme.error.copy(0.7f)) }
         IconButton(onShare) { Icon(Icons.Default.Share, stringResource(R.string.general_share), tint = MaterialTheme.colorScheme.onSurfaceVariant) }
         Spacer(Modifier.width(Dimen.SmallPadding))
-        Button(onCheck, Modifier.height(36.dp), contentPadding = PaddingValues(horizontal = 16.dp), colors = ButtonDefaults.buttonColors(if (pinned) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary)) {
-            Icon(Icons.Default.CheckCircle, null, Modifier.size(16.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.game_card_action_check))
+        Button(onCheck, Modifier.height(Dimen.SmallButtonHeight), contentPadding = PaddingValues(horizontal = Dimen.MediumPadding), colors = ButtonDefaults.buttonColors(if (pinned) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary)) {
+            Icon(Icons.Default.CheckCircle, null, Modifier.size(Dimen.SmallIcon)); Spacer(Modifier.width(Dimen.SmallPadding)); Text(stringResource(R.string.game_card_action_check))
         }
     }
 }

@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.cebolao.lotofacil.ui.theme.Dimen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,7 +26,7 @@ fun StandardScreenHeader(
     TopAppBar(
         modifier = modifier,
         title = {
-            Column(modifier = Modifier.padding(start = 4.dp)) {
+            Column(modifier = Modifier.padding(start = Dimen.ExtraSmallPadding)) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.headlineSmall,

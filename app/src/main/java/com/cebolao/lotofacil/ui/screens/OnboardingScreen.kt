@@ -61,7 +61,7 @@ fun OnboardingScreen(onComplete: () -> Unit) {
                     PrimaryActionButton(
                         text = stringResource(if (isLast) R.string.onboarding_start else R.string.onboarding_next),
                         onClick = { if (isLast) onComplete() else scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) } },
-                        modifier = Modifier.widthIn(min = 100.dp),
+                        modifier = Modifier.widthIn(min = Dimen.MinButtonWidth),
                         isFullWidth = false
                     )
                 }

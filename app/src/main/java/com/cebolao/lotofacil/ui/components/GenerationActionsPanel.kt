@@ -61,5 +61,5 @@ fun GenerationActionsPanel(
 }
 
 @Composable private fun Btn(icon: androidx.compose.ui.graphics.vector.ImageVector, enabled: Boolean, onClick: () -> Unit) {
-    FilledIconButton(onClick, enabled = enabled, modifier = Modifier.size(32.dp), colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)) { Icon(icon, null, Modifier.size(Dimen.SmallIcon)) }
+    FilledIconButton(onClick, enabled = enabled, modifier = Modifier.size(Dimen.LargeIcon), colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)) { Icon(icon, null, Modifier.size(Dimen.SmallIcon)) }
 }

@@ -60,7 +60,7 @@ fun NumberBall(
             .alpha(if (isDisabled) AppConfig.UI.ALPHA_DISABLED else 1f)
             .clip(CircleShape)
             .background(bg)
-            .then(if (colors.border != Color.Transparent) Modifier.border(1.dp, colors.border, CircleShape) else Modifier),
+            .then(if (colors.border != Color.Transparent) Modifier.border(Dimen.Border.Thin, colors.border, CircleShape) else Modifier),
         contentAlignment = Alignment.Center
     ) {
         Text(

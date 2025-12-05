@@ -37,7 +37,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
         snackbarHost = { SnackbarHost(snackbarHostState) },
         actions = {
             IconButton(onClick = viewModel::forceSync, enabled = !uiState.isSyncing) {
-                if (uiState.isSyncing) CircularProgressIndicator(Modifier.size(Dimen.SmallIcon), strokeWidth = 2.dp)
+                if (uiState.isSyncing) CircularProgressIndicator(Modifier.size(Dimen.SmallIcon), strokeWidth = Dimen.Border.Thick)
                 else Icon(Icons.Default.Refresh, stringResource(R.string.home_sync_button_description))
             }
         }
@@ -50,7 +50,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
             Box(Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.MediumPadding)) {
                 when (screenState) {
                     is HomeScreenState.Success -> NextContestHeroCard(screenState.nextDrawInfo)
-                    is HomeScreenState.Loading -> Box(Modifier.fillMaxWidth().height(150.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                    is HomeScreenState.Loading -> Box(Modifier.fillMaxWidth().height(Dimen.HeroCardMinHeight), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
                     else -> Unit
                 }
             }

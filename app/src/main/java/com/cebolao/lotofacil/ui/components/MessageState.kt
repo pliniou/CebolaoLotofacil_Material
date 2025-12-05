@@ -40,7 +40,7 @@ fun MessageState(
             imageVector = icon,
             contentDescription = title,
             tint = iconTint,
-            modifier = Modifier.size(64.dp)
+            modifier = Modifier.size(Dimen.ExtraLargeIcon)
         )
         Spacer(Modifier.height(Dimen.LargePadding))
         Text(

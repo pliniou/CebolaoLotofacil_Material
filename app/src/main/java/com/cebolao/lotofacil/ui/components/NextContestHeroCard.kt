@@ -72,7 +72,7 @@ fun NextContestHeroCard(info: NextDrawInfo?) {
                         style = MaterialTheme.typography.labelMedium,
                         color = colorScheme.primary,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                        modifier = Modifier.padding(horizontal = Dimen.SmallPadding, vertical = Dimen.ExtraSmallPadding)
                     )
                 }
 
@@ -114,8 +114,8 @@ fun NextContestHeroCard(info: NextDrawInfo?) {
                     
                     // Separador vertical
                     Box(modifier = Modifier
-                        .width(1.dp)
-                        .height(20.dp)
+                        .width(Dimen.Border.Thin)
+                        .height(Dimen.ActionIconSize)
                         .background(colorScheme.outlineVariant.copy(alpha = 0.3f)))
 
                     InfoItem(
@@ -133,13 +133,13 @@ fun NextContestHeroCard(info: NextDrawInfo?) {
 private fun InfoItem(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, tint: Color) {
     Row(
         verticalAlignment = Alignment.CenterVertically, 
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
+        horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)
     ) {
         Icon(
             imageVector = icon, 
             contentDescription = null, 
             tint = tint, 
-            modifier = Modifier.size(16.dp)
+            modifier = Modifier.size(Dimen.SmallIcon)
         )
         Text(
             text = label, 

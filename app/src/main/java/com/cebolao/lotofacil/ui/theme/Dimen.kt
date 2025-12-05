@@ -21,14 +21,19 @@ object Dimen {
 
     // --- Component Sizes ---
     val LargeButtonHeight = 56.dp
+    val SmallButtonHeight = 36.dp
+    val MinButtonWidth = 100.dp
     val PaletteCardWidth = 120.dp
     val PaletteCardHeight = 100.dp
+    val HeroCardMinHeight = 200.dp
     val ProgressBarHeight = 12.dp
     
     // --- Icons ---
     val SmallIcon = 16.dp
     val MediumIcon = 24.dp
     val LargeIcon = 32.dp
+    val ExtraLargeIcon = 64.dp
+    val ActionIconSize = 20.dp
     val Logo = 96.dp
 
     // --- Lotofácil Balls ---
@@ -43,6 +48,7 @@ object Dimen {
 
     // --- Charts ---
     val ChartHeight = 200.dp
+    val CheckResultChartHeight = 140.dp
     val BarChartHeight = 200.dp
 
     object Border {

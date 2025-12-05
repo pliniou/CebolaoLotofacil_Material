@@ -82,9 +82,9 @@ fun AboutScreen(
             SectionHeader(stringResource(R.string.about_info_section))
             Card(modifier = Modifier.fillMaxWidth()) {
                 AboutItem(icon = Icons.Default.Gavel, text = stringResource(R.string.about_terms)) { openUrl(URL_TERMS) }
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                HorizontalDivider(modifier = Modifier.padding(horizontal = Dimen.MediumPadding))
                 AboutItem(icon = Icons.Default.PrivacyTip, text = stringResource(R.string.about_privacy_policy)) { openUrl(URL_PRIVACY) }
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                HorizontalDivider(modifier = Modifier.padding(horizontal = Dimen.MediumPadding))
                 AboutItem(icon = Icons.Default.Info, text = stringResource(R.string.about_version_format, "1.0"), isClickable = false) {}
             }
             Spacer(Modifier.height(Dimen.LargePadding))
@@ -107,10 +107,10 @@ fun AboutScreen(
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(Dimen.MediumPadding),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Default.Public, contentDescription = null, modifier = Modifier.size(32.dp))
+            Icon(Icons.Default.Public, contentDescription = null, modifier = Modifier.size(Dimen.LargeIcon))
             Spacer(Modifier.width(Dimen.LargePadding))
             Column(Modifier.weight(1f)) {
                 Text(stringResource(R.string.about_caixa_title), style = MaterialTheme.typography.titleMedium)
@@ -133,7 +133,7 @@ fun AboutScreen(
             Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         },
         trailingContent = {
-            if (isClickable) Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.5f), modifier = Modifier.size(16.dp))
+            if (isClickable) Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.5f), modifier = Modifier.size(Dimen.SmallIcon))
         },
         colors = ListItemDefaults.colors(containerColor = Color.Transparent))
 }

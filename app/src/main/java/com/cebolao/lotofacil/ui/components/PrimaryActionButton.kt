@@ -50,7 +50,7 @@ fun PrimaryActionButton(
             disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
         ),
         elevation = ButtonDefaults.buttonElevation(
-            defaultElevation = 2.dp,
+            defaultElevation = Dimen.Elevation.Low,
             pressedElevation = 0.dp
         )
     ) {
@@ -64,9 +64,9 @@ fun PrimaryActionButton(
         ) { loading ->
             if (loading) {
                 CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(Dimen.ActionIconSize),
                     color = MaterialTheme.colorScheme.onPrimary,
-                    strokeWidth = 2.dp
+                    strokeWidth = Dimen.Border.Thick
                 )
             } else {
                 Row(verticalAlignment = Alignment.CenterVertically) {

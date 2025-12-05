@@ -5,6 +5,7 @@
 local.properties
 .DS_Store
 ConsolidarKotlin.ps1
+.vscode
 
 # Arquivos gerados pelo Kotlin
 .kotlin/

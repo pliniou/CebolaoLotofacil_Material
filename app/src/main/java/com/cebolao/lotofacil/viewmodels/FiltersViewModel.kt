@@ -7,7 +7,11 @@ import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.data.FilterPreset
 import com.cebolao.lotofacil.data.FilterState
 import com.cebolao.lotofacil.data.FilterType
-import com.cebolao.lotofacil.domain.service.*
+import com.cebolao.lotofacil.domain.service.FilterSuccessCalculator
+import com.cebolao.lotofacil.domain.service.GenerationFailureReason
+import com.cebolao.lotofacil.domain.service.GenerationProgress
+import com.cebolao.lotofacil.domain.service.GenerationProgressType
+import com.cebolao.lotofacil.domain.service.GenerationStep
 import com.cebolao.lotofacil.domain.usecase.GenerateGamesUseCase
 import com.cebolao.lotofacil.domain.usecase.GetLastDrawUseCase
 import com.cebolao.lotofacil.domain.usecase.SaveGeneratedGamesUseCase
@@ -15,7 +19,13 @@ import com.cebolao.lotofacil.util.STATE_IN_TIMEOUT_MS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.math.roundToInt

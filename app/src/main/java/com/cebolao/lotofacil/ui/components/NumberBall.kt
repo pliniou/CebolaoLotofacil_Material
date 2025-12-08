@@ -19,14 +19,17 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import com.cebolao.lotofacil.ui.theme.*
+import com.cebolao.lotofacil.ui.theme.AppConfig
+import com.cebolao.lotofacil.ui.theme.Dimen
+import com.cebolao.lotofacil.ui.theme.FontFamilyNumeric
+import com.cebolao.lotofacil.ui.theme.SuccessGreen
 import com.cebolao.lotofacil.util.DEFAULT_NUMBER_FORMAT
 
 enum class NumberBallSize { Large, Medium, Small }
 enum class NumberBallVariant { Primary, Secondary, Neutral, Hit, Miss }
 
-@Immutable private data class BallColors(val container: Color, val content: Color, val border: Color)
+@Immutable
+private data class BallColors(val container: Color, val content: Color, val border: Color)
 
 @Composable
 fun NumberBall(
@@ -49,7 +52,9 @@ fun NumberBall(
     }
 
     val scheme = MaterialTheme.colorScheme
-    val colors = remember(isSelected, variant, scheme) { resolveColors(isSelected, variant, scheme) }
+    val colors = remember(isSelected, variant, scheme) {
+        resolveColors(isSelected, variant, scheme)
+    }
 
     val bg by animateColorAsState(colors.container, label = "bg")
     val content by animateColorAsState(colors.content, label = "content")
@@ -60,7 +65,13 @@ fun NumberBall(
             .alpha(if (isDisabled) AppConfig.UI.ALPHA_DISABLED else 1f)
             .clip(CircleShape)
             .background(bg)
-            .then(if (colors.border != Color.Transparent) Modifier.border(Dimen.Border.Thin, colors.border, CircleShape) else Modifier),
+            .then(
+                if (colors.border != Color.Transparent) {
+                    Modifier.border(Dimen.Border.Thin, colors.border, CircleShape)
+                } else {
+                    Modifier
+                }
+            ),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -68,16 +79,47 @@ fun NumberBall(
             color = content,
             fontFamily = FontFamilyNumeric,
             fontSize = fontSize,
-            fontWeight = FontWeight.Bold
+            fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Bold, // Emphasize selection
+            modifier = Modifier.align(Alignment.Center) // Explicit alignment
         )
     }
 }
 
-private fun resolveColors(isSelected: Boolean, variant: NumberBallVariant, s: ColorScheme): BallColors = when {
-    isSelected -> BallColors(s.primary, s.onPrimary, Color.Transparent)
-    variant == NumberBallVariant.Hit -> BallColors(SuccessGreen, Color.White, Color.Transparent)
-    variant == NumberBallVariant.Miss -> BallColors(s.errorContainer, s.onErrorContainer, Color.Transparent)
-    variant == NumberBallVariant.Secondary -> BallColors(s.secondaryContainer, s.onSecondaryContainer, Color.Transparent)
-    variant == NumberBallVariant.Neutral -> BallColors(s.surfaceContainerHigh, s.onSurface, Color.Transparent)
-    else -> BallColors(s.surface, s.onSurface, s.outlineVariant.copy(alpha = 0.5f))
+private fun resolveColors(
+    isSelected: Boolean,
+    variant: NumberBallVariant,
+    scheme: ColorScheme
+): BallColors {
+    return when {
+        isSelected -> BallColors(
+            container = scheme.primary,
+            content = scheme.onPrimary,
+            border = Color.Transparent
+        )
+        variant == NumberBallVariant.Hit -> BallColors(
+            container = SuccessGreen,
+            content = Color.White,
+            border = Color.Transparent
+        )
+        variant == NumberBallVariant.Miss -> BallColors(
+            container = scheme.errorContainer,
+            content = scheme.onErrorContainer,
+            border = Color.Transparent
+        )
+        variant == NumberBallVariant.Secondary -> BallColors(
+            container = scheme.secondaryContainer,
+            content = scheme.onSecondaryContainer,
+            border = Color.Transparent
+        )
+        variant == NumberBallVariant.Neutral -> BallColors(
+            container = scheme.surfaceContainerHigh,
+            content = scheme.onSurface,
+            border = Color.Transparent
+        )
+        else -> BallColors(
+            container = scheme.surface,
+            content = scheme.onSurface,
+            border = scheme.outlineVariant.copy(alpha = 0.5f)
+        )
+    }
 }

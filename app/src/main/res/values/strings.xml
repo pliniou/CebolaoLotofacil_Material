@@ -147,20 +147,20 @@
     <string name="checker_incomplete_game_message">Selecione 15 dezenas para realizar a conferência do jogo.</string>
     <string name="checker_save_success_message">Jogo salvo na sua lista!</string>
     <string name="checker_save_fail_message">Erro ao salvar jogo.</string>
-    <string name="checker_results_header_wins">Essa combinação já foi premiada</string>
+    <string name="checker_results_header_wins">Histórico da combinação</string>
     <string name="checker_results_header_no_wins">Sem prêmios principais</string>
-    <string name="checker_results_analysis_in_contests">Base de dados analisada: %1$d sorteios</string>
+    <string name="checker_results_analysis_in_contests">Base de dados analisada: Todos os %1$d sorteios</string>
     <string name="checker_score_breakdown_hits_format">%1$d acertos</string>
     <string name="checker_score_breakdown_times_format_one">vez</string>
     <string name="checker_score_breakdown_times_format_other">vezes</string>
-    <string name="checker_last_hit_info">Última vez premiado: #%1$s (%2$s acertos)</string>
+    <string name="checker_last_hit_info">Última concurso premiado: #%1$s (%2$s pontos)</string>
     <string name="checker_no_wins_message">Esta combinação nunca alcançou 14 ou 15 pontos em toda a história.</string>
     <string name="checker_simple_stats_title">Estatísticas do Jogo</string>
     <string name="checker_recent_hits_chart_title">Desempenho Recente</string>
     <string name="checker_selection_instruction">Coloque abaixo os %1$d números no volante para conferir!</string>
     <string name="checker_performance_analysis">Análise de Desempenho</string>
     <string name="checker_how_it_works_title">Como funciona?</string>
-    <string name="checker_how_it_works_desc">Selecione 15 dezenas e veja o histórico de premiação dessa combinação em todos os concursos.</string>
+    <string name="checker_how_it_works_desc">Selecione 15 dezenas abaixo</string>
 
     <!-- About & Settings -->
     <string name="about_title">Sobre</string>
@@ -184,7 +184,7 @@
 
     <!-- Greetings & Date -->
     <string name="greeting_morning">É dia</string>
-    <string name="greeting_afternoon">Boua Tarde</string>
+    <string name="greeting_afternoon">Boa Tarde</string>
     <string name="greeting_night">Boa noite</string>
     <string name="greeting_generic">Olá</string>
     <string name="welcome_message_format">%1$s, sonhador!</string>

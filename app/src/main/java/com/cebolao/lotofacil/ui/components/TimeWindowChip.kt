@@ -8,7 +8,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import com.cebolao.lotofacil.ui.theme.Dimen
 
 @Composable
@@ -16,10 +15,12 @@ fun TimeWindowChip(
     isSelected: Boolean,
     onClick: () -> Unit,
     label: String,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     FilterChip(
         selected = isSelected,
+        enabled = enabled,
         onClick = onClick,
         label = {
             Text(

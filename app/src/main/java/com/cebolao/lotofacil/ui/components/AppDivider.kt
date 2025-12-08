@@ -8,5 +8,9 @@ import com.cebolao.lotofacil.ui.theme.Dimen
 
 @Composable
 fun AppDivider(modifier: Modifier = Modifier) {
-    HorizontalDivider(modifier, thickness = Dimen.Border.Hairline, color = MaterialTheme.colorScheme.outlineVariant)
+    HorizontalDivider(
+        modifier = modifier,
+        thickness = Dimen.Border.Hairline,
+        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+    )
 }

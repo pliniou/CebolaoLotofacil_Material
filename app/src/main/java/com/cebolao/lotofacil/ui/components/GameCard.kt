@@ -1,6 +1,9 @@
 package com.cebolao.lotofacil.ui.components
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -37,7 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.data.LotofacilConstants
-import com.cebolao.lotofacil.domain.model.LotofacilGame // Import Corrigido
+import com.cebolao.lotofacil.domain.model.LotofacilGame
 import com.cebolao.lotofacil.ui.theme.Dimen
 import kotlin.math.absoluteValue
 
@@ -48,40 +51,161 @@ fun GameCard(
     onAction: (GameCardAction) -> Unit
 ) {
     val pinned = game.isPinned
-    val containerColor by animateColorAsState(if (pinned) MaterialTheme.colorScheme.secondaryContainer.copy(0.15f) else MaterialTheme.colorScheme.surface, spring(), label = "bg")
-    val borderColor by animateColorAsState(if (pinned) MaterialTheme.colorScheme.secondary.copy(0.5f) else MaterialTheme.colorScheme.outlineVariant.copy(0.3f), label = "border")
+    
+    // Animate container color for pinned state
+    val containerColor by animateColorAsState(
+        targetValue = if (pinned) MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surface,
+        animationSpec = spring(stiffness = Spring.StiffnessLow),
+        label = "containerColor"
+    )
+    
+    // Animate border color
+    val borderColor by animateColorAsState(
+        targetValue = if (pinned) MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f),
+        label = "borderColor"
+    )
 
-    Card(modifier.fillMaxWidth(), shape = MaterialTheme.shapes.medium, colors = CardDefaults.cardColors(containerColor), border = BorderStroke(Dimen.Border.Thin, borderColor)) {
-        Column(Modifier.padding(Dimen.CardContentPadding)) {
-            Header(game.hashCode(), pinned) { onAction(GameCardAction.Pin) }
+    // Using a custom card similar to SectionCard but with specific game logic
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        border = BorderStroke(if (pinned) Dimen.Border.Thin else Dimen.Border.Hairline, borderColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (pinned) 4.dp else 1.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(Dimen.CardContentPadding)
+                .animateContentSize() // Smooth size changes
+        ) {
+            Header(
+                hash = game.hashCode(),
+                pinned = pinned,
+                onPin = { onAction(GameCardAction.Pin) }
+            )
+            
             Spacer(Modifier.height(Dimen.SmallPadding))
-            NumberGrid(game.numbers, {}, Modifier.fillMaxWidth(), maxSelection = LotofacilConstants.GAME_SIZE, sizeVariant = NumberBallSize.Small, ballVariant = if (pinned) NumberBallVariant.Secondary else NumberBallVariant.Neutral)
+            
+            // Grid of numbers
+            NumberGrid(
+                selectedNumbers = game.numbers,
+                onNumberClick = {},
+                modifier = Modifier.fillMaxWidth(),
+                maxSelection = LotofacilConstants.GAME_SIZE,
+                sizeVariant = NumberBallSize.Small,
+                ballVariant = if (pinned) NumberBallVariant.Secondary else NumberBallVariant.Neutral
+            )
+            
             Spacer(Modifier.height(Dimen.MediumPadding))
-            Actions(pinned, { onAction(GameCardAction.Delete) }, { onAction(GameCardAction.Share) }, { onAction(GameCardAction.Check) })
+            
+            AppDivider(modifier = Modifier.padding(bottom = Dimen.SmallPadding))
+
+            Actions(
+                pinned = pinned,
+                onDelete = { onAction(GameCardAction.Delete) },
+                onShare = { onAction(GameCardAction.Share) },
+                onCheck = { onAction(GameCardAction.Check) }
+            )
         }
     }
 }
 
-@Composable private fun Header(hash: Int, pinned: Boolean, onPin: () -> Unit) {
-    Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(if (pinned) Icons.Default.Star else Icons.Default.Tag, null, tint = if (pinned) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(Dimen.SmallIcon))
-            Spacer(Modifier.width(Dimen.ExtraSmallPadding))
-            Text("Aposta #${hash.absoluteValue.toString().takeLast(4)}", style = MaterialTheme.typography.labelMedium, color = if (pinned) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurfaceVariant)
+@Composable
+private fun Header(hash: Int, pinned: Boolean, onPin: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)
+        ) {
+            Icon(
+                imageVector = if (pinned) Icons.Default.Star else Icons.Default.Tag,
+                contentDescription = null,
+                tint = if (pinned) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(Dimen.SmallIcon)
+            )
+            
+            Text(
+                text = "Aposta #${hash.absoluteValue.toString().takeLast(4)}",
+                style = MaterialTheme.typography.labelLarge,
+                color = if (pinned) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = if (pinned) androidx.compose.ui.text.font.FontWeight.Bold else androidx.compose.ui.text.font.FontWeight.Normal
+            )
         }
-        IconButton(onPin, Modifier.size(Dimen.LargeIcon)) {
-            Icon(if (pinned) Icons.Filled.PushPin else Icons.Outlined.PushPin, if (pinned) stringResource(R.string.game_card_unpinned) else stringResource(R.string.game_card_pinned), tint = if (pinned) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.outline, modifier = Modifier.size(Dimen.ActionIconSize))
+        
+        IconButton(
+            onClick = onPin,
+            modifier = Modifier.size(40.dp) // Larger touch target
+        ) {
+            AnimatedContent(targetState = pinned, label = "PinIconAnimation") { isPinned ->
+                Icon(
+                    imageVector = if (isPinned) Icons.Filled.PushPin else Icons.Outlined.PushPin,
+                    contentDescription = if (isPinned) stringResource(R.string.game_card_unpinned) else stringResource(R.string.game_card_pinned),
+                    tint = if (isPinned) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.size(Dimen.ActionIconSize)
+                )
+            }
         }
     }
 }
 
-@Composable private fun Actions(pinned: Boolean, onDelete: () -> Unit, onShare: () -> Unit, onCheck: () -> Unit) {
-    Row(Modifier.fillMaxWidth(), Arrangement.End, Alignment.CenterVertically) {
-        IconButton(onDelete) { Icon(Icons.Default.DeleteOutline, stringResource(R.string.general_delete), tint = MaterialTheme.colorScheme.error.copy(0.7f)) }
-        IconButton(onShare) { Icon(Icons.Default.Share, stringResource(R.string.general_share), tint = MaterialTheme.colorScheme.onSurfaceVariant) }
-        Spacer(Modifier.width(Dimen.SmallPadding))
-        Button(onCheck, Modifier.height(Dimen.SmallButtonHeight), contentPadding = PaddingValues(horizontal = Dimen.MediumPadding), colors = ButtonDefaults.buttonColors(if (pinned) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary)) {
-            Icon(Icons.Default.CheckCircle, null, Modifier.size(Dimen.SmallIcon)); Spacer(Modifier.width(Dimen.SmallPadding)); Text(stringResource(R.string.game_card_action_check))
+@Composable
+private fun Actions(
+    pinned: Boolean,
+    onDelete: () -> Unit,
+    onShare: () -> Unit,
+    onCheck: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Tertiary Actions
+        Row(horizontalArrangement = Arrangement.spacedBy(0.dp)) {
+            IconButton(onClick = onDelete) {
+                Icon(
+                    imageVector = Icons.Default.DeleteOutline,
+                    contentDescription = stringResource(R.string.general_delete),
+                    tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
+                )
+            }
+            
+            IconButton(onClick = onShare) {
+                Icon(
+                    imageVector = Icons.Default.Share,
+                    contentDescription = stringResource(R.string.general_share),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        Spacer(Modifier.weight(1f)) // Push check button to end
+        
+        // Primary Action
+        Button(
+            onClick = onCheck,
+            contentPadding = PaddingValues(horizontal = Dimen.MediumPadding, vertical = 0.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (pinned) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary
+            ),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.CheckCircle,
+                contentDescription = null,
+                modifier = Modifier.size(Dimen.SmallIcon)
+            )
+            
+            Spacer(Modifier.width(Dimen.SmallPadding))
+            
+            Text(
+                stringResource(R.string.game_card_action_check),
+                style = MaterialTheme.typography.labelLarge
+            )
         }
     }
 }

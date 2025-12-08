@@ -2,9 +2,9 @@ package com.cebolao.lotofacil.domain.service
 
 import com.cebolao.lotofacil.data.HistoricalDraw
 import com.cebolao.lotofacil.data.LotofacilConstants
-import com.cebolao.lotofacil.domain.model.StatisticsReport
-import com.cebolao.lotofacil.domain.model.NumberFrequency
 import com.cebolao.lotofacil.di.DefaultDispatcher
+import com.cebolao.lotofacil.domain.model.NumberFrequency
+import com.cebolao.lotofacil.domain.model.StatisticsReport
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.util.Collections

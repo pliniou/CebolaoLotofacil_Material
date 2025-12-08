@@ -1,20 +1,31 @@
 package com.cebolao.lotofacil.viewmodels
 
+// Import atualizado para o novo pacote de domínio
 import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.data.CheckResult
 import com.cebolao.lotofacil.data.LotofacilConstants
-// Import atualizado para o novo pacote de domínio
-import com.cebolao.lotofacil.domain.model.LotofacilGame 
-import com.cebolao.lotofacil.domain.usecase.*
+import com.cebolao.lotofacil.domain.model.LotofacilGame
+import com.cebolao.lotofacil.domain.usecase.AnalyzeGameUseCase
+import com.cebolao.lotofacil.domain.usecase.ClearUnpinnedGamesUseCase
+import com.cebolao.lotofacil.domain.usecase.DeleteGameUseCase
+import com.cebolao.lotofacil.domain.usecase.ObservePinnedGamesUseCase
+import com.cebolao.lotofacil.domain.usecase.ObserveUnpinnedGamesUseCase
+import com.cebolao.lotofacil.domain.usecase.TogglePinStateUseCase
 import com.cebolao.lotofacil.util.STATE_IN_TIMEOUT_MS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import javax.inject.Inject

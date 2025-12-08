@@ -1,9 +1,9 @@
 package com.cebolao.lotofacil.data.repository
 
 import android.util.Log
-import com.cebolao.lotofacil.domain.model.LotofacilGame // Corrigido
 import com.cebolao.lotofacil.di.ApplicationScope
 import com.cebolao.lotofacil.di.IoDispatcher
+import com.cebolao.lotofacil.domain.model.LotofacilGame
 import com.cebolao.lotofacil.domain.repository.GameRepository
 import com.cebolao.lotofacil.domain.repository.UserPreferencesRepository
 import com.cebolao.lotofacil.util.STATE_IN_TIMEOUT_MS

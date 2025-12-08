@@ -16,21 +16,31 @@ fun CebolaoLotofacilTheme(
     accentPalette: AccentPalette = AccentPalette.AZUL,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) darkColorSchemeFor(accentPalette) else lightColorSchemeFor(accentPalette)
+    val colorScheme = if (darkTheme) {
+        darkColorSchemeFor(accentPalette)
+    } else {
+        lightColorSchemeFor(accentPalette)
+    }
+    
     val view = LocalView.current
 
     if (!view.isInEditMode) {
         SideEffect {
-            (view.context as? Activity)?.window?.let { window ->
-                window.statusBarColor = Color.Transparent.toArgb()
-                window.navigationBarColor = Color.Transparent.toArgb()
-                WindowCompat.getInsetsController(window, view).apply {
-                    isAppearanceLightStatusBars = !darkTheme
-                    isAppearanceLightNavigationBars = !darkTheme
-                }
+            val window = (view.context as? Activity)?.window ?: return@SideEffect
+            window.statusBarColor = Color.Transparent.toArgb()
+            window.navigationBarColor = Color.Transparent.toArgb()
+            
+            WindowCompat.getInsetsController(window, view).apply {
+                isAppearanceLightStatusBars = !darkTheme
+                isAppearanceLightNavigationBars = !darkTheme
             }
         }
     }
 
-    MaterialTheme(colorScheme = colorScheme, typography = Typography, shapes = Shapes, content = content)
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography = Typography,
+        shapes = Shapes,
+        content = content
+    )
 }

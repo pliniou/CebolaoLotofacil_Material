@@ -21,7 +21,7 @@ fun StudioHero(modifier: Modifier = Modifier) {
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)
+            verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_lotofacil_logo),

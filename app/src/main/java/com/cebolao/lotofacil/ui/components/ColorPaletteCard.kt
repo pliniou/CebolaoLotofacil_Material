@@ -1,11 +1,11 @@
 package com.cebolao.lotofacil.ui.components
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Card
@@ -37,6 +36,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.ui.theme.AccentPalette
@@ -49,118 +50,127 @@ import com.cebolao.lotofacil.ui.theme.lightColorSchemeFor
 fun ColorPaletteCard(
     currentPalette: AccentPalette,
     onPaletteChange: (AccentPalette) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
-    val palettes = AccentPalette.entries
+    val palettes = remember { AccentPalette.entries }
     val isDarkTheme = isSystemInDarkTheme()
+    val animationSpec: AnimationSpec<Color> = tween(AppConfig.Animation.SHORT_DURATION)
 
-    val previewColorSchemes = remember(isDarkTheme, palettes) {
-        palettes.associateWith {
-            if (isDarkTheme) darkColorSchemeFor(it) else lightColorSchemeFor(it)
+    val previewColorSchemes = remember(isDarkTheme) {
+        palettes.map { palette ->
+            if (isDarkTheme) darkColorSchemeFor(palette) else lightColorSchemeFor(palette)
+        }
+    }
+
+    @Composable
+    fun ColorSwatch(color: Color, modifier: Modifier = Modifier) {
+        Box(
+            modifier = modifier
+                .height(16.dp)
+                .clip(MaterialTheme.shapes.extraSmall)
+                .background(color)
+                .border(
+                    width = Dimen.Border.Hairline,
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                    shape = MaterialTheme.shapes.extraSmall
+                )
+        )
+    }
+
+    @Composable
+    fun PalettePreviewCard(
+        palette: AccentPalette,
+        colorScheme: ColorScheme,
+        isSelected: Boolean,
+    ) {
+        val borderColor by animateColorAsState(
+            targetValue = if (isSelected) colorScheme.primary else Color.Transparent,
+            animationSpec = animationSpec,
+            label = "border"
+        )
+
+        Card(
+            onClick = { onPaletteChange(palette) },
+            modifier = Modifier
+                .width(Dimen.PaletteCardWidth)
+                .height(Dimen.PaletteCardHeight),
+            shape = MaterialTheme.shapes.small,
+            colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
+            border = BorderStroke(
+                width = if (isSelected) Dimen.Border.Thick else Dimen.Border.Hairline,
+                color = borderColor
+            ),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = if (isSelected) Dimen.Elevation.Medium else Dimen.Elevation.Low
+            )
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(Dimen.SmallPadding),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(Dimen.ExtraSmallPadding)
+                ) {
+                    ColorSwatch(colorScheme.primary, modifier = Modifier.weight(1f))
+                    ColorSwatch(colorScheme.tertiary, modifier = Modifier.weight(1f))
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = palette.paletteName,
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                        color = colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    if (isSelected) {
+                        Icon(
+                            imageVector = Icons.Filled.CheckCircle,
+                            contentDescription = stringResource(R.string.general_selected),
+                            tint = colorScheme.primary,
+                            modifier = Modifier.size(12.dp)
+                        )
+                    }
+                }
+            }
         }
     }
 
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
-        Text(
-            stringResource(R.string.about_personalization_title), 
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        
+        Text(stringResource(R.string.about_personalization_title), style = MaterialTheme.typography.titleMedium)
+
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding),
             contentPadding = PaddingValues(end = Dimen.ScreenPadding)
         ) {
-            items(palettes) { palette ->
-                val colorScheme = previewColorSchemes[palette]!!
+            items(palettes.size) { index ->
+                val palette = palettes[index]
+                val colorScheme = previewColorSchemes[index]
                 PalettePreviewCard(
+                    palette = palette,
                     colorScheme = colorScheme,
-                    name = palette.paletteName,
                     isSelected = currentPalette == palette,
-                    onClick = { onPaletteChange(palette) }
                 )
             }
         }
     }
 }
 
+@Preview(showBackground = true)
 @Composable
-private fun PalettePreviewCard(
-    colorScheme: ColorScheme,
-    name: String,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val borderColor by animateColorAsState(
-        targetValue = if (isSelected) colorScheme.primary else Color.Transparent,
-        animationSpec = tween(AppConfig.Animation.SHORT_DURATION),
-        label = "border"
-    )
-
-    Card(
-        modifier = modifier
-            .width(Dimen.PaletteCardWidth)
-            .height(Dimen.PaletteCardHeight)
-            .clickable { onClick() },
-        shape = MaterialTheme.shapes.small,
-        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
-        border = BorderStroke(if (isSelected) Dimen.Border.Thick else Dimen.Border.Hairline, borderColor),
-        elevation = CardDefaults.cardElevation(if (isSelected) Dimen.Elevation.Medium else Dimen.Elevation.Low)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(Dimen.SmallPadding),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(Dimen.ExtraSmallPadding)
-            ) {
-                ColorSwatch(colorScheme.primary, modifier = Modifier.weight(1f))
-                ColorSwatch(colorScheme.tertiary, modifier = Modifier.weight(1f))
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = name,
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
-                    color = colorScheme.onSurface,
-                    maxLines = 1
-                )
-                if (isSelected) {
-                    Icon(
-                        imageVector = Icons.Filled.CheckCircle,
-                        contentDescription = stringResource(R.string.general_selected),
-                        tint = colorScheme.primary,
-                        modifier = Modifier.size(8.dp)
-                    )
-                }
-            }
-        }
+private fun ColorPaletteCardPreview() {
+    MaterialTheme {
+        ColorPaletteCard(currentPalette = AccentPalette.entries.first(), onPaletteChange = {})
     }
-}
-
-@Composable
-private fun ColorSwatch(color: Color, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .height(16.dp)
-            .clip(MaterialTheme.shapes.extraSmall)
-            .background(color)
-            .border(
-                width = Dimen.Border.Hairline,
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
-                shape = MaterialTheme.shapes.extraSmall
-            )
-    )
 }

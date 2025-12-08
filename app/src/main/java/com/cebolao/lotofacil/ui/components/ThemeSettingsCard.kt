@@ -1,15 +1,14 @@
 package com.cebolao.lotofacil.ui.components
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
@@ -21,8 +20,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.data.repository.THEME_MODE_DARK
 import com.cebolao.lotofacil.data.repository.THEME_MODE_LIGHT
@@ -93,25 +95,35 @@ private fun ThemeModeButton(
         if (selected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface,
         label = "modeContent"
     )
+    val borderColor by animateColorAsState(
+        targetValue = if (selected) Color.Transparent else MaterialTheme.colorScheme.outlineVariant,
+        label = "modeBorder"
+    )
+    val fontWeight by animateFloatAsState(
+        targetValue = if (selected) FontWeight.Bold.weight.toFloat() else FontWeight.Normal.weight.toFloat(),
+        label = "modeFontWeight"
+    )
 
     Surface(
         onClick = onClick,
-        modifier = modifier.height(Dimen.LargeButtonHeight),
+        modifier = modifier
+            .height(Dimen.LargeButtonHeight)
+            .animateContentSize(),
         shape = MaterialTheme.shapes.medium,
         color = containerColor,
-        border = if (selected) null else androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        contentColor = contentColor,
+        border = BorderStroke(1.dp, borderColor)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding, Alignment.CenterHorizontally),
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Icon(imageVector = icon, contentDescription = null, tint = contentColor)
-            Spacer(modifier = Modifier.width(Dimen.SmallPadding))
+            Icon(imageVector = icon, contentDescription = null)
             Text(
                 text = label, 
                 style = MaterialTheme.typography.labelLarge, 
-                color = contentColor,
-                fontWeight = if(selected) FontWeight.Bold else FontWeight.Normal
+                fontWeight = FontWeight(fontWeight.toInt())
             )
         }
     }

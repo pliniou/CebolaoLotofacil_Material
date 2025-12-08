@@ -180,29 +180,36 @@ private fun StatRow(
                 items = data,
                 key = { it.first }
             ) { (number, value) ->
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                Surface(
+                    shape = MaterialTheme.shapes.small,
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    modifier = Modifier.width(56.dp)
                 ) {
-                    NumberBall(
-                        number = number,
-                        sizeVariant = NumberBallSize.Medium,
-                        variant = NumberBallVariant.Neutral
-                    )
-                    
-                    Text(
-                        text = if (isOverdue) stringResource(R.string.home_suffix_ago) else stringResource(R.string.home_suffix_times),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                        fontSize = 10.sp
-                    )
-
-                    Text(
-                        text = value.toString(),
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                        color = highlightColor
-                    )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    ) {
+                        NumberBall(
+                            number = number,
+                            sizeVariant = NumberBallSize.Medium,
+                            variant = NumberBallVariant.Neutral
+                        )
+                        
+                        Text(
+                            text = value.toString(),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Black,
+                            color = highlightColor
+                        )
+                        
+                        Text(
+                            text = if (isOverdue) "atraso" else "freq",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                            fontSize = 9.sp
+                        )
+                    }
                 }
             }
         }

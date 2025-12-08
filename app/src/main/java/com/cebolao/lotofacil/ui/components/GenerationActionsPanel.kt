@@ -31,6 +31,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.data.LotofacilConstants
 import com.cebolao.lotofacil.ui.theme.AppConfig
@@ -51,15 +52,15 @@ fun GenerationActionsPanel(
     val loading = state is GenerationUiState.Loading
     val formatter = rememberCurrencyFormatter()
 
-    Surface(modifier.fillMaxWidth(), shadowElevation = Dimen.Elevation.Medium, color = MaterialTheme.colorScheme.surface) {
-        Row(Modifier.windowInsetsPadding(WindowInsets.navigationBars).padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.MediumPadding).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Dimen.LargePadding)) {
+    Surface(modifier.fillMaxWidth(), shadowElevation = 16.dp, color = MaterialTheme.colorScheme.surfaceContainer,  tonalElevation = 8.dp) {
+        Row(Modifier.windowInsetsPadding(WindowInsets.navigationBars).padding(horizontal = Dimen.ScreenPadding, vertical = 4.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Dimen.ExtraSmallPadding)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(0.dp)) {
                     Btn(Icons.Default.Remove, idx > 0 && !loading) { haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove); idx-- }
-                    Text("$qty", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(horizontal = Dimen.SmallPadding))
+                    Text("$qty", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(horizontal = Dimen.SmallPadding))
                     Btn(Icons.Default.Add, idx < AppConfig.UI.GAME_QUANTITY_OPTIONS.lastIndex && !loading) { haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove); idx++ }
                 }
-                Text(formatter.format(LotofacilConstants.GAME_COST.multiply(qty.toBigDecimal())), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(formatter.format(LotofacilConstants.GAME_COST.multiply(qty.toBigDecimal())), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
                 if (loading) FilledIconButton(onCancel, colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.errorContainer, contentColor = MaterialTheme.colorScheme.onErrorContainer)) { Icon(Icons.Default.Cancel, null) }

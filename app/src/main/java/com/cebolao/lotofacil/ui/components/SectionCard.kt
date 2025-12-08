@@ -30,10 +30,13 @@ fun SectionCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large, // Modern rounded corners
+        shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp), // Subtle elevation
-        border = null // Clean look without border by default, unless high contrast needed
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = androidx.compose.foundation.BorderStroke(
+            Dimen.Border.Hairline, 
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+        )
     ) {
         Column(
             modifier = Modifier.padding(contentPadding),

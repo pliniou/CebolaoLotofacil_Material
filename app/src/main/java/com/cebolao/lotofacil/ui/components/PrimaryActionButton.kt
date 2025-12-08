@@ -50,7 +50,7 @@ fun PrimaryActionButton(
             disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
         ),
         elevation = ButtonDefaults.buttonElevation(
-            defaultElevation = Dimen.Elevation.Low,
+            defaultElevation = 0.dp,
             pressedElevation = 0.dp
         )
     ) {

@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cebolao.lotofacil.R
@@ -87,7 +88,7 @@ fun CheckerScreen(viewModel: CheckerViewModel = hiltViewModel()) {
 
 @Composable
 private fun CheckerBottomBar(onSave: () -> Unit, onCheck: () -> Unit) {
-    Surface(tonalElevation = Dimen.Elevation.Medium) {
+    Surface(tonalElevation = 0.dp) {
         Row(Modifier.fillMaxWidth().padding(Dimen.MediumPadding), horizontalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)) {
             OutlinedButton(onClick = onSave, modifier = Modifier.weight(1f)) { Icon(Icons.Default.Save, null); Spacer(Modifier.width(Dimen.SmallPadding)); Text(stringResource(R.string.general_save)) }
             Button(onClick = onCheck, modifier = Modifier.weight(1f)) { Icon(Icons.Default.CheckCircle, null); Spacer(Modifier.width(Dimen.SmallPadding)); Text(stringResource(R.string.checker_check_button)) }

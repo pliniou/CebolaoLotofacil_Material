@@ -38,13 +38,7 @@ class MainActivity : ComponentActivity() {
         
         super.onCreate(savedInstanceState)
 
-        try {
-            val mediaPlayer = android.media.MediaPlayer.create(this, R.raw.sound_cash)
-            mediaPlayer.setOnCompletionListener { it.release() }
-            mediaPlayer.start()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        // Sound effect removed for professional polish
 
         setupSplashScreen(splash)
 

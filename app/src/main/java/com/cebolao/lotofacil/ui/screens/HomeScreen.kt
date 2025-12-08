@@ -137,9 +137,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                 }
             }
 
-            SectionHeader(stringResource(R.string.home_statistics_center))
             
-            uiState.statistics?.let { stats ->
                 StatisticsPanel(
                     stats = stats,
                     modifier = Modifier.padding(horizontal = Dimen.ScreenPadding),

@@ -1,8 +1,7 @@
 package com.cebolao.lotofacil.ui.components
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -16,9 +15,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import com.cebolao.lotofacil.ui.theme.AppConfig
 import com.cebolao.lotofacil.ui.theme.Dimen
 import com.cebolao.lotofacil.ui.theme.FontFamilyNumeric
@@ -58,30 +57,29 @@ fun NumberBall(
 
     val bg by animateColorAsState(colors.container, label = "bg")
     val content by animateColorAsState(colors.content, label = "content")
+    
+    // Shadow for depth (except when disabled or neutral flat variant)
+    val shadowElevation = if (!isDisabled && (isSelected || variant == NumberBallVariant.Hit)) 2.dp else 0.dp
 
-    Box(
+    androidx.compose.material3.Surface(
         modifier = modifier
             .size(size)
-            .alpha(if (isDisabled) AppConfig.UI.ALPHA_DISABLED else 1f)
-            .clip(CircleShape)
-            .background(bg)
-            .then(
-                if (colors.border != Color.Transparent) {
-                    Modifier.border(Dimen.Border.Thin, colors.border, CircleShape)
-                } else {
-                    Modifier
-                }
-            ),
-        contentAlignment = Alignment.Center
+            .alpha(if (isDisabled) AppConfig.UI.ALPHA_DISABLED else 1f),
+        shape = CircleShape,
+        color = bg,
+        contentColor = content,
+        shadowElevation = shadowElevation,
+        border = if (colors.border != Color.Transparent) BorderStroke(Dimen.Border.Thin, colors.border) else null
     ) {
-        Text(
-            text = DEFAULT_NUMBER_FORMAT.format(number),
-            color = content,
-            fontFamily = FontFamilyNumeric,
-            fontSize = fontSize,
-            fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Bold, // Emphasize selection
-            modifier = Modifier.align(Alignment.Center) // Explicit alignment
-        )
+        Box(contentAlignment = Alignment.Center) {
+            Text(
+                text = DEFAULT_NUMBER_FORMAT.format(number),
+                fontFamily = FontFamilyNumeric,
+                fontSize = fontSize,
+                fontWeight = if (isSelected || variant == NumberBallVariant.Hit) FontWeight.Black else FontWeight.SemiBold,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
     }
 }
 

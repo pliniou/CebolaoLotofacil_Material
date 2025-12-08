@@ -52,31 +52,23 @@ fun GameCard(
 ) {
     val pinned = game.isPinned
     
-    // Animate container color for pinned state
-    val containerColor by animateColorAsState(
-        targetValue = if (pinned) MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surface,
-        animationSpec = spring(stiffness = Spring.StiffnessLow),
-        label = "containerColor"
-    )
-    
-    // Animate border color
-    val borderColor by animateColorAsState(
-        targetValue = if (pinned) MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f),
-        label = "borderColor"
-    )
+    val containerColor = if (pinned) {
+        MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f)
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
 
-    // Using a custom card similar to SectionCard but with specific game logic
+    // Modern card style: clean, elevated, no redundant borders
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
+        shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(containerColor = containerColor),
-        border = BorderStroke(if (pinned) Dimen.Border.Thin else Dimen.Border.Hairline, borderColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (pinned) 4.dp else 1.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = if (pinned) 2.dp else 1.dp)
     ) {
         Column(
             modifier = Modifier
                 .padding(Dimen.CardContentPadding)
-                .animateContentSize() // Smooth size changes
+                .animateContentSize()
         ) {
             Header(
                 hash = game.hashCode(),
@@ -84,7 +76,7 @@ fun GameCard(
                 onPin = { onAction(GameCardAction.Pin) }
             )
             
-            Spacer(Modifier.height(Dimen.SmallPadding))
+            Spacer(Modifier.height(Dimen.SpacingM))
             
             // Grid of numbers
             NumberGrid(
@@ -96,9 +88,9 @@ fun GameCard(
                 ballVariant = if (pinned) NumberBallVariant.Secondary else NumberBallVariant.Neutral
             )
             
-            Spacer(Modifier.height(Dimen.MediumPadding))
+            Spacer(Modifier.height(Dimen.SpacingL))
             
-            AppDivider(modifier = Modifier.padding(bottom = Dimen.SmallPadding))
+            AppDivider(modifier = Modifier.padding(bottom = Dimen.SpacingS))
 
             Actions(
                 pinned = pinned,
@@ -191,8 +183,7 @@ private fun Actions(
             contentPadding = PaddingValues(horizontal = Dimen.MediumPadding, vertical = 0.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = if (pinned) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary
-            ),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
+            )
         ) {
             Icon(
                 imageVector = Icons.Default.CheckCircle,

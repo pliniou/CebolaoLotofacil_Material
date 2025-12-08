@@ -100,9 +100,7 @@ fun ColorPaletteCard(
                 width = if (isSelected) Dimen.Border.Thick else Dimen.Border.Hairline,
                 color = borderColor
             ),
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = if (isSelected) Dimen.Elevation.Medium else Dimen.Elevation.Low
-            )
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
         ) {
             Column(
                 modifier = Modifier

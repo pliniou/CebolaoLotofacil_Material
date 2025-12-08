@@ -75,11 +75,10 @@ fun FiltersScreen(navController: NavController, viewModel: FiltersViewModel = hi
     ) { innerPadding ->
         LazyColumn(modifier = Modifier.padding(innerPadding).fillMaxSize(), contentPadding = PaddingValues(bottom = Dimen.BottomBarSpacer)) {
             item { FilterPresetSelector(viewModel::applyPreset, Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.SmallPadding)) }
-            item { FilterStatsPanel(uiState.filterStates.filter { it.isEnabled }, uiState.successProbability, Modifier.padding(horizontal = Dimen.ScreenPadding)) }
-            item { HorizontalDivider(Modifier.padding(vertical = Dimen.SmallPadding), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)) }
+            item { HorizontalDivider(Modifier.padding(vertical = Dimen.ExtraSmallPadding), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)) }
             
             items(uiState.filterStates, key = { it.type.name }) { filter ->
-                FilterCard(filter, { viewModel.onFilterToggle(filter.type, it) }, { viewModel.onRangeAdjust(filter.type, it) }, { viewModel.showFilterInfo(filter.type) }, uiState.lastDraw, Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.ExtraSmallPadding))
+                FilterCard(filter, { viewModel.onFilterToggle(filter.type, it) }, { viewModel.onRangeAdjust(filter.type, it) }, { viewModel.showFilterInfo(filter.type) }, uiState.lastDraw, Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = 2.dp))
             }
         }
     }

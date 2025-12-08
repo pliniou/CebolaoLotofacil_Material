@@ -1,249 +1,239 @@
 <resources>
-    <string name="app_name">Cebolão Lotofácil</string>
+    <string name="app_name">Cebolão Lotofácil Generator</string>
 
     <!-- Common -->
-    <string name="content_desc_close">Fechar tela</string>
+    <string name="content_desc_close">Fechar</string>
     <string name="content_desc_back">Voltar</string>
     <string name="content_desc_info">Informações</string>
-    <string name="number_ball_content_description">Bola número %1$d, %2$s</string>
+    <string name="number_ball_content_description">Dezena %1$d, %2$s</string>
     <string name="general_selected">Selecionado</string>
     <string name="general_cancel">Cancelar</string>
     <string name="general_close">Fechar</string>
     <string name="general_delete">Excluir</string>
     <string name="general_share">Compartilhar</string>
     <string name="general_save">Salvar</string>
-    <string name="general_error_title">Erro</string>
-    <string name="general_loading_analysis">Analisando…</string>
-    <string name="general_analysis_failed_snackbar">Falha na análise.</string>
-    <string name="general_disclaimer_responsibility">Use por sua conta e risco.</string>
+    <string name="general_error_title">Ops</string>
+    <string name="general_loading_analysis">Consultando os oráculos...</string>
+    <string name="general_analysis_failed_snackbar">A bola de cristal falhou.</string>
+    <string name="general_disclaimer_responsibility">A banca sempre vence. Jogue com moderação.</string>
 
     <!-- Onboarding Screen -->
-    <string name="onboarding_skip">Pular</string>
-    <string name="onboarding_next">Próximo</string>
-    <string name="onboarding_start">Começar</string>
-    <string name="onboarding_title_1">Bem-vindo nobre apostador!</string>
-    <string name="onboarding_desc_1">Descubra o poder da estatística aplicada à Lotofácil.</string>
-    <string name="onboarding_title_2">Análises Precisas</string>
-    <string name="onboarding_desc_2">Visualize padrões históricos, tendências e frequências.</string>
-    <string name="onboarding_title_3">Filtros Inteligentes</string>
-    <string name="onboarding_desc_3">Gere jogos otimizados usando matemática, não apenas sorte.</string>
-    <string name="onboarding_title_4">Simulação Real</string>
-    <string name="onboarding_desc_4">Teste seus números contra todos os concursos passados.</string>
+    <string name="onboarding_skip">Pular Ilusão</string>
+    <string name="onboarding_next">Próxima Mentira</string>
+    <string name="onboarding_start">Começar a Perder</string>
+    <string name="onboarding_title_1">Ilusão Estatística</string>
+    <string name="onboarding_desc_1">Ferramenta avançada para justificar sua teimosia com números bonitos.</string>
+    <string name="onboarding_title_2">Padrões do Azar</string>
+    <string name="onboarding_desc_2">Visualize claramente como você teria perdido nos concursos passados.</string>
+    <string name="onboarding_title_3">Filtros Mágicos</string>
+    <string name="onboarding_desc_3">Gere combinações perfeitas que a matemática diz que são boas (a prática discorda).</string>
+    <string name="onboarding_title_4">Validação Histórica</string>
+    <string name="onboarding_desc_4">Descubra que seus números da sorte nunca foram sorteados. Que pena.</string>
 
     <!-- Home Screen -->
-    <string name="home_title">Olá, Apostador</string>
-    <string name="home_subtitle">Sua sorte falsamente calculada</string>
-    <string name="home_next_contest">Próximo: %1$d</string>
-    <string name="home_prize_estimate">Estimativa de Prêmio</string>
-    <string name="home_statistics_center">Estatísticas da Lotofácil</string>
-    <string name="home_sync_button_description">Sincronizar resultados</string>
-    <string name="home_sync_success_message">Base de dados atualizada com sucesso!</string>
-    <string name="home_sync_failed_message">Não foi possível sincronizar. Verifique a internet.</string>
-    <string name="home_last_contest_format">Concurso Anterior: %1$d</string>
-    <string name="home_winners_last_contest">Ganhadores</string>
+    <string name="home_title">Cebolão Hub</string>
+    <string name="home_subtitle">Gerador de Falsas Esperanças</string>
+    <string name="home_next_contest">Próximo Desastre: %1$d</string>
+    <string name="home_prize_estimate">Quanto você não vai ganhar</string>
+    <string name="home_statistics_center">Central da Ilusão</string>
+    <string name="home_sync_button_description">Atualizar Decepções</string>
+    <string name="home_sync_success_message">Dados atualizados. As chances continuam as mesmas.</string>
+    <string name="home_sync_failed_message">Nem a internet quer que você veja isso.</string>
+    <string name="home_last_contest_format">Sorteio Anterior: %1$d</string>
+    <string name="home_winners_last_contest">Sortudos (Não foi você)</string>
     <string name="home_hits_format">%1$d acertos</string>
-    <string name="home_winner_count_one">%1$d ganhador</string>
-    <string name="home_winner_count_other">%1$d ganhadores</string>
-    <string name="home_understanding_stats">Entendendo os Números</string>
-    <string name="home_hot_numbers">Dezenas mais Frequentes</string>
-    <string name="home_overdue_numbers">Dezenas mais Atrasadas</string>
-    <string name="home_suffix_times">vezes</string>
-    <string name="home_suffix_ago">atrás</string>
-    <string name="home_analysis_period">Período</string>
-    <string name="home_all_contests">Todo o Histórico</string>
+    <string name="home_winner_count_one">%1$d sortudo</string>
+    <string name="home_winner_count_other">%1$d sortudos</string>
+    <string name="home_understanding_stats">Teoria do Caos</string>
+    <string name="home_hot_numbers">Dezenas Viciadas</string>
+    <string name="home_overdue_numbers">Dezenas Tímidas</string>
+    <string name="home_suffix_times">ocorrências</string>
+    <string name="home_suffix_ago">concursos de atraso</string>
+    <string name="home_analysis_period">Janela de Observação</string>
+    <string name="home_all_contests">Todo o Sofrimento</string>
     <string name="home_last_contests_format">Últimos %1$d</string>
-    <string name="stats_distribution_title_format">%1$s</string>
+    <string name="stats_distribution_title_format">Padrão: %1$s</string>
     
     <!-- Educational Info -->
-    <string name="edu_hot_cold_title">Números + e - Frequentes</string>
-    <string name="edu_hot_cold_desc">Números \"quentes\" são os que mais saíram no período selecionado e \"frios\" são os que estão demorando a sair.</string>
-    <string name="edu_distribution_title">Curva Normal</string>
-    <string name="edu_distribution_desc">A maioria dos resultados segue padrões da distribuição normal (leia sobre Leis dos Grandes Números). Jogar fora desses padrões pode diminuir estatisticamente suas chances teóricas. Contudo, Entretanto, Todavia, sabemos que os resultados anteriores não influenciam os seguintes.</string>
+    <string name="edu_hot_cold_title">Quentes e Frias</string>
+    <string name="edu_hot_cold_desc">Números que saem muito vs números que esqueceram de sair. Nenhum deles garante nada no próximo.</string>
+    <string name="edu_distribution_title">Análise de Distribuição</string>
+    <string name="edu_distribution_desc">A beleza matemática que não paga suas contas, mas fica linda no gráfico.</string>
 
     <!-- Filters & Generator Screen -->
     <string name="filters_title">Fábrica de Jogos</string>
-    <string name="filters_subtitle">Defina sua estratégia</string>
-    <string name="filters_button_generate">Gerar Jogos</string>
-    <string name="filters_button_generating_progress">Criando %1$d / %2$d</string>
-    <string name="filters_button_cancel_description">Parar geração</string>
-    <string name="filters_reset_button_description">Restaurar padrões</string>
-    <string name="filters_reset_dialog_title">Reiniciar filtros?</string>
-    <string name="filters_reset_dialog_message">Todas as configurações serão redefinidas.</string>
-    <string name="filters_reset_confirm">Restaurar</string>
-    <string name="filters_quantity_decrease">Menos jogos</string>
-    <string name="filters_quantity_increase">Mais jogos</string>
-    <string name="filters_info_dialog_title_format">%1$s</string>
-    <string name="filters_analysis_title">Probabilidade Teórica</string>
-    <string name="filters_success_chance">Chance de Sucesso</string>
-    <string name="filters_no_active_filters">Modo Aleatório</string>
-    <string name="filters_unavailable_data">Dados indisponíveis</string>
-    <string name="filters_info_button_description">O que é?</string>
+    <string name="filters_subtitle">Calibrando a Sorte</string>
+    <string name="filters_button_generate">Gerar Esperança</string>
+    <string name="filters_button_generating_progress">Iludindo %1$d / %2$d</string>
+    <string name="filters_button_cancel_description">Desistir</string>
+    <string name="filters_reset_button_description">Resetar Loucura</string>
+    <string name="filters_reset_dialog_title">Resetar Tudo?</string>
+    <string name="filters_reset_dialog_message">Vai apagar seus filtros geniais. Tem certeza?</string>
+    <string name="filters_reset_confirm">Apaga logo</string>
+    <string name="filters_quantity_decrease">Menos Prejuízo</string>
+    <string name="filters_quantity_increase">Mais Oportunidade (de perder)</string>
+    <string name="filters_info_dialog_title_format">O que é: %1$s</string>
+    <string name="filters_analysis_title">Probabilidade de Dar Errado</string>
+    <string name="filters_success_chance">Nível de Otimismo</string>
+    <string name="filters_no_active_filters">Aleatório (Deus no Comando)</string>
+    <string name="filters_unavailable_data">Sem dados</string>
+    <string name="filters_info_button_description">Explicação</string>
     <string name="filters_min_label">Mín</string>
     <string name="filters_max_label">Máx</string>
 
     <!-- Restrictiveness Levels -->
-    <string name="restrictiveness_very_tight">Muito Restrito</string>
-    <string name="restrictiveness_tight">Restrito</string>
-    <string name="restrictiveness_moderate">Moderado</string>
-    <string name="restrictiveness_loose">Flexível</string>
-    <string name="restrictiveness_very_loose">Muito Flexível</string>
-    <string name="restrictiveness_disabled">Desativado</string>
+    <string name="restrictiveness_very_tight">Quase Impossível</string>
+    <string name="restrictiveness_tight">Exigente</string>
+    <string name="restrictiveness_moderate">Razoável</string>
+    <string name="restrictiveness_loose">Qualquer Coisa Serve</string>
+    <string name="restrictiveness_very_loose">Caos Total</string>
+    <string name="restrictiveness_disabled">Desligado</string>
 
-    <!-- Filter Descriptions -->
-    <string name="filter_soma_title">Soma</string>
-    <string name="filter_soma_desc">A soma de todos as 15 dezenas sorteadas. A grande maioria dos resultados (mais de 60%) têm soma total entre 180 e 220.</string>
+    <!-- Filter Descriptions - Keeping somewhat serious but sarcastic tone available -->
+    <string name="filter_soma_title">Soma das Dezenas</string>
+    <string name="filter_soma_desc">A soma de tudo. Se der muito alto ou muito baixo, é estranho. Mantenha no meio para se sentir seguro.</string>
     <string name="filter_pares_title">Pares</string>
-    <string name="filter_pares_desc">Quantidade de números pares no volante. O equilíbrio (7 a 8 pares) é o mais comum.</string>
+    <string name="filter_pares_desc">Equilíbrio é tudo. Nem só pares, nem só ímpares. A vida precisa de balanceamento.</string>
     <string name="filter_primos_title">Primos</string>
-    <string name="filter_primos_desc">Quantidade de números primos (1,2,3,5,7,11,13,17,19,23). Média histórica: 5 a 6.</string>
+    <string name="filter_primos_desc">Números que só dividem por 1 e eles mesmos. Egocêntricos, mas essenciais.</string>
     <string name="filter_moldura_title">Moldura</string>
-    <string name="filter_moldura_desc">Números localizados na borda do cartão (1,2,3,4,5,6,10,11,15,16,20,21,25). Média esperada: 7 a 10.</string>
-    <string name="filter_retrato_title">Miolo</string>
-    <string name="filter_retrato_desc">Números localizados no centro do cartão (7,8,9,12,13,14,17,18,19,22,23,24). Média esperada: 5 a 8.</string>
+    <string name="filter_moldura_desc">A borda do bilhete. A maioria escolhe desenhar quadrados, seja um deles.</string>
+    <string name="filter_retrato_title">Retrato</string>
+    <string name="filter_retrato_desc">O miolo do pão. Não despreze o centro.</string>
     <string name="filter_fibonacci_title">Fibonacci</string>
-    <string name="filter_fibonacci_desc">Números da sequência Fibonacci presentes no jogo (1,2,3,5,8,13,21). Média por sorteio: 4 a 5.</string>
+    <string name="filter_fibonacci_desc">Uma sequência chique que aparece na natureza e no seu fracasso lotérico.</string>
     <string name="filter_multiplos3_title">Múltiplos de 3</string>
-    <string name="filter_multiplos3_desc">Números divisíveis por 3 (3,6,9,12,15,18,21,24). Média comum: 4 a 5.</string>
+    <string name="filter_multiplos3_desc">3, 6, 9... Tesla gostava desses números. Talvez eles te deixem rico (spoiler: não vão).</string>
     <string name="filter_repetidas_title">Repetidas</string>
-    <string name="filter_repetidas_desc">Quantidade de números que se repetem do concurso imediatamente anterior.</string>
+    <string name="filter_repetidas_desc">Cópia do concurso anterior. A preguiça do universo em criar novidades.</string>
 
     <!-- Games List Screen -->
-    <string name="games_title">Meus volantes</string>
-    <string name="games_subtitle">Gerenciamento de apostas</string>
-    <string name="games_tab_new">Gerados</string>
-    <string name="games_tab_pinned">Salvos</string>
-    <string name="games_empty_state_title">Lista Vazia</string>
-    <string name="games_empty_state_description">Gere novos jogos para vê-los aqui.</string>
-    <string name="games_clear_unpinned_button_description">Limpar lista de novos</string>
-    <string name="games_clear_dialog_title">Limpar jogos gerados?</string>
-    <string name="games_clear_dialog_message">Todos os jogos não salvos serão removidos permanentemente.</string>
-    <string name="games_clear_confirm">Limpar Tudo</string>
-    <string name="games_delete_dialog_title">Excluir aposta?</string>
-    <string name="games_delete_dialog_message">Atenção! Esta ação não pode ser desfeita.</string>
-    <string name="games_delete_confirm">Excluir</string>
-    <string name="games_analysis_dialog_title">Raio-X do Jogo</string>
-    <string name="games_analysis_combination_title">Combinação</string>
-    <string name="games_analysis_prize_summary_title">Histórico de Premiações</string>
-    <string name="games_analysis_total_label">Total de Prêmios</string>
-    <string name="games_analysis_last_prize_label">Última Premiação</string>
-    <string name="games_analysis_last_prize_value">Conc. #%1$s (%2$s pts)</string>
-    <string name="games_share_chooser_title">Compartilhar via…</string>
-    <string name="games_share_game_subject">Aposta feita via Cebolão Lotofácil Generator</string>
-    <string name="share_game_message_template"><![CDATA[🎲 <b>Cebolão Lotofácil Generator</b> calculou em uma extensa base de dados estatistica e sugeriu:<br/><br/>%1$s<br/><br/>Boa sorte com a aposta!]]></string>
+    <string name="games_title">Meus Bilhetes</string>
+    <string name="games_subtitle">Coleção de Sonhos</string>
+    <string name="games_tab_new">Fresquinhos</string>
+    <string name="games_tab_pinned">Favoritos</string>
+    <string name="games_empty_state_title">Nada aqui</string>
+    <string name="games_empty_state_description">Gere alguns jogos para começar a sonhar.</string>
+    <string name="games_clear_unpinned_button_description">Limpar Lixo</string>
+    <string name="games_clear_dialog_title">Jogar fora?</string>
+    <string name="games_clear_dialog_message">Esses jogos não salvos vão pro limbo. Certeza?</string>
+    <string name="games_clear_confirm">Tchau</string>
+    <string name="games_delete_dialog_title">Rasgar Bilhete</string>
+    <string name="games_delete_dialog_message">Vai deletar esse jogo incrível? E se ele for o sorteado?</string>
+    <string name="games_delete_confirm">Arriscar</string>
+    <string name="games_analysis_dialog_title">Raio-X</string>
+    <string name="games_analysis_combination_title">Sua Aposta</string>
+    <string name="games_analysis_prize_summary_title">No Passado...</string>
+    <string name="games_analysis_total_label">Teria Ganho</string>
+    <string name="games_analysis_last_prize_label">Última Vez</string>
+    <string name="games_analysis_last_prize_value">Conc. %1$s (%2$s pts)</string>
+    <string name="games_share_chooser_title">Espalhar a Palavra</string>
+    <string name="games_share_game_subject">Dica do Cebolão</string>
+    <string name="share_game_message_template"><![CDATA[🧅 <b>Cebolão Lotofácil</b> - Joga que dá (errado):<br/><br/>%1$s]]></string>
 
     <!-- Game Card Feedback -->
-    <string name="game_card_pinned">Aposta salva!</string>
-    <string name="game_card_unpinned">A aposta removida dos salvos.</string>
-    <string name="game_card_deleted">Aposta excluída.</string>
+    <string name="game_card_pinned">Jogo protegido da lixeira.</string>
+    <string name="game_card_unpinned">Jogo desprotegido. Cuidado.</string>
+    <string name="game_card_deleted">Jogo enviado para o além.</string>
     <string name="game_card_action_check">Conferir</string>
 
     <!-- Checker Screen -->
     <string name="checker_title">Conferidor</string>
-    <string name="checker_subtitle">Simulador estatístico histórico</string>
+    <string name="checker_subtitle">Choque de Realidade</string>
     <string name="checker_progress_format">%1$d / %2$d</string>
-    <string name="checker_clear_button_description">Limpar seleção</string>
-    <string name="checker_save_button_description">Salvar jogo</string>
-    <string name="checker_check_button">Verificar</string>
-    <string name="checker_incomplete_game_message">Selecione 15 dezenas para realizar a conferência do jogo.</string>
-    <string name="checker_save_success_message">Jogo salvo na sua lista!</string>
-    <string name="checker_save_fail_message">Erro ao salvar jogo.</string>
-    <string name="checker_results_header_wins">Histórico da combinação</string>
-    <string name="checker_results_header_no_wins">Sem prêmios principais</string>
-    <string name="checker_results_analysis_in_contests">Base de dados analisada: Todos os %1$d sorteios</string>
+    <string name="checker_clear_button_description">Limpar tudo</string>
+    <string name="checker_save_button_description">Salvar essa obra</string>
+    <string name="checker_check_button">Verificar o Estrago</string>
+    <string name="checker_incomplete_game_message">Faltam números. Marque 15 para saber a verdade.</string>
+    <string name="checker_save_success_message">Salvo para posteridade.</string>
+    <string name="checker_save_fail_message">Erro ao salvar. O universo não quer.</string>
+    <string name="checker_results_header_wins">Momentos de Glória</string>
+    <string name="checker_results_header_no_wins">Fracasso Total (Nenhum 15 pontos)</string>
+    <string name="checker_results_analysis_in_contests">Analisando %1$d concursos de pura aleatoriedade.</string>
     <string name="checker_score_breakdown_hits_format">%1$d acertos</string>
     <string name="checker_score_breakdown_times_format_one">vez</string>
     <string name="checker_score_breakdown_times_format_other">vezes</string>
-    <string name="checker_last_hit_info">Última concurso premiado: #%1$s (%2$s pontos)</string>
-    <string name="checker_no_wins_message">Esta combinação nunca alcançou 14 ou 15 pontos em toda a história.</string>
-    <string name="checker_simple_stats_title">Estatísticas do Jogo</string>
-    <string name="checker_recent_hits_chart_title">Desempenho Recente</string>
-    <string name="checker_selection_instruction">Coloque abaixo os %1$d números no volante para conferir!</string>
-    <string name="checker_performance_analysis">Análise de Desempenho</string>
-    <string name="checker_how_it_works_title">Como funciona?</string>
-    <string name="checker_how_it_works_desc">Selecione 15 dezenas abaixo</string>
+    <string name="checker_last_hit_info">Última migalha: #%1$s (%2$s pts)</string>
+    <string name="checker_no_wins_message">Incrível! Esse jogo nunca ganhou nada relevante em toda a história.</string>
+    <string name="checker_simple_stats_title">Diagnóstico</string>
+    <string name="checker_recent_hits_chart_title">Desempenho (Últimos 15)</string>
+    <string name="checker_selection_instruction">Escolha %1$d números para ser julgado.</string>
+    <string name="checker_performance_analysis">O Veredito</string>
+    <string name="checker_how_it_works_title">Como funciona</string>
+    <string name="checker_how_it_works_desc">Marque, confira e chore. Simples assim.</string>
 
     <!-- About & Settings -->
     <string name="about_title">Sobre</string>
-    <string name="about_subtitle">Configurações e Informações</string>
-    <string name="about_theme_title">Personalização</string>
-    <string name="about_theme_light">Claro</string>
-    <string name="about_theme_dark">Escuro</string>
-    <string name="about_personalization_title">Cores disponíveis</string>
+    <string name="about_subtitle">Cebola Studios</string>
+    <string name="about_theme_title">Visual</string>
+    <string name="about_theme_light">Claro (Queima Retinas)</string>
+    <string name="about_theme_dark">Escuro (Hacker)</string>
+    <string name="about_personalization_title">Cores</string>
     <string name="studio_name">Cebola Studios</string>
-    <string name="studio_slogan">Tecnologia de fazer chorar</string>
-    <string name="about_appearance">Aparência</string>
-    <string name="about_official_source">Fonte de Dados</string>
+    <string name="studio_slogan">Code & Tears</string>
+    <string name="about_appearance">Estilo</string>
+    <string name="about_official_source">Fonte (Não culpe a gente)</string>
     <string name="about_caixa_title">Loterias Caixa</string>
-    <string name="about_caixa_desc">Visite o site oficial para confirmar resultados, se necessário.</string>
-    <string name="about_info_section">Legal</string>
-    <string name="about_terms">Termos de Uso</string>
+    <string name="about_caixa_desc">Dados oficiais. Se estiver errado lá, está errado aqui.</string>
+    <string name="about_info_section">Chatices Legais</string>
+    <string name="about_terms">Termos de Uso (Ninguém lê)</string>
     <string name="about_privacy_policy">Política de Privacidade</string>
-    <string name="about_version_format">Versão %1$s</string>
-    <string name="about_disclaimer">Este aplicativo é uma ferramenta de análise estatística e não realiza apostas reais. Não possuímos vínculo com a Caixa Econômica Federal. Simule sem moderação</string>
-    <string name="open_external_link">Links externos</string>
+    <string name="about_version_format">Versão %1$s Beta (Eterna)</string>
+    <string name="about_disclaimer">Este app é para fins de entretenimento. Se você perder dinheiro, a culpa é sua. Se ganhar, aceitamos doações.</string>
+    <string name="open_external_link">Sair do App</string>
 
     <!-- Greetings & Date -->
-    <string name="greeting_morning">É dia</string>
-    <string name="greeting_afternoon">Boa Tarde</string>
-    <string name="greeting_night">Boa noite</string>
-    <string name="greeting_generic">Olá</string>
-    <string name="welcome_message_format">%1$s, sonhador!</string>
-    <string name="date_format_full">Hoje é %1$s, %2$s</string>
+    <string name="greeting_morning">Bom dia, futuro milionário (só que não)</string>
+    <string name="greeting_afternoon">Boa tarde, já apostou hoje?</string>
+    <string name="greeting_night">Boa noite, sonhe com os números</string>
+    <string name="greeting_generic">Olá, sonhador</string>
+    <string name="welcome_message_format">E aí, %1$s</string>
+    <string name="date_format_full">%2$s</string>
 
-    <!-- Motivational Quotes -->
+    <!-- Motivational Quotes (Sarcastic) -->
     <string-array name="motivational_quotes">
-        <item>A sorte favorece quem não aposta.</item>
-        <item>Quem estuda as probabilidades, joga com as mesmas chances.</item>
-        <item>A persistência é o caminho de grandes perdas.</item>
-        <item>Números não mentem, tampouco falam a verdade.</item>
-        <item>A cada concurso abre-se uma nova oportunidade de perder.</item>
-        <item>A esperança é a última que morre, mas morre.</item>
-        <item>Seus números da sorte não sabem que você os considera assim.</item>
-        <item>A fé move montanhas, mas não dá os números sorteados.</item>
-        <item>Sorte é o que acontece quando… Não sei, nunca tive sorte.</item>
-        <item>A diferença entre um sonho e um objetivo é de mais ou menos 47,9.</item>
-        <item>Acreditar é o primeiro passo para a decepção.</item>
-        <item>Estatística é a arte de torturar os números até que eles confessem o que você quer.</item>
-        <item>Toda aposta é um imposto sobre a falta de habilidade em matemática.</item>
-        <item>Não desista, os boletos e impostos também não desistem.</item>
-        <item>O segredo do sucesso é não contar pra ninguém qual é o segredo.</item>
-        <item>Você tem 100% de chance de não perder se não jogar.</item>
-        <item>O prêmio está a apenas uma aposta de distância. Ou a um milhão.</item>
-        <item>O universo não conspira, ele se expande a uma velocidade média de um milhão de anos-luz por segundo.</item>
-        <item>Pense positivo, você só perde o dinheiro da aposta.</item>
-        <item>A surpresinha é uma surpresa quando acerta.</item>
+        <item>A melhor forma de não perder, é não jogar.</item>
+        <item>A esperança é a última que morre, mas o seu dinheiro vai antes.</item>
+        <item>Estatísticamente, você vai perder. Mas quem se importa com matemática?</item>
+        <item>O sistema foi feito para você perder, mas boa sorte!</item>
+        <item>Se você acha que 15 pontos é fácil, tente acertar 1 apenas.</item>
+        <item>Loteria: O imposto voluntário dos sonhadores.</item>
+        <item>Já pensou em usar esse dinheiro para comprar um pastel?</item>
+        <item>Hoje é um ótimo dia para contribuir com a arrecadação da Caixa.</item>
+        <item>O raio não cai duas vezes no mesmo lugar, e os 15 pontos nem a primeira.</item>
+        <item>Trabalhar cansa, apostar ilude. Escolha seu veneno.</item>
     </string-array>
 
     <!-- Presets -->
-    <string name="preset_label">Rápida</string>
-    <string name="preset_none">Personalizado</string>
-    <string name="preset_standard">Regular</string>
-    <string name="preset_balanced">Equilíbrio Total</string>
-    <string name="preset_math">Matemático</string>
-    <string name="preset_surprise">Surpresinha</string>
+    <string name="preset_label">Preset</string>
+    <string name="preset_none">Do seu jeito (arriscado)</string>
+    <string name="preset_standard">Padrão Ovelha</string>
+    <string name="preset_balanced">Equilibrado (Zen)</string>
+    <string name="preset_math">Matemático (Nerd)</string>
+    <string name="preset_surprise">Aleatório (Venda nos Olhos)</string>
 
     <!-- Generator Status -->
-    <string name="game_generator_random_start">Gerando base aleatória…</string>
-    <string name="game_generator_heuristic_start">Refinando com filtros estatísticos…</string>
-    <string name="game_generator_random_fallback">Filtros muito restritos. Completando com aleatórios…</string>
-    <string name="game_generator_failure_no_history">Sem histórico para análise. Por favor, sincronize os dados.</string>
-    <string name="game_generator_failure_generic">Erro ao gerar jogos. Tente novamente.</string>
+    <string name="game_generator_random_start">Rodando os dados do destino...</string>
+    <string name="game_generator_heuristic_start">Fingindo calcular probabilidades...</string>
+    <string name="game_generator_random_fallback">Ajustando a bagunça...</string>
+    <string name="game_generator_failure_no_history">Sem passado, sem futuro.</string>
+    <string name="game_generator_failure_generic">O algoritmo cansou. Tente de novo.</string>
 
     <!-- Widget -->
     <string name="content_desc_refresh">Atualizar</string>
-    <string name="general_loading">Carregando…</string>
-    <string name="widget_next_contest_title_generic">Próximo Concurso Previsto</string>
-    <string name="widget_error_load">Erro</string>
-    <string name="widget_last_draw_title">Último Sorteio Realizado</string>
-    <string name="widget_last_draw_description">Dezenas do último concurso.</string>
-    <string name="widget_next_contest_title">Próximo</string>
-    <string name="widget_next_contest_description">Exibe a estimativa de prêmio e a data do próximo sorteio.</string>
-    <string name="widget_pinned_game_title">Aposta Fixada</string>
-    <string name="widget_pinned_game_description">Acompanhe sua aposta favorita diretamente na tela inicial.</string>
-    <string name="widget_no_pinned_games">Nenhum jogo salvo</string>
+    <string name="general_loading">Carregando...</string>
+    <string name="widget_next_contest_title_generic">Próximo</string>
+    <string name="widget_error_load">Deu ruim</string>
+    <string name="widget_last_draw_title">Deu isso</string>
+    <string name="widget_last_draw_description">Veja o que você errou.</string>
+    <string name="widget_next_contest_title">Próximo Sorteio</string>
+    <string name="widget_next_contest_description">Nova chance de doar.</string>
+    <string name="widget_pinned_game_title">Sua Fé</string>
+    <string name="widget_pinned_game_description">Aquele jogo que você jura que vai sair.</string>
+    <string name="widget_no_pinned_games">Sem fé definida</string>
 
     <!-- Error Messages -->
-    <string name="error_analysis_failed">Falha na análise. Tente novamente.</string>
-    <string name="error_load_data_failed">Falha ao carregar dados. Verifique a conexão.</string>
+    <string name="error_analysis_failed">A matemática se recusou a funcionar.</string>
+    <string name="error_load_data_failed">Dados sumiram.</string>
 
 </resources>

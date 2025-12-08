@@ -21,7 +21,7 @@ import com.cebolao.lotofacil.ui.theme.Dimen
 @Composable
 fun LoadingDialog(title: String, message: String, onDismissRequest: () -> Unit) {
     Dialog(onDismissRequest = onDismissRequest, properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)) {
-        Card(shape = MaterialTheme.shapes.large, elevation = CardDefaults.cardElevation(Dimen.Elevation.High), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
+        Card(shape = MaterialTheme.shapes.large, elevation = CardDefaults.cardElevation(0.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
             Column(Modifier.padding(Dimen.LargePadding), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(Dimen.CardContentPadding)) {
                 Text(title, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)) {

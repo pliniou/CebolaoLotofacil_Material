@@ -1,7 +1,3 @@
-@file:Suppress("unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused",
-    "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused"
-)
-
 package com.cebolao.lotofacil.ui.theme
 
 import androidx.compose.ui.graphics.Color

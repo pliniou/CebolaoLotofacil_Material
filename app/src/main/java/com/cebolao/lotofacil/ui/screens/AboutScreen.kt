@@ -70,7 +70,7 @@ fun AboutScreen(
     AppScreen(title = stringResource(R.string.about_title), subtitle = stringResource(R.string.about_subtitle)) { padding ->
         Column(
             Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState()).padding(Dimen.ScreenPadding),
-            verticalArrangement = Arrangement.spacedBy(Dimen.LargePadding)
+            verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)
         ) {
             StudioHero()
             

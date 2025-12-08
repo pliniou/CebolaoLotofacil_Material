@@ -30,9 +30,8 @@ fun DistributionChartsCard(
     val chartData = remember(selectedPattern, stats) { prepareData(stats, selectedPattern) }
     val maxValue = remember(chartData) { chartData.maxOfOrNull { it.second } ?: 0 }
 
-    SectionCard(modifier) {
+    SectionCard(modifier, title = stringResource(R.string.edu_distribution_title)) {
         Column(verticalArrangement = Arrangement.spacedBy(Dimen.CardContentPadding)) {
-            TitleWithIcon(stringResource(R.string.stats_distribution_title_format, selectedPattern.title), iconVector = selectedPattern.icon)
 
             LazyRow(horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
                 items(

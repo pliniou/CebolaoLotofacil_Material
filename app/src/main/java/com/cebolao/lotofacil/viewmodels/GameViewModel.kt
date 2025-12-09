@@ -32,6 +32,7 @@ import javax.inject.Inject
 
 sealed interface GameScreenEvent {
     data class ShareGame(val numbers: List<Int>) : GameScreenEvent
+    data class ShowSnackbar(@param:StringRes val messageRes: Int) : GameScreenEvent
 }
 
 data class GameSummary(
@@ -99,6 +100,8 @@ class GameViewModel @Inject constructor(
 
     fun togglePinState(game: LotofacilGame) = viewModelScope.launch {
         togglePinStateUseCase(game)
+        val msg = if (game.isPinned) R.string.game_card_unpinned else R.string.game_card_pinned
+        _events.send(GameScreenEvent.ShowSnackbar(msg))
     }
 
     fun requestDeleteGame(game: LotofacilGame) { _gameToDelete.value = game }

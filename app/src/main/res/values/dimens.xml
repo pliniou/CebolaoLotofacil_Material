@@ -7,17 +7,17 @@
     <!-- Tamanhos de Ícones -->
     <dimen name="icon_size_medium">24dp</dimen>
     <dimen name="widget_refresh_button_size" tools:keep="@dimen/widget_refresh_button_size">40dp</dimen>
-    
+
     <!-- Bola da Lotofácil (Widget) -->
     <dimen name="widget_ball_size">36dp</dimen>
     <dimen name="widget_ball_text_size">16sp</dimen>
     <dimen name="widget_ball_margin">2dp</dimen>
-    
+
     <!-- Tipografia Widget -->
     <dimen name="widget_title_size">16sp</dimen>
     <dimen name="widget_subtitle_size">12sp</dimen>
     <dimen name="widget_prize_size">22sp</dimen>
-    
+
     <!-- Design -->
-    <dimen name="widget_corner_radius" tools:keep="@dimen/widget_corner_radius">24dp</dimen>
+    <dimen name="widget_corner_radius" tools:keep="@dimen/widget_corner_radius">16dp</dimen>
 </resources>

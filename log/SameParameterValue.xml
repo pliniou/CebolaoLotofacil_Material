@@ -1,0 +1,16 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/cebolao/lotofacil/domain/service/StatisticsAnalyzer.kt</file>
+  <line>126</line>
+  <module>CebolaoLotofacil.app.main</module>
+  <package>com.cebolao.lotofacil.domain.service</package>
+  <entry_point TYPE="method" FQNAME="com.cebolao.lotofacil.domain.service.StatisticsAnalyzer java.util.List&lt;com.cebolao.lotofacil.domain.model.NumberFrequency&gt; createFrequencyList(int[] counts, int[] lastSeen, int limit, int currentContest)" />
+  <problem_class id="SameParameterValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Method parameter always has the same value</problem_class>
+  <hints />
+  <description>Value of parameter &lt;code&gt;limit&lt;/code&gt; is always 'StatisticsAnalyzerKt.TOP_NUMBERS_COUNT'</description>
+  <highlighted_element>limit</highlighted_element>
+  <language>kotlin</language>
+  <offset>8</offset>
+  <length>5</length>
+</problem>
+</problems>

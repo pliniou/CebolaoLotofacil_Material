@@ -1,4 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="splash_background">#0F1115</color>
+    <!-- DYNAMIC SEMANTIC TOKENS (Night Mode Mappings) -->
+    <color name="app_background">@color/surface_dark</color>
+    <color name="app_surface">@color/surface_variant_dark</color>
+    <color name="app_on_surface">@color/on_surface_dark</color>
+    <color name="app_on_surface_variant">@color/on_surface_variant_dark</color>
+
+    <!-- WIDGET DYNAMIC TOKENS -->
+    <color name="widget_background">@color/surface_variant_dark</color>
+    <color name="widget_text_primary">@color/on_surface_dark</color>
+    <color name="widget_text_secondary">@color/on_surface_variant_dark</color>
+    <color name="widget_icon_tint">@color/on_surface_variant_dark</color>
+    <color name="widget_divider">#1AFFFFFF</color>
+
+    <!-- LEGACY MAPS -->
+    <color name="splash_background">@color/surface_dark</color>
 </resources>

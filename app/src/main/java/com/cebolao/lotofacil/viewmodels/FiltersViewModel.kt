@@ -32,7 +32,7 @@ import kotlin.math.roundToInt
 
 sealed interface NavigationEvent {
     data object NavigateToGeneratedGames : NavigationEvent
-    data class ShowSnackbar(@param:StringRes val messageRes: Int) : NavigationEvent
+    data class ShowSnackbar(@param:StringRes val messageRes: Int, @param:StringRes val labelRes: Int? = null) : NavigationEvent
 }
 
 data class FiltersScreenState(
@@ -103,6 +103,9 @@ class FiltersViewModel @Inject constructor(
                 if (rule != null) state.copy(isEnabled = true, selectedRange = rule)
                 else state.copy(isEnabled = false, selectedRange = state.type.defaultRange)
             }
+        }
+        viewModelScope.launch { 
+            _events.send(NavigationEvent.ShowSnackbar(R.string.filter_preset_applied, preset.labelRes)) 
         }
     }
 

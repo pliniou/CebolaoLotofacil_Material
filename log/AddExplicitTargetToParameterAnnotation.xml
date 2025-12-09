@@ -1,0 +1,106 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/cebolao/lotofacil/data/FilterPreset.kt</file>
+  <line>11</line>
+  <module>CebolaoLotofacil.app.main</module>
+  <package>com.cebolao.lotofacil.data</package>
+  <entry_point TYPE="method" FQNAME="com.cebolao.lotofacil.data.FilterPreset FilterPreset(java.lang.String id, int labelRes, java.util.Map&lt;com.cebolao.lotofacil.data.FilterType,? extends kotlin.ranges.ClosedFloatingPointRange&lt;java.lang.Float&gt;&gt; rules)" />
+  <problem_class id="AddExplicitTargetToParameterAnnotation" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Redundant interpolation prefix</problem_class>
+  <description>The annotation is only applied to the parameter. An explicit annotation use-site target is recommended.</description>
+  <highlighted_element>@StringRes</highlighted_element>
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>10</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/cebolao/lotofacil/data/repository/GameRepositoryImpl.kt</file>
+  <line>34</line>
+  <module>CebolaoLotofacil.app.main</module>
+  <package>com.cebolao.lotofacil.data.repository</package>
+  <entry_point TYPE="method" FQNAME="com.cebolao.lotofacil.data.repository.GameRepositoryImpl GameRepositoryImpl(com.cebolao.lotofacil.domain.repository.UserPreferencesRepository userPreferencesRepository, kotlinx.coroutines.CoroutineScope scope, kotlinx.coroutines.CoroutineDispatcher ioDispatcher, kotlinx.serialization.json.Json json)" />
+  <problem_class id="AddExplicitTargetToParameterAnnotation" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Redundant interpolation prefix</problem_class>
+  <description>The annotation is only applied to the parameter. An explicit annotation use-site target is recommended.</description>
+  <highlighted_element>@ApplicationScope</highlighted_element>
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>17</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/cebolao/lotofacil/data/repository/GameRepositoryImpl.kt</file>
+  <line>35</line>
+  <module>CebolaoLotofacil.app.main</module>
+  <package>com.cebolao.lotofacil.data.repository</package>
+  <entry_point TYPE="method" FQNAME="com.cebolao.lotofacil.data.repository.GameRepositoryImpl GameRepositoryImpl(com.cebolao.lotofacil.domain.repository.UserPreferencesRepository userPreferencesRepository, kotlinx.coroutines.CoroutineScope scope, kotlinx.coroutines.CoroutineDispatcher ioDispatcher, kotlinx.serialization.json.Json json)" />
+  <problem_class id="AddExplicitTargetToParameterAnnotation" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Redundant interpolation prefix</problem_class>
+  <description>The annotation is only applied to the parameter. An explicit annotation use-site target is recommended.</description>
+  <highlighted_element>@IoDispatcher</highlighted_element>
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/cebolao/lotofacil/domain/service/StatisticsAnalyzer.kt</file>
+  <line>28</line>
+  <module>CebolaoLotofacil.app.main</module>
+  <package>com.cebolao.lotofacil.domain.service</package>
+  <entry_point TYPE="method" FQNAME="com.cebolao.lotofacil.domain.service.StatisticsAnalyzer StatisticsAnalyzer(kotlinx.coroutines.CoroutineDispatcher defaultDispatcher)" />
+  <problem_class id="AddExplicitTargetToParameterAnnotation" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Redundant interpolation prefix</problem_class>
+  <description>The annotation is only applied to the parameter. An explicit annotation use-site target is recommended.</description>
+  <highlighted_element>@DefaultDispatcher</highlighted_element>
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/cebolao/lotofacil/domain/usecase/AnalyzeGameUseCase.kt</file>
+  <line>14</line>
+  <module>CebolaoLotofacil.app.main</module>
+  <package>com.cebolao.lotofacil.domain.usecase</package>
+  <entry_point TYPE="method" FQNAME="com.cebolao.lotofacil.domain.usecase.AnalyzeGameUseCase AnalyzeGameUseCase(com.cebolao.lotofacil.domain.usecase.CheckGameUseCase checkGameUseCase, com.cebolao.lotofacil.domain.usecase.GetGameSimpleStatsUseCase getGameSimpleStatsUseCase, kotlinx.coroutines.CoroutineDispatcher dispatcher)" />
+  <problem_class id="AddExplicitTargetToParameterAnnotation" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Redundant interpolation prefix</problem_class>
+  <description>The annotation is only applied to the parameter. An explicit annotation use-site target is recommended.</description>
+  <highlighted_element>@DefaultDispatcher</highlighted_element>
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/cebolao/lotofacil/domain/usecase/CheckGameUseCase.kt</file>
+  <line>22</line>
+  <module>CebolaoLotofacil.app.main</module>
+  <package>com.cebolao.lotofacil.domain.usecase</package>
+  <entry_point TYPE="method" FQNAME="com.cebolao.lotofacil.domain.usecase.CheckGameUseCase CheckGameUseCase(com.cebolao.lotofacil.domain.repository.HistoryRepository historyRepository, kotlinx.coroutines.CoroutineDispatcher defaultDispatcher)" />
+  <problem_class id="AddExplicitTargetToParameterAnnotation" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Redundant interpolation prefix</problem_class>
+  <description>The annotation is only applied to the parameter. An explicit annotation use-site target is recommended.</description>
+  <highlighted_element>@DefaultDispatcher</highlighted_element>
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/cebolao/lotofacil/domain/usecase/GetAnalyzedStatsUseCase.kt</file>
+  <line>14</line>
+  <module>CebolaoLotofacil.app.main</module>
+  <package>com.cebolao.lotofacil.domain.usecase</package>
+  <entry_point TYPE="method" FQNAME="com.cebolao.lotofacil.domain.usecase.GetAnalyzedStatsUseCase GetAnalyzedStatsUseCase(com.cebolao.lotofacil.domain.repository.HistoryRepository historyRepository, com.cebolao.lotofacil.domain.service.StatisticsAnalyzer statisticsAnalyzer, kotlinx.coroutines.CoroutineDispatcher dispatcher)" />
+  <problem_class id="AddExplicitTargetToParameterAnnotation" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Redundant interpolation prefix</problem_class>
+  <description>The annotation is only applied to the parameter. An explicit annotation use-site target is recommended.</description>
+  <highlighted_element>@DefaultDispatcher</highlighted_element>
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/cebolao/lotofacil/domain/usecase/GetHomeScreenDataUseCase.kt</file>
+  <line>26</line>
+  <module>CebolaoLotofacil.app.main</module>
+  <package>com.cebolao.lotofacil.domain.usecase</package>
+  <entry_point TYPE="method" FQNAME="com.cebolao.lotofacil.domain.usecase.GetHomeScreenDataUseCase GetHomeScreenDataUseCase(com.cebolao.lotofacil.domain.repository.HistoryRepository historyRepository, com.cebolao.lotofacil.domain.usecase.GetAnalyzedStatsUseCase getAnalyzedStatsUseCase, com.cebolao.lotofacil.domain.usecase.CheckGameUseCase checkGameUseCase, kotlinx.coroutines.CoroutineDispatcher defaultDispatcher)" />
+  <problem_class id="AddExplicitTargetToParameterAnnotation" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">Redundant interpolation prefix</problem_class>
+  <description>The annotation is only applied to the parameter. An explicit annotation use-site target is recommended.</description>
+  <highlighted_element>@DefaultDispatcher</highlighted_element>
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>18</length>
+</problem>
+</problems>

@@ -3,11 +3,8 @@ package com.cebolao.lotofacil.ui.screens
 import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
@@ -32,7 +29,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -53,15 +49,11 @@ import com.cebolao.lotofacil.ui.components.GameCard
 import com.cebolao.lotofacil.ui.components.GameCardAction
 import com.cebolao.lotofacil.ui.components.LoadingDialog
 import com.cebolao.lotofacil.ui.components.MessageState
-import com.cebolao.lotofacil.ui.components.SectionCard
 import com.cebolao.lotofacil.ui.components.StandardPageLayout
 import com.cebolao.lotofacil.ui.theme.Dimen
-import com.cebolao.lotofacil.ui.theme.FontFamilyNumeric
 import com.cebolao.lotofacil.util.MIME_TYPE_TEXT_PLAIN
-import com.cebolao.lotofacil.util.rememberCurrencyFormatter
 import com.cebolao.lotofacil.viewmodels.GameAnalysisUiState
 import com.cebolao.lotofacil.viewmodels.GameScreenEvent
-import com.cebolao.lotofacil.viewmodels.GameSummary
 import com.cebolao.lotofacil.viewmodels.GameViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -84,6 +76,7 @@ fun GeneratedGamesScreen(navController: NavController, viewModel: GameViewModel 
         viewModel.events.collectLatest { event ->
             when (event) {
                 is GameScreenEvent.ShareGame -> context.shareGameIntent(event.numbers)
+                is GameScreenEvent.ShowSnackbar -> snackbarHostState.showSnackbar(context.getString(event.messageRes))
             }
         }
     }
@@ -112,14 +105,10 @@ fun GeneratedGamesScreen(navController: NavController, viewModel: GameViewModel 
         }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(top = innerPadding.calculateTopPadding())) {
-            if (unpinned.isNotEmpty() || pinned.isNotEmpty()) {
-                GameSummarySection(uiState.summary)
-            }
             GameTabs(pagerState.currentPage) { index -> scope.launch { pagerState.animateScrollToPage(index) } }
             HorizontalPager(state = pagerState, modifier = Modifier.weight(1f)) { page ->
                 val games = if (page == 0) unpinned else pinned
                 
-                // Optimize callbacks to be stable
                 val onGenerateRequestRe = remember(navController) {
                     {
                         navController.navigate(Screen.Filters.route) {
@@ -155,23 +144,13 @@ fun GeneratedGamesScreen(navController: NavController, viewModel: GameViewModel 
 }
 
 @Composable
-private fun GameList(
-    games: List<LotofacilGame>,
-    isNewGamesTab: Boolean,
-    onGenerateRequest: () -> Unit,
-    onAction: (GameCardAction, LotofacilGame) -> Unit
-) {
+private fun GameList(games: List<LotofacilGame>, isNewGamesTab: Boolean, onGenerateRequest: () -> Unit, onAction: (GameCardAction, LotofacilGame) -> Unit) {
     if (games.isEmpty()) {
         EmptyState(isNewGamesTab, onGenerateRequest)
     } else {
         StandardPageLayout(scaffoldPadding = PaddingValues()) {
             items(
                 items = games,
-                // CORREÇÃO CRÍTICA:
-                // Alterado de `it.numbers.hashCode()` para `it.numbers.toString()`.
-                // O hashCode de Set<Int> é apenas a soma dos elementos. Jogos diferentes
-                // com a mesma soma (ex: 186) causavam crash por chave duplicada.
-                // O toString() garante uma chave única para cada combinação.
                 key = { it.numbers.toString() },
                 contentType = { "game_card" }
             ) { game ->
@@ -184,14 +163,7 @@ private fun GameList(
 }
 
 @Composable
-private fun ConfirmationsHandler(
-    showClearDialog: Boolean,
-    gameToDelete: LotofacilGame?,
-    onClearConfirm: () -> Unit,
-    onClearDismiss: () -> Unit,
-    onDeleteConfirm: () -> Unit,
-    onDeleteDismiss: () -> Unit
-) {
+private fun ConfirmationsHandler(showClearDialog: Boolean, gameToDelete: LotofacilGame?, onClearConfirm: () -> Unit, onClearDismiss: () -> Unit, onDeleteConfirm: () -> Unit, onDeleteDismiss: () -> Unit) {
     if (showClearDialog) {
         AppConfirmationDialog(
             title = R.string.games_clear_dialog_title,
@@ -231,31 +203,8 @@ private fun EmptyState(isNewGamesTab: Boolean, onGenerateRequest: () -> Unit) {
 private fun GameTabs(selectedIndex: Int, onTabSelected: (Int) -> Unit) {
     SecondaryTabRow(selectedTabIndex = selectedIndex, containerColor = MaterialTheme.colorScheme.background, divider = {}) {
         listOf(R.string.games_tab_new, R.string.games_tab_pinned).forEachIndexed { index, titleRes ->
-            Tab(
-                selected = selectedIndex == index,
-                onClick = { onTabSelected(index) },
-                text = { Text(stringResource(titleRes), style = MaterialTheme.typography.titleMedium, fontWeight = if(selectedIndex == index) FontWeight.Bold else FontWeight.Normal) }
-            )
+            Tab(selected = selectedIndex == index, onClick = { onTabSelected(index) }, text = { Text(stringResource(titleRes), style = MaterialTheme.typography.titleMedium, fontWeight = if(selectedIndex == index) FontWeight.Bold else FontWeight.Normal) })
         }
-    }
-}
-
-@Composable
-private fun GameSummarySection(summary: GameSummary) {
-    val formatter = rememberCurrencyFormatter()
-    SectionCard(modifier = Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.MediumPadding)) {
-        Row(Modifier.fillMaxWidth(), Arrangement.SpaceAround) {
-            SummaryItem("Volantes Gerados", "${summary.totalGames}")
-            SummaryItem("Gasto", formatter.format(summary.totalCost))
-        }
-    }
-}
-
-@Composable
-private fun SummaryItem(label: String, value: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(value, style = MaterialTheme.typography.displaySmall, fontFamily = FontFamilyNumeric, fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.primary)
-        Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 

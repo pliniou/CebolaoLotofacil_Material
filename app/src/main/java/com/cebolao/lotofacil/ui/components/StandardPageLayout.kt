@@ -15,6 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import com.cebolao.lotofacil.ui.theme.Dimen
 
+/**
+ * Standard layout for scrollable pages.
+ * Integrates with Scaffold padding and handles WindowInsets.
+ */
 @Composable
 fun StandardPageLayout(
     modifier: Modifier = Modifier,
@@ -25,13 +29,21 @@ fun StandardPageLayout(
     val layoutDirection = LocalLayoutDirection.current
     val navBarsPadding = WindowInsets.navigationBars.asPaddingValues()
     
+    // Bottom padding logic: Scaffold padding usually includes nav bar if present,
+    // but if we want extra space for visuals, we add it here.
+    val bottomPadding = if (addBottomSpace) {
+        scaffoldPadding.calculateBottomPadding() + Dimen.BottomContentPadding
+    } else {
+        scaffoldPadding.calculateBottomPadding() + Dimen.MediumPadding
+    }
+
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(
-            top = scaffoldPadding.calculateTopPadding() + Dimen.ExtraLargePadding,
-            start = Dimen.ScreenPadding + scaffoldPadding.calculateStartPadding(layoutDirection),
-            end = Dimen.ScreenPadding + scaffoldPadding.calculateEndPadding(layoutDirection),
-            bottom = if (addBottomSpace) Dimen.BottomContentPadding else navBarsPadding.calculateBottomPadding() + Dimen.ExtraLargePadding
+            top = scaffoldPadding.calculateTopPadding() + Dimen.MediumPadding,
+            start = scaffoldPadding.calculateStartPadding(layoutDirection), // We assume content handles horizontal padding or we add it globally
+            end = scaffoldPadding.calculateEndPadding(layoutDirection),
+            bottom = bottomPadding
         ),
         verticalArrangement = Arrangement.spacedBy(Dimen.SectionSpacing),
         content = content

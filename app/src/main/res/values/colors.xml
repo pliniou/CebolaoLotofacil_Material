@@ -1,26 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- SYSTEM & SPLASH -->
-    <color name="splash_background">#FAFAFA</color>
+    <!-- BRAND IDENTITY -->
+    <color name="brand_primary">#0066FF</color>
+    <color name="brand_secondary">#651FFF</color>
+    <color name="brand_tertiary">#00E676</color>
 
-    <!-- WIDGET COLORS -->
-    <color name="widget_background_light">#FAFAFA</color>
-    <color name="widget_background_dark" tools:keep="@color/widget_background_dark">#16191D</color>
-    <color name="widget_primary">#2962FF</color>
+    <!-- SURFACES (Absolute Definitions) -->
+    <color name="surface_light">#F8FAFC</color>
+    <color name="surface_variant_light">#FFFFFF</color>
+    <color name="on_surface_light">#0F172A</color>
+    <color name="on_surface_variant_light">#475569</color>
 
-    <!-- LEGACY / COMPATIBILITY MAPPINGS -->
-    <!-- Mantidos para garantir que drawables/layouts XML antigos compilem corretamente -->
-    <color name="dark_background">#0F1115</color>
-    <color name="light_background" tools:keep="@color/light_background">#FAFAFA</color>
+    <color name="surface_dark">#0F172A</color>
+    <color name="surface_variant_dark">#1E293B</color>
+    <color name="on_surface_dark">#F8FAFC</color>
+    <color name="on_surface_variant_dark">#94A3B8</color>
 
-    <color name="dark_text_primary" tools:keep="@color/dark_text_primary">#E6E1E5</color>
-    <color name="dark_text_secondary" tools:keep="@color/dark_text_secondary">#CAC4D0</color>
+    <!-- DYNAMIC SEMANTIC TOKENS (Day Mode Mappings) -->
+    <color name="app_background">@color/surface_light</color>
+    <color name="app_surface">@color/surface_variant_light</color>
+    <color name="app_on_surface">@color/on_surface_light</color>
+    <color name="app_on_surface_variant">@color/on_surface_variant_light</color>
 
-    <color name="light_text_primary">#1C1B1F</color>
-    <color name="light_text_secondary">#49454F</color>
+    <!-- WIDGET DYNAMIC TOKENS -->
+    <color name="widget_background">@color/surface_variant_light</color>
+    <color name="widget_text_primary">@color/on_surface_light</color>
+    <color name="widget_text_secondary">@color/on_surface_variant_light</color>
+    <color name="widget_icon_tint">@color/on_surface_variant_light</color>
+    <color name="widget_divider">#1A000000</color>
 
-    <color name="light_surface" tools:keep="@color/light_surface">#FFFFFF</color>
-    <color name="dark_surface" tools:keep="@color/dark_surface">#16191D</color>
+    <!-- EXPLICIT WIDGET COLORS (Forcing Light/Dark if needed) -->
+    <color name="widget_background_light">@color/surface_variant_light</color>
+    <color name="widget_background_dark">@color/surface_variant_dark</color>
 
-    <color name="ic_launcher_background">#38005F</color>
+    <!-- LEGACY/COMPATIBILITY -->
+    <color name="splash_background">@color/surface_light</color>
+    <color name="ic_launcher_background">@color/brand_primary</color>
+
+    <color name="light_text_primary">@color/on_surface_light</color>
+    <color name="light_text_secondary">@color/on_surface_variant_light</color>
+    <color name="dark_text_primary">@color/on_surface_dark</color>
+    <color name="dark_text_secondary">@color/on_surface_variant_dark</color>
 </resources>

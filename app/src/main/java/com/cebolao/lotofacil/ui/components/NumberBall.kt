@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.cebolao.lotofacil.ui.theme.AppConfig
 import com.cebolao.lotofacil.ui.theme.Dimen
 import com.cebolao.lotofacil.ui.theme.FontFamilyNumeric
-import com.cebolao.lotofacil.ui.theme.SuccessGreen
+import com.cebolao.lotofacil.ui.theme.SuccessColor
 import com.cebolao.lotofacil.util.DEFAULT_NUMBER_FORMAT
 
 enum class NumberBallSize { Large, Medium, Small }
@@ -95,7 +95,7 @@ private fun resolveColors(
             border = Color.Transparent
         )
         variant == NumberBallVariant.Hit -> BallColors(
-            container = SuccessGreen,
+            container = SuccessColor,
             content = Color.White,
             border = Color.Transparent
         )

@@ -1,15 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Tema Base Light -->
+    <!-- Base Theme -->
     <style name="Theme.CebolaoLotofacil" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:windowBackground">@color/splash_background</item>
+        <item name="android:windowBackground">@color/surface_light</item>
+
+        <!-- Window Light Status Bar (true = dark icons) -->
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
     </style>
 
-    <!-- Tema Splash Screen -->
+    <!-- Dark Theme Override (if we had values-night, but defining here for clarity or specific forcing) -->
+    <!-- Ideally this goes into values-night/themes.xml. For now, we assume the system handles night mode via resources if we split them. 
+         But since we only have one themes.xml for now, we keep it simple. -->
+
+    <!-- Theme Splash Screen -->
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenBackground">@color/surface_light</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
         <item name="windowSplashScreenAnimationDuration">750</item>
         <item name="postSplashScreenTheme">@style/Theme.CebolaoLotofacil</item>

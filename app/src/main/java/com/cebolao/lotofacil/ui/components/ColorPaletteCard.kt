@@ -44,7 +44,6 @@ import com.cebolao.lotofacil.ui.theme.AccentPalette
 import com.cebolao.lotofacil.ui.theme.AppConfig
 import com.cebolao.lotofacil.ui.theme.Dimen
 import com.cebolao.lotofacil.ui.theme.darkColorSchemeFor
-import com.cebolao.lotofacil.ui.theme.lightColorSchemeFor
 
 @Composable
 fun ColorPaletteCard(
@@ -53,12 +52,11 @@ fun ColorPaletteCard(
     modifier: Modifier = Modifier,
 ) {
     val palettes = remember { AccentPalette.entries }
-    val isDarkTheme = isSystemInDarkTheme()
     val animationSpec: AnimationSpec<Color> = tween(AppConfig.Animation.SHORT_DURATION)
 
-    val previewColorSchemes = remember(isDarkTheme) {
+    val previewColorSchemes = remember {
         palettes.map { palette ->
-            if (isDarkTheme) darkColorSchemeFor(palette) else lightColorSchemeFor(palette)
+            darkColorSchemeFor(palette)
         }
     }
 

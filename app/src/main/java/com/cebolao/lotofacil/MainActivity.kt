@@ -1,6 +1,7 @@
 package com.cebolao.lotofacil
 
 import android.animation.ObjectAnimator
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.View
 import android.view.animation.AnticipateInterpolator
@@ -38,7 +39,8 @@ class MainActivity : ComponentActivity() {
         
         super.onCreate(savedInstanceState)
 
-        // Sound effect removed for professional polish
+        // Play splash sound
+        playSplashSound()
 
         setupSplashScreen(splash)
 
@@ -50,7 +52,6 @@ class MainActivity : ComponentActivity() {
             splash.setKeepOnScreenCondition { !uiState.isReady }
 
             CebolaoLotofacilTheme(
-                darkTheme = themeMode == THEME_MODE_DARK,
                 accentPalette = accentPalette
             ) {
                 Surface(
@@ -89,5 +90,23 @@ class MainActivity : ComponentActivity() {
         scaleX.setDuration(duration).start()
         scaleY.setDuration(duration).start()
         fadeIcon.setDuration(duration).start()
+    }
+
+    private fun playSplashSound() {
+        try {
+            val assetFileDescriptor = assets.openFd("sound_splash.mp3")
+            val player = MediaPlayer()
+            player.setDataSource(
+                assetFileDescriptor.fileDescriptor,
+                assetFileDescriptor.startOffset,
+                assetFileDescriptor.length
+            )
+            assetFileDescriptor.close()
+            player.prepare()
+            player.start()
+            player.setOnCompletionListener { it.release() }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }

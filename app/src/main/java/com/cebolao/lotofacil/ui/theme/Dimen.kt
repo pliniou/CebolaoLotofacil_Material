@@ -4,14 +4,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 object Dimen {
-    // --- Spacing System (4dp grid) - Expanded for Aero/Modern feel ---
+    // --- Spacing System (Golden Ratio / Fibonacci Approximations) ---
+    // 4, 8, 12, 20, 32, 52, 84
     val SpacingXS = 4.dp
     val SpacingS = 8.dp
-    val SpacingM = 16.dp // Restored to 16dp for better breathing
-    val SpacingL = 24.dp // Restored to 24dp
+    val SpacingM = 12.dp 
+    val SpacingL = 20.dp
     val SpacingXL = 32.dp
-    val SpacingXXL = 48.dp
-    val Spacing3XL = 64.dp
+    val SpacingXXL = 52.dp
+    val Spacing3XL = 84.dp
 
     // --- Aliases for Semantic Usage ---
     val ExtraSmallPadding = SpacingXS
@@ -20,46 +21,46 @@ object Dimen {
     val LargePadding = SpacingL
     val ExtraLargePadding = SpacingXL
     
-    val SectionSpacing = SpacingL
+    val SectionSpacing = SpacingXL
     val ItemSpacing = SpacingS
 
     // --- Layout ---
-    val ScreenPadding = SpacingL // More side padding
+    val ScreenPadding = SpacingL // 20dp lateral padding for clean look
     val CardContentPadding = SpacingM
-    val BottomContentPadding = 80.dp 
-    val BottomBarSpacer = 72.dp 
+    val BottomContentPadding = 100.dp 
+    val BottomBarSpacer = 84.dp 
 
     // --- Component Sizes ---
-    val LargeButtonHeight = 56.dp // Taller, more tappable
-    val SmallButtonHeight = 40.dp 
-    val MinButtonWidth = 120.dp 
-    val PaletteCardWidth = 120.dp
-    val PaletteCardHeight = 96.dp
-    val HeroCardMinHeight = 160.dp 
-    val ProgressBarHeight = 8.dp // Slightly thicker
+    val LargeButtonHeight = 52.dp // Golden ratioish
+    val SmallButtonHeight = 32.dp 
+    val MinButtonWidth = 128.dp 
+    val PaletteCardWidth = 128.dp
+    val PaletteCardHeight = 84.dp
+    val HeroCardMinHeight = 180.dp 
+    val ProgressBarHeight = 12.dp // Chunky & Flat
     
     // --- Icons ---
     val SmallIcon = 20.dp 
     val MediumIcon = 24.dp
     val LargeIcon = 32.dp
-    val ExtraLargeIcon = 48.dp
+    val ExtraLargeIcon = 52.dp
     val ActionIconSize = 24.dp
-    val Logo = 80.dp
+    val Logo = 84.dp
 
     // --- Lotofácil Balls ---
-    val BallSizeLarge = 44.dp
-    val BallSizeMedium = 32.dp // Improved visibility
-    val BallSizeSmall = 26.dp
-    val BallSpacing = 4.dp // Better tap target separation
+    val BallSizeLarge = 52.dp
+    val BallSizeMedium = 32.dp 
+    val BallSizeSmall = 24.dp
+    val BallSpacing = 4.dp
     
-    val BallTextLarge = 18.sp
+    val BallTextLarge = 20.sp
     val BallTextMedium = 14.sp
-    val BallTextSmall = 11.sp
+    val BallTextSmall = 10.sp
 
     // --- Charts ---
-    val ChartHeight = 200.dp 
-    val CheckResultChartHeight = 160.dp
-    val BarChartHeight = 180.dp
+    val ChartHeight = 220.dp 
+    val CheckResultChartHeight = 180.dp
+    val BarChartHeight = 200.dp
 
     object Border {
         val Hairline = 0.5.dp
@@ -69,7 +70,7 @@ object Dimen {
     
     object Elevation {
         val Low = 2.dp
-        val Medium = 6.dp
-        val High = 12.dp
+        val Medium = 8.dp
+        val High = 16.dp
     }
 }

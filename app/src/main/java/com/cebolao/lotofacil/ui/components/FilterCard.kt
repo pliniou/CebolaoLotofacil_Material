@@ -49,8 +49,8 @@ fun FilterCard(
     val missingData by remember(state.type, lastDraw) { derivedStateOf { state.type == FilterType.REPETIDAS_CONCURSO_ANTERIOR && lastDraw == null } }
     val active = state.isEnabled && !missingData
     
-    SectionCard(modifier, backgroundColor = if (active) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceContainerLow) {
-        Column(Modifier.padding(Dimen.SmallPadding)) {
+    SectionCard(modifier.fillMaxWidth(), backgroundColor = if (active) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceContainerLow) {
+        Column(Modifier.padding(Dimen.MediumPadding)) { // Increased padding
             Header(state, active, missingData, onInfo, onToggle)
             AnimatedVisibility(active, enter = expandVertically() + fadeIn(), exit = shrinkVertically() + fadeOut()) {
                 Content(state, onRange)

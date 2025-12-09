@@ -1,0 +1,41 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/cebolao/lotofacil/ui/screens/GeneratedGamesScreen.kt</file>
+  <line>88</line>
+  <module>CebolaoLotofacil.app.main</module>
+  <package>com.cebolao.lotofacil.ui.screens</package>
+  <entry_point TYPE="method" FQNAME="com.cebolao.lotofacil.ui.screens.GeneratedGamesScreenKt void GeneratedGamesScreen(androidx.navigation.NavController navController, com.cebolao.lotofacil.viewmodels.GameViewModel viewModel)" />
+  <problem_class id="AssignedValueIsNeverRead" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">Assigned value is never read</problem_class>
+  <description>Assigned value is never read</description>
+  <highlighted_element>showClearDialog</highlighted_element>
+  <language>kotlin</language>
+  <offset>54</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/cebolao/lotofacil/ui/screens/GeneratedGamesScreen.kt</file>
+  <line>89</line>
+  <module>CebolaoLotofacil.app.main</module>
+  <package>com.cebolao.lotofacil.ui.screens</package>
+  <entry_point TYPE="method" FQNAME="com.cebolao.lotofacil.ui.screens.GeneratedGamesScreenKt void GeneratedGamesScreen(androidx.navigation.NavController navController, com.cebolao.lotofacil.viewmodels.GameViewModel viewModel)" />
+  <problem_class id="AssignedValueIsNeverRead" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">Assigned value is never read</problem_class>
+  <description>Assigned value is never read</description>
+  <highlighted_element>showClearDialog</highlighted_element>
+  <language>kotlin</language>
+  <offset>27</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/cebolao/lotofacil/ui/screens/GeneratedGamesScreen.kt</file>
+  <line>101</line>
+  <module>CebolaoLotofacil.app.main</module>
+  <package>com.cebolao.lotofacil.ui.screens</package>
+  <entry_point TYPE="method" FQNAME="com.cebolao.lotofacil.ui.screens.GeneratedGamesScreenKt void GeneratedGamesScreen(androidx.navigation.NavController navController, com.cebolao.lotofacil.viewmodels.GameViewModel viewModel)" />
+  <problem_class id="AssignedValueIsNeverRead" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">Assigned value is never read</problem_class>
+  <description>Assigned value is never read</description>
+  <highlighted_element>showClearDialog</highlighted_element>
+  <language>kotlin</language>
+  <offset>39</offset>
+  <length>15</length>
+</problem>
+</problems>

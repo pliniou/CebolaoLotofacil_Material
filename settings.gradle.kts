@@ -21,5 +21,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "CebolaoLotofacil"
+rootProject.name = "CebolaoLotofacilGenerator"
 include(":app")

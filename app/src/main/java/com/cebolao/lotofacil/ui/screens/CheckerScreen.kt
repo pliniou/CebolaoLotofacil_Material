@@ -4,13 +4,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
@@ -40,6 +37,7 @@ import com.cebolao.lotofacil.ui.components.CheckResultCard
 import com.cebolao.lotofacil.ui.components.MessageState
 import com.cebolao.lotofacil.ui.components.NumberGrid
 import com.cebolao.lotofacil.ui.components.SimpleStatsCard
+import com.cebolao.lotofacil.ui.components.StandardPageLayout
 import com.cebolao.lotofacil.ui.theme.Dimen
 import com.cebolao.lotofacil.viewmodels.CheckerUiState
 import com.cebolao.lotofacil.viewmodels.CheckerViewModel
@@ -53,7 +51,7 @@ fun CheckerScreen(viewModel: CheckerViewModel = hiltViewModel()) {
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
-        viewModel.events.collectLatest { msgId -> snackbarHostState.showSnackbar(message = "Info: $msgId") } // Em produção, resolver stringRes
+        viewModel.events.collectLatest { msgId -> snackbarHostState.showSnackbar(message = "Info: $msgId") }
     }
 
     AppScreen(
@@ -67,38 +65,43 @@ fun CheckerScreen(viewModel: CheckerViewModel = hiltViewModel()) {
         },
         bottomBar = { if (isGameComplete) CheckerBottomBar(viewModel::saveGame, viewModel::checkGame) }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(Dimen.ScreenPadding),
-            verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)
-        ) {
-            Text(
-                text = stringResource(R.string.checker_selection_instruction, LotofacilConstants.GAME_SIZE),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            
-            NumberGrid(
-                selectedNumbers = selectedNumbers,
-                onNumberClick = viewModel::toggleNumber,
-                maxSelection = LotofacilConstants.GAME_SIZE,
-                modifier = Modifier.fillMaxWidth().padding(vertical = Dimen.SmallPadding) // Removing large internal padding
-            )
-            
-            if (uiState is CheckerUiState.Idle || uiState is CheckerUiState.Error) {
-                 // Info tip if idle
-                 MessageState(
-                    icon = Icons.Default.CheckCircle,
-                    title = stringResource(R.string.checker_how_it_works_title),
-                    message = stringResource(R.string.checker_how_it_works_desc),
-                    modifier = Modifier.fillMaxWidth().padding(top = Dimen.SmallPadding)
+        StandardPageLayout(scaffoldPadding = innerPadding) {
+            item {
+                Text(
+                    text = stringResource(R.string.checker_selection_instruction, LotofacilConstants.GAME_SIZE),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(horizontal = Dimen.ScreenPadding)
                 )
             }
+            
+            item {
+                NumberGrid(
+                    selectedNumbers = selectedNumbers,
+                    onNumberClick = viewModel::toggleNumber,
+                    maxSelection = LotofacilConstants.GAME_SIZE,
+                    sizeVariant = com.cebolao.lotofacil.ui.components.NumberBallSize.Large,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = Dimen.ScreenPadding)
+                )
+            }
+            
+            if (uiState is CheckerUiState.Idle || uiState is CheckerUiState.Error) {
+                 item {
+                     com.cebolao.lotofacil.ui.components.SectionCard(modifier = Modifier.fillMaxWidth().padding(horizontal = Dimen.ScreenPadding)) {
+                         MessageState(
+                            icon = Icons.Default.CheckCircle,
+                            title = stringResource(R.string.checker_how_it_works_title),
+                            message = stringResource(R.string.checker_how_it_works_desc),
+                            modifier = Modifier.padding(Dimen.MediumPadding)
+                        )
+                     }
+                 }
+            }
 
-            CheckerResultSection(uiState)
+            item {
+                CheckerResultSection(uiState)
+            }
         }
     }
 }
@@ -115,16 +118,18 @@ private fun CheckerBottomBar(onSave: () -> Unit, onCheck: () -> Unit) {
 
 @Composable
 private fun CheckerResultSection(state: CheckerUiState) {
-    when (state) {
-        is CheckerUiState.Success -> {
-            Text(stringResource(R.string.checker_performance_analysis), style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.height(Dimen.SmallPadding))
-            CheckResultCard(state.result)
-            Spacer(Modifier.height(Dimen.MediumPadding))
-            SimpleStatsCard(state.simpleStats)
+    Column(modifier = Modifier.padding(horizontal = Dimen.ScreenPadding)) {
+        when (state) {
+            is CheckerUiState.Success -> {
+                Text(stringResource(R.string.checker_performance_analysis), style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(Dimen.SmallPadding))
+                CheckResultCard(state.result)
+                Spacer(Modifier.height(Dimen.MediumPadding))
+                SimpleStatsCard(state.simpleStats)
+            }
+            is CheckerUiState.Loading -> LinearProgressIndicator(Modifier.fillMaxWidth())
+            is CheckerUiState.Error -> MessageState(Icons.Default.CheckCircle, stringResource(R.string.general_error_title), stringResource(state.messageResId), iconTint = MaterialTheme.colorScheme.error)
+            CheckerUiState.Idle -> {}
         }
-        is CheckerUiState.Loading -> LinearProgressIndicator(Modifier.fillMaxWidth())
-        is CheckerUiState.Error -> MessageState(Icons.Default.CheckCircle, stringResource(R.string.general_error_title), stringResource(state.messageResId), iconTint = MaterialTheme.colorScheme.error)
-        CheckerUiState.Idle -> {}
     }
 }

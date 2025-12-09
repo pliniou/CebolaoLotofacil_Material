@@ -1,20 +1,22 @@
 package com.cebolao.lotofacil.ui.screens
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -30,6 +32,7 @@ import com.cebolao.lotofacil.ui.components.GenerationActionsPanel
 import com.cebolao.lotofacil.ui.components.InfoDialog
 import com.cebolao.lotofacil.ui.components.InfoPoint
 import com.cebolao.lotofacil.ui.components.SectionCard
+import com.cebolao.lotofacil.ui.components.StandardPageLayout
 import com.cebolao.lotofacil.ui.theme.Dimen
 import com.cebolao.lotofacil.ui.theme.filterIcon
 import com.cebolao.lotofacil.viewmodels.FiltersViewModel
@@ -39,14 +42,26 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun FiltersScreen(navController: NavController, viewModel: FiltersViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.events.collectLatest { event ->
-            if (event is NavigationEvent.NavigateToGeneratedGames) {
-                navController.navigate(Screen.GeneratedGames.route) {
-                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                    launchSingleTop = true
-                    restoreState = true
+            when (event) {
+                is NavigationEvent.NavigateToGeneratedGames -> {
+                    navController.navigate(Screen.GeneratedGames.route) {
+                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+                is NavigationEvent.ShowSnackbar -> {
+                    val message = if (event.labelRes != null) {
+                        context.getString(event.messageRes, context.getString(event.labelRes))
+                    } else {
+                        context.getString(event.messageRes)
+                    }
+                    snackbarHostState.showSnackbar(message)
                 }
             }
         }
@@ -70,15 +85,16 @@ fun FiltersScreen(navController: NavController, viewModel: FiltersViewModel = hi
     AppScreen(
         title = stringResource(R.string.filters_title),
         subtitle = stringResource(R.string.filters_subtitle),
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         actions = { TextButton(onClick = viewModel::requestResetFilters) { Text(stringResource(R.string.filters_reset_button_description)) } },
         bottomBar = { GenerationActionsPanel(uiState.generationState, viewModel::generateGames, viewModel::cancelGeneration) }
     ) { innerPadding ->
-        LazyColumn(modifier = Modifier.padding(innerPadding).fillMaxSize(), contentPadding = PaddingValues(bottom = Dimen.BottomBarSpacer)) {
+        StandardPageLayout(scaffoldPadding = innerPadding) {
             item { FilterPresetSelector(viewModel::applyPreset, Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.SmallPadding)) }
             item { HorizontalDivider(Modifier.padding(vertical = Dimen.ExtraSmallPadding), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)) }
             
             items(uiState.filterStates, key = { it.type.name }) { filter ->
-                FilterCard(filter, { viewModel.onFilterToggle(filter.type, it) }, { viewModel.onRangeAdjust(filter.type, it) }, { viewModel.showFilterInfo(filter.type) }, uiState.lastDraw, Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = 2.dp))
+                FilterCard(filter, { viewModel.onFilterToggle(filter.type, it) }, { viewModel.onRangeAdjust(filter.type, it) }, { viewModel.showFilterInfo(filter.type) }, uiState.lastDraw, Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.SpacingXS))
             }
         }
     }

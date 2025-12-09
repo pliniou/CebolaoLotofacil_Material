@@ -33,14 +33,15 @@ fun NumberGrid(
     allNumbers: ImmutableList<Int> = ALL_NUMBERS,
     maxSelection: Int? = null,
     sizeVariant: NumberBallSize = NumberBallSize.Medium,
-    ballVariant: NumberBallVariant = NumberBallVariant.Primary
+    ballVariant: NumberBallVariant = NumberBallVariant.Primary,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(Dimen.SpacingXS, Alignment.CenterHorizontally)
 ) {
     val haptic = LocalHapticFeedback.current
     val isFull = maxSelection != null && selectedNumbers.size >= maxSelection
 
     FlowRow(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(Dimen.SpacingXS, Alignment.CenterHorizontally),
+        horizontalArrangement = horizontalArrangement,
         verticalArrangement = Arrangement.spacedBy(Dimen.SpacingXS),
         maxItemsInEachRow = AppConfig.UI.GRID_COLUMNS
     ) {

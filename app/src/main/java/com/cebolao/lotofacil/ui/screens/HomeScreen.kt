@@ -4,14 +4,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.Info
@@ -39,6 +36,7 @@ import com.cebolao.lotofacil.ui.components.DistributionChartsCard
 import com.cebolao.lotofacil.ui.components.LastDrawCard
 import com.cebolao.lotofacil.ui.components.NextContestHeroCard
 import com.cebolao.lotofacil.ui.components.SectionHeader
+import com.cebolao.lotofacil.ui.components.StandardPageLayout
 import com.cebolao.lotofacil.ui.components.StatisticsExplanationCard
 import com.cebolao.lotofacil.ui.components.StatisticsPanel
 import com.cebolao.lotofacil.ui.components.WelcomeCard
@@ -82,33 +80,16 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
             }
         }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(bottom = Dimen.BottomBarSpacer)
-        ) {
-            AnimateOnEntry(delayMillis = 0) {
-                Box(
-                    modifier = Modifier.padding(
-                        horizontal = Dimen.ScreenPadding,
-                        vertical = Dimen.SmallPadding
-                    )
-                ) {
+        StandardPageLayout(scaffoldPadding = innerPadding) {
+            item {
+                AnimateOnEntry(delayMillis = 0) {
                     WelcomeCard()
                 }
             }
 
-            val screenState = uiState.screenState
-            
-            AnimateOnEntry(delayMillis = 100) {
-                Box(
-                    modifier = Modifier.padding(
-                        horizontal = Dimen.ScreenPadding,
-                        vertical = Dimen.MediumPadding
-                    )
-                ) {
+            item {
+                val screenState = uiState.screenState
+                AnimateOnEntry(delayMillis = 100) {
                     when (screenState) {
                         is HomeScreenState.Success -> {
                             NextContestHeroCard(screenState.nextDrawInfo)
@@ -128,58 +109,64 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                 }
             }
 
-            if (screenState is HomeScreenState.Success) {
-                screenState.lastDraw?.let { draw ->
-                    AnimateOnEntry(delayMillis = 200) {
-                        Column {
-                            SectionHeader(
-                                stringResource(R.string.home_last_contest_format, draw.contestNumber)
-                            )
-                            LastDrawCard(
-                                draw = draw,
-                                winnerData = screenState.winnerData,
-                                modifier = Modifier.padding(horizontal = Dimen.ScreenPadding)
-                            )
+            if (uiState.screenState is HomeScreenState.Success) {
+                val draw = (uiState.screenState as HomeScreenState.Success).lastDraw
+                if (draw != null) {
+                    item {
+                        AnimateOnEntry(delayMillis = 200) {
+                            Column {
+                                SectionHeader(
+                                    stringResource(R.string.home_last_contest_format, draw.contestNumber)
+                                )
+                                // Spacer(Modifier.height(Dimen.SmallPadding)) // StandardPageLayout handles spacing, but SectionHeader might need margin
+                                LastDrawCard(
+                                    draw = draw,
+                                    winnerData = (uiState.screenState as HomeScreenState.Success).winnerData,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
                         }
                     }
                 }
             }
 
             uiState.statistics?.let { stats ->
-                AnimateOnEntry(delayMillis = 300) {
-                    StatisticsPanel(
-                        stats = stats,
-                        modifier = Modifier.padding(horizontal = Dimen.ScreenPadding),
-                        onTimeWindowSelected = viewModel::onTimeWindowSelected,
-                        selectedWindow = uiState.selectedTimeWindow,
-                        isStatsLoading = uiState.isStatsLoading
-                    )
+                item {
+                    AnimateOnEntry(delayMillis = 300) {
+                        StatisticsPanel(
+                            stats = stats,
+                            modifier = Modifier.fillMaxWidth(),
+                            onTimeWindowSelected = viewModel::onTimeWindowSelected,
+                            selectedWindow = uiState.selectedTimeWindow,
+                            isStatsLoading = uiState.isStatsLoading
+                        )
+                    }
                 }
 
-                Spacer(Modifier.height(Dimen.MediumPadding))
-
-                AnimateOnEntry(delayMillis = 400) {
-                    DistributionChartsCard(
-                        stats = stats,
-                        selectedPattern = uiState.selectedPattern,
-                        onPatternSelected = viewModel::onPatternSelected,
-                        modifier = Modifier.padding(horizontal = Dimen.ScreenPadding)
-                    )
+                item {
+                    AnimateOnEntry(delayMillis = 400) {
+                        DistributionChartsCard(
+                            stats = stats,
+                            selectedPattern = uiState.selectedPattern,
+                            onPatternSelected = viewModel::onPatternSelected,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
 
-                Spacer(Modifier.height(Dimen.MediumPadding))
-
-                AnimateOnEntry(delayMillis = 500) {
-                    StatisticsExplanationCard(
-                        modifier = Modifier.padding(horizontal = Dimen.ScreenPadding)
-                    )
+                item {
+                    AnimateOnEntry(delayMillis = 500) {
+                        StatisticsExplanationCard(
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
             }
-
-            Spacer(Modifier.height(Dimen.SectionSpacing))
             
-            AnimateOnEntry(delayMillis = 600) {
-                InfoTipCard()
+            item {
+                AnimateOnEntry(delayMillis = 600) {
+                    InfoTipCard()
+                }
             }
         }
     }
@@ -189,11 +176,9 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
 @Composable
 private fun InfoTipCard() {
     OutlinedCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = Dimen.ScreenPadding),
+        modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.outlinedCardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.5f) // Subtle transparent
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.5f)
         )
     ) {
         Row(

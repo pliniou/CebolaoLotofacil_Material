@@ -19,7 +19,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.SnackbarHost
@@ -35,6 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cebolao.lotofacil.R
+import com.cebolao.lotofacil.ui.components.AnimateOnEntry
 import com.cebolao.lotofacil.ui.components.DistributionChartsCard
 import com.cebolao.lotofacil.ui.components.LastDrawCard
 import com.cebolao.lotofacil.ui.components.NextContestHeroCard
@@ -89,93 +89,102 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                 .verticalScroll(rememberScrollState())
                 .padding(bottom = Dimen.BottomBarSpacer)
         ) {
-            Box(
-                modifier = Modifier.padding(
-                    horizontal = Dimen.ScreenPadding,
-                    vertical = Dimen.SmallPadding
-                )
-            ) {
-                WelcomeCard()
+            AnimateOnEntry(delayMillis = 0) {
+                Box(
+                    modifier = Modifier.padding(
+                        horizontal = Dimen.ScreenPadding,
+                        vertical = Dimen.SmallPadding
+                    )
+                ) {
+                    WelcomeCard()
+                }
             }
 
             val screenState = uiState.screenState
             
-            Box(
-                modifier = Modifier.padding(
-                    horizontal = Dimen.ScreenPadding,
-                    vertical = Dimen.MediumPadding
-                )
-            ) {
-                when (screenState) {
-                    is HomeScreenState.Success -> {
-                        NextContestHeroCard(screenState.nextDrawInfo)
-                    }
-                    is HomeScreenState.Loading -> {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(Dimen.HeroCardMinHeight),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator()
+            AnimateOnEntry(delayMillis = 100) {
+                Box(
+                    modifier = Modifier.padding(
+                        horizontal = Dimen.ScreenPadding,
+                        vertical = Dimen.MediumPadding
+                    )
+                ) {
+                    when (screenState) {
+                        is HomeScreenState.Success -> {
+                            NextContestHeroCard(screenState.nextDrawInfo)
                         }
+                        is HomeScreenState.Loading -> {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(Dimen.HeroCardMinHeight),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator()
+                            }
+                        }
+                        else -> Unit
                     }
-                    else -> Unit
                 }
             }
 
             if (screenState is HomeScreenState.Success) {
                 screenState.lastDraw?.let { draw ->
-                    SectionHeader(
-                        stringResource(R.string.home_last_contest_format, draw.contestNumber)
-                    )
-                    LastDrawCard(
-                        draw = draw,
-                        winnerData = screenState.winnerData,
-                        modifier = Modifier.padding(horizontal = Dimen.ScreenPadding)
-                    )
+                    AnimateOnEntry(delayMillis = 200) {
+                        Column {
+                            SectionHeader(
+                                stringResource(R.string.home_last_contest_format, draw.contestNumber)
+                            )
+                            LastDrawCard(
+                                draw = draw,
+                                winnerData = screenState.winnerData,
+                                modifier = Modifier.padding(horizontal = Dimen.ScreenPadding)
+                            )
+                        }
+                    }
                 }
             }
 
-            
-                StatisticsPanel(
-                    stats = stats,
-                    modifier = Modifier.padding(horizontal = Dimen.ScreenPadding),
-                    onTimeWindowSelected = viewModel::onTimeWindowSelected,
-                    selectedWindow = uiState.selectedTimeWindow,
-                    isStatsLoading = uiState.isStatsLoading
-                )
-                
+            uiState.statistics?.let { stats ->
+                AnimateOnEntry(delayMillis = 300) {
+                    StatisticsPanel(
+                        stats = stats,
+                        modifier = Modifier.padding(horizontal = Dimen.ScreenPadding),
+                        onTimeWindowSelected = viewModel::onTimeWindowSelected,
+                        selectedWindow = uiState.selectedTimeWindow,
+                        isStatsLoading = uiState.isStatsLoading
+                    )
+                }
+
                 Spacer(Modifier.height(Dimen.MediumPadding))
-                
-                DistributionChartsCard(
-                    stats = stats,
-                    selectedPattern = uiState.selectedPattern,
-                    onPatternSelected = viewModel::onPatternSelected,
-                    modifier = Modifier.padding(horizontal = Dimen.ScreenPadding)
-                )
-                
+
+                AnimateOnEntry(delayMillis = 400) {
+                    DistributionChartsCard(
+                        stats = stats,
+                        selectedPattern = uiState.selectedPattern,
+                        onPatternSelected = viewModel::onPatternSelected,
+                        modifier = Modifier.padding(horizontal = Dimen.ScreenPadding)
+                    )
+                }
+
                 Spacer(Modifier.height(Dimen.MediumPadding))
-                
-                StatisticsExplanationCard(
-                    modifier = Modifier.padding(horizontal = Dimen.ScreenPadding)
-                )
-            } ?: run {
-                if (uiState.isStatsLoading) {
-                    LinearProgressIndicator(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(Dimen.ScreenPadding)
+
+                AnimateOnEntry(delayMillis = 500) {
+                    StatisticsExplanationCard(
+                        modifier = Modifier.padding(horizontal = Dimen.ScreenPadding)
                     )
                 }
             }
 
             Spacer(Modifier.height(Dimen.SectionSpacing))
             
-            InfoTipCard()
+            AnimateOnEntry(delayMillis = 600) {
+                InfoTipCard()
+            }
         }
     }
 }
+
 
 @Composable
 private fun InfoTipCard() {
@@ -184,7 +193,7 @@ private fun InfoTipCard() {
             .fillMaxWidth()
             .padding(horizontal = Dimen.ScreenPadding),
         colors = CardDefaults.outlinedCardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.5f) // Subtle transparent
         )
     ) {
         Row(

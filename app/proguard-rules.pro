@@ -25,9 +25,7 @@
 -keep interface com.cebolao.lotofacil.data.network.** { *; }
 
 # --- Data Models (Preserve fields for JSON/Serialization) ---
--keep class com.cebolao.lotofacil.data.LotofacilGame { *; }
 -keep class com.cebolao.lotofacil.data.HistoricalDraw { *; }
--keep class com.cebolao.lotofacil.data.StatisticsReport { *; }
 -keep class com.cebolao.lotofacil.data.model.** { *; }
 
 # --- R8 Optimizations ---

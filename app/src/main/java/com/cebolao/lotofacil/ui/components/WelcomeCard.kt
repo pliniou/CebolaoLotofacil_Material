@@ -4,8 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row // Added
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size // Added
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.Card
@@ -37,79 +39,74 @@ fun WelcomeCard(modifier: Modifier = Modifier) {
     val currentDateTime = remember { LocalTime.now() }
     val currentDate = remember { LocalDate.now() }
     
-    // Lógica de Saudação
     val greetingRes = when (currentDateTime.hour) {
         in 5..11 -> R.string.greeting_morning
         in 12..17 -> R.string.greeting_afternoon
         else -> R.string.greeting_night
     }
     
-    // Lógica de Data (Pt-BR explícito)
     val dateString = remember { 
         val locale = Locale("pt", "BR")
         val fullDate = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale).format(currentDate)
-        val dayFormatter = DateTimeFormatter.ofPattern("EEEE", locale)
-        val dayOfWeek = currentDate.format(dayFormatter).replaceFirstChar { it.uppercase() }
-        "$fullDate, $dayOfWeek"
+        "$fullDate"
     }
 
-    // Frase Motivacional Aleatória
     val quotes = stringArrayResource(R.array.motivational_quotes)
     val randomQuote = remember { quotes.random() }
 
     val gradient = Brush.linearGradient(
         colors = listOf(
-            MaterialTheme.colorScheme.primaryContainer,
+            MaterialTheme.colorScheme.primaryContainer.copy(alpha=0.6f),
             MaterialTheme.colorScheme.surfaceContainerHigh
         )
     )
 
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
+        shape = MaterialTheme.shapes.medium, // Changed to medium
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Box(modifier = Modifier.background(gradient)) {
-            Column(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(Dimen.CardContentPadding),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding),
+                    .padding(horizontal = Dimen.CardContentPadding, vertical = Dimen.SmallPadding), // Tighter padding
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Icon(
-                    imageVector = Icons.Default.WbSunny,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
-                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                         Icon(
+                            imageVector = Icons.Default.WbSunny,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(Dimen.SmallIcon).padding(end = 4.dp)
+                        )
+                        Text(
+                            text = stringResource(R.string.welcome_message_format, stringResource(greetingRes)),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    
+                     Text(
+                        text = "“$randomQuote”",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontStyle = FontStyle.Italic,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                    )
+                }
 
-                // Saudação
-                Text(
-                    text = stringResource(R.string.welcome_message_format, stringResource(greetingRes)),
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                )
-
-                // Data
-                Text(
-                    text = stringResource(R.string.date_format_full, "", dateString).replace(" ,", ""),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
-                )
-
-                AppDivider(modifier = Modifier.padding(vertical = Dimen.ExtraSmallPadding))
-
-                // Citação
-                Text(
-                    text = "“$randomQuote”",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontStyle = FontStyle.Italic,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
-                )
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = dateString,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }

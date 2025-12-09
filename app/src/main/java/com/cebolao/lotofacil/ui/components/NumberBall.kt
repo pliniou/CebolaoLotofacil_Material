@@ -59,7 +59,7 @@ fun NumberBall(
     val content by animateColorAsState(colors.content, label = "content")
     
     // Shadow for depth (except when disabled or neutral flat variant)
-    val shadowElevation = if (!isDisabled && (isSelected || variant == NumberBallVariant.Hit)) 2.dp else 0.dp
+    val shadowElevation = if (!isDisabled && (isSelected || variant == NumberBallVariant.Hit)) Dimen.Elevation.Low else 0.dp
 
     androidx.compose.material3.Surface(
         modifier = modifier
@@ -76,7 +76,7 @@ fun NumberBall(
                 text = DEFAULT_NUMBER_FORMAT.format(number),
                 fontFamily = FontFamilyNumeric,
                 fontSize = fontSize,
-                fontWeight = if (isSelected || variant == NumberBallVariant.Hit) FontWeight.Black else FontWeight.SemiBold,
+                fontWeight = if (isSelected || variant == NumberBallVariant.Hit) FontWeight.Bold else FontWeight.Medium,
                 modifier = Modifier.align(Alignment.Center)
             )
         }

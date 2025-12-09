@@ -1,11 +1,7 @@
 package com.cebolao.lotofacil.ui.components
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -33,7 +29,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -52,18 +47,28 @@ fun GameCard(
 ) {
     val pinned = game.isPinned
     
+    // Glassmorphism effect: Semi-transparent container
     val containerColor = if (pinned) {
-        MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f)
+        MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
     } else {
-        MaterialTheme.colorScheme.surface
+        MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.85f)
+    }
+    
+    val borderColor = if (pinned) {
+        MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
+    } else {
+        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
     }
 
-    // Modern card style: clean, elevated, no redundant borders
+    // Modern card style: clean, elevated, with glassy feel
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
+        shape = MaterialTheme.shapes.medium, // Now 16dp
         colors = CardDefaults.cardColors(containerColor = containerColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (pinned) 2.dp else 1.dp)
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = if (pinned) Dimen.Elevation.Medium else Dimen.Elevation.Low
+        ),
+        border = androidx.compose.foundation.BorderStroke(Dimen.Border.Thin, borderColor)
     ) {
         Column(
             modifier = Modifier
@@ -113,24 +118,26 @@ private fun Header(hash: Int, pinned: Boolean, onPin: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)
         ) {
+            // Enhanced Icon styling
+            val iconTint = if (pinned) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary
+            
             Icon(
                 imageVector = if (pinned) Icons.Default.Star else Icons.Default.Tag,
                 contentDescription = null,
-                tint = if (pinned) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = iconTint,
                 modifier = Modifier.size(Dimen.SmallIcon)
             )
             
             Text(
                 text = "Aposta #${hash.absoluteValue.toString().takeLast(4)}",
-                style = MaterialTheme.typography.labelLarge,
-                color = if (pinned) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = if (pinned) androidx.compose.ui.text.font.FontWeight.Bold else androidx.compose.ui.text.font.FontWeight.Normal
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold),
+                color = if (pinned) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurface,
             )
         }
         
         IconButton(
             onClick = onPin,
-            modifier = Modifier.size(40.dp) // Larger touch target
+            modifier = Modifier.size(44.dp) // Optimized touch target
         ) {
             AnimatedContent(targetState = pinned, label = "PinIconAnimation") { isPinned ->
                 Icon(

@@ -1,3 +1,5 @@
+@file:Suppress("SameParameterValue", "SameParameterValue")
+
 package com.cebolao.lotofacil.ui.components
 
 import androidx.annotation.DrawableRes

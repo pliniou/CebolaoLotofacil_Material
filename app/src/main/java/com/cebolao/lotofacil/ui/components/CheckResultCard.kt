@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.data.CheckResult
 import com.cebolao.lotofacil.data.LotofacilConstants
@@ -39,29 +40,47 @@ fun CheckResultCard(result: CheckResult, modifier: Modifier = Modifier) {
     SectionCard(
         modifier = modifier.fillMaxWidth(),
         backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
-        verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)
+        verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding) // Tighter spacing
     ) {
         val totalWins = result.scoreCounts.values.sum()
         ResultHeader(totalWins, result.lastCheckedContest)
-        AppDivider()
+        
+        AppDivider(modifier = Modifier.padding(vertical = Dimen.SmallPadding))
+
+        if (totalWins > 0) {
+             // Win Probability (Simple)
+            val winRate = (totalWins.toFloat() / result.lastCheckedContest.toFloat()) * 100
+            val winRateFormatted = "%.2f%%".format(winRate)
+            
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                 Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Timeline, null, tint = MaterialTheme.colorScheme.tertiary, modifier = Modifier.size(Dimen.SmallIcon).padding(end = 6.dp))
+                    Text("Frequência de Prêmios", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+                }
+                Text(
+                    text = winRateFormatted, 
+                    style = MaterialTheme.typography.titleMedium, 
+                    fontWeight = FontWeight.Bold, 
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+             AppDivider(modifier = Modifier.padding(vertical = Dimen.SmallPadding))
+        }
 
         if (result.recentHits.isNotEmpty()) {
             val chartData = remember(result.recentHits) { result.recentHits.map { it.first.toString() to it.second }.toImmutableList() }
             Column(verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
-                    Icon(Icons.Default.Timeline, null, tint = MaterialTheme.colorScheme.tertiary, modifier = Modifier.size(Dimen.SmallIcon))
-                    Text(stringResource(R.string.checker_recent_hits_chart_title), style = MaterialTheme.typography.titleSmall)
-                }
+                Text(stringResource(R.string.checker_recent_hits_chart_title), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.secondary)
                 BarChart(chartData, LotofacilConstants.GAME_SIZE, Modifier.fillMaxWidth(), Dimen.CheckResultChartHeight)
             }
-            AppDivider()
+            AppDivider(modifier = Modifier.padding(vertical = Dimen.SmallPadding))
         }
 
         if (totalWins > 0) {
             result.scoreCounts.entries.sortedByDescending { it.key }.filter { it.key >= LotofacilConstants.MIN_PRIZE_SCORE }.forEach { (score, count) ->
                 ScoreRow(score, count)
             }
-            AppDivider()
+            AppDivider(modifier = Modifier.padding(vertical = Dimen.SmallPadding))
             LastHit(result)
         } else NoWins()
     }

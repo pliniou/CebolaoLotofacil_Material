@@ -40,8 +40,8 @@ fun NumberGrid(
 
     FlowRow(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(Dimen.BallSpacing, Alignment.CenterHorizontally),
-        verticalArrangement = Arrangement.spacedBy(Dimen.BallSpacing),
+        horizontalArrangement = Arrangement.spacedBy(Dimen.SpacingXS, Alignment.CenterHorizontally),
+        verticalArrangement = Arrangement.spacedBy(Dimen.SpacingXS),
         maxItemsInEachRow = AppConfig.UI.GRID_COLUMNS
     ) {
         allNumbers.forEach { number ->

@@ -7,6 +7,7 @@ object LotofacilConstants {
     const val MIN_NUMBER = 1
     const val MAX_NUMBER = 25
     const val MIN_PRIZE_SCORE = 11
+    const val HISTORY_CHECK_SIZE = 10
 
     val NUMBER_RANGE = MIN_NUMBER..MAX_NUMBER
     val ALL_NUMBERS: List<Int> = NUMBER_RANGE.toList()

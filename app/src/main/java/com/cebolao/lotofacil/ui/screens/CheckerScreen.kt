@@ -68,19 +68,36 @@ fun CheckerScreen(viewModel: CheckerViewModel = hiltViewModel()) {
         bottomBar = { if (isGameComplete) CheckerBottomBar(viewModel::saveGame, viewModel::checkGame) }
     ) { innerPadding ->
         Column(
-            modifier = Modifier.padding(innerPadding).fillMaxSize().verticalScroll(rememberScrollState()).padding(Dimen.ScreenPadding)
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(Dimen.ScreenPadding),
+            verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)
         ) {
-            Text(stringResource(R.string.checker_selection_instruction, LotofacilConstants.GAME_SIZE), style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(bottom = Dimen.MediumPadding))
+            Text(
+                text = stringResource(R.string.checker_selection_instruction, LotofacilConstants.GAME_SIZE),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            
             NumberGrid(
                 selectedNumbers = selectedNumbers,
                 onNumberClick = viewModel::toggleNumber,
                 maxSelection = LotofacilConstants.GAME_SIZE,
-                modifier = Modifier.padding(
-                    horizontal = Dimen.SmallPadding,
-                    vertical = Dimen.SmallPadding
-                )
+                modifier = Modifier.fillMaxWidth().padding(vertical = Dimen.SmallPadding) // Removing large internal padding
             )
-            Spacer(Modifier.height(Dimen.SectionSpacing))
+            
+            if (uiState is CheckerUiState.Idle || uiState is CheckerUiState.Error) {
+                 // Info tip if idle
+                 MessageState(
+                    icon = Icons.Default.CheckCircle,
+                    title = stringResource(R.string.checker_how_it_works_title),
+                    message = stringResource(R.string.checker_how_it_works_desc),
+                    modifier = Modifier.fillMaxWidth().padding(top = Dimen.SmallPadding)
+                )
+            }
+
             CheckerResultSection(uiState)
         }
     }

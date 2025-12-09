@@ -22,7 +22,7 @@ import com.cebolao.lotofacil.ui.theme.Dimen
 fun SectionCard(
     modifier: Modifier = Modifier,
     title: String? = null,
-    backgroundColor: Color = MaterialTheme.colorScheme.surface,
+    backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainer, // Mapped to Low/High consistent with theme
     contentPadding: Dp = Dimen.CardContentPadding,
     verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(Dimen.ItemSpacing),
     headerActions: (@Composable () -> Unit)? = null,
@@ -30,9 +30,9 @@ fun SectionCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
+        shape = MaterialTheme.shapes.medium, // Consistent with GameCard (16dp)
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = Dimen.Elevation.Low),
         border = androidx.compose.foundation.BorderStroke(
             Dimen.Border.Hairline, 
             MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
@@ -62,6 +62,7 @@ fun SectionCard(
                         headerActions()
                     }
                 }
+                @Suppress("ControlFlowWithEmptyBody")
                 if (title != null) {
                      // Optional: Separator below header if desired, but clean design often omits it
                      // unless explicitly needed. Keeping it clean for now.

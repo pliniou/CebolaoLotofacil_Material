@@ -50,17 +50,17 @@ fun NextContestHeroCard(info: NextDrawInfo?) {
         modifier = Modifier
             .fillMaxWidth()
             .bounceClick(scaleDown = 0.98f),
-        shape = MaterialTheme.shapes.large,
+        shape = MaterialTheme.shapes.medium, // Changed to medium
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent) 
     ) {
         Box(modifier = Modifier.background(backgroundBrush)) {
             Column(
                 modifier = Modifier
-                    .padding(Dimen.CardContentPadding)
+                    .padding(horizontal = Dimen.CardContentPadding, vertical = Dimen.SmallPadding) // Less vertical padding
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)
+                verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding) // Reduced spacing
             ) {
                 // Header: Badge do concurso
                 Surface(
@@ -69,10 +69,10 @@ fun NextContestHeroCard(info: NextDrawInfo?) {
                 ) {
                     Text(
                         text = stringResource(R.string.home_next_contest, info.contestNumber),
-                        style = MaterialTheme.typography.labelMedium,
+                        style = MaterialTheme.typography.labelSmall, // Smaller label
                         color = colorScheme.primary,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = Dimen.SmallPadding, vertical = Dimen.ExtraSmallPadding)
+                        modifier = Modifier.padding(horizontal = Dimen.SmallPadding, vertical = 2.dp)
                     )
                 }
 
@@ -80,19 +80,17 @@ fun NextContestHeroCard(info: NextDrawInfo?) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = info.formattedPrize,
-                        style = MaterialTheme.typography.displayMedium,
+                        style = MaterialTheme.typography.headlineLarge, // Reduced from displayMedium
                         fontWeight = FontWeight.Black,
                         color = colorScheme.onSurface,
                         textAlign = TextAlign.Center
                     )
                     Text(
                         text = stringResource(R.string.home_prize_estimate),
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodySmall,
                         color = colorScheme.onSurfaceVariant
                     )
                 }
-
-                Spacer(Modifier.height(Dimen.SmallPadding))
 
                 // Footer: Informações Adicionais em Glassmorphism
                 Row(
@@ -100,9 +98,9 @@ fun NextContestHeroCard(info: NextDrawInfo?) {
                         .fillMaxWidth()
                         .background(
                             color = colorScheme.onSurface.copy(alpha = 0.05f),
-                            shape = MaterialTheme.shapes.medium
+                            shape = MaterialTheme.shapes.small
                         )
-                        .padding(horizontal = Dimen.MediumPadding, vertical = Dimen.SmallPadding),
+                        .padding(horizontal = Dimen.SmallPadding, vertical = Dimen.SpacingXS), // Tighter footer
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -115,7 +113,7 @@ fun NextContestHeroCard(info: NextDrawInfo?) {
                     // Separador vertical
                     Box(modifier = Modifier
                         .width(Dimen.Border.Thin)
-                        .height(Dimen.ActionIconSize)
+                        .height(Dimen.SmallIcon)
                         .background(colorScheme.outlineVariant.copy(alpha = 0.3f)))
 
                     InfoItem(

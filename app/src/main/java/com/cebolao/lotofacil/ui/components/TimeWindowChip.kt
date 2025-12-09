@@ -1,5 +1,6 @@
 package com.cebolao.lotofacil.ui.components
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -16,7 +17,7 @@ fun TimeWindowChip(
     onClick: () -> Unit,
     label: String,
     enabled: Boolean = true,
-    modifier: Modifier = Modifier
+    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
     FilterChip(
         selected = isSelected,

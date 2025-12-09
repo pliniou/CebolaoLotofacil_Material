@@ -118,17 +118,20 @@ fun GeneratedGamesScreen(navController: NavController, viewModel: GameViewModel 
             GameTabs(pagerState.currentPage) { index -> scope.launch { pagerState.animateScrollToPage(index) } }
             HorizontalPager(state = pagerState, modifier = Modifier.weight(1f)) { page ->
                 val games = if (page == 0) unpinned else pinned
-                GameList(
-                    games = games,
-                    isNewGamesTab = (page == 0),
-                    onGenerateRequest = {
+                
+                // Optimize callbacks to be stable
+                val onGenerateRequestRe = remember(navController) {
+                    {
                         navController.navigate(Screen.Filters.route) {
                             popUpTo(navController.graph.findStartDestination().id) { saveState = true }
                             launchSingleTop = true
                             restoreState = true
                         }
-                    },
-                    onAction = { action, game ->
+                    }
+                }
+                
+                val onActionRe = remember(viewModel, navController) {
+                    { action: GameCardAction, game: LotofacilGame ->
                         when (action) {
                             GameCardAction.Analyze -> viewModel.analyzeGame(game)
                             GameCardAction.Pin -> viewModel.togglePinState(game)
@@ -136,7 +139,15 @@ fun GeneratedGamesScreen(navController: NavController, viewModel: GameViewModel 
                             GameCardAction.Check -> navController.navigateToChecker(game.numbers)
                             GameCardAction.Share -> viewModel.shareGame(game)
                         }
+                        Unit
                     }
+                }
+
+                GameList(
+                    games = games,
+                    isNewGamesTab = (page == 0),
+                    onGenerateRequest = onGenerateRequestRe,
+                    onAction = onActionRe
                 )
             }
         }

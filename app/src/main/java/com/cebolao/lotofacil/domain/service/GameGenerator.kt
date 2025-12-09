@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.isActive
 import javax.inject.Inject
-import kotlin.random.Random
 
 private const val BATCH_SIZE = 50
 private const val TIMEOUT_MS = 10000L // 10 seconds max per batch attempt to avoid freezing
@@ -25,7 +24,7 @@ class GameGenerator @Inject constructor(
         val generatedGames = LinkedHashSet<LotofacilGame>(quantity)
         
         // Load history for context-aware filters (e.g. repeated numbers)
-        val history = historyRepository.getHistory().take(10) // Only need recent for most checks
+        val history = historyRepository.getHistory().take(LotofacilConstants.HISTORY_CHECK_SIZE) // Only need recent for most checks
         val lastDrawNumbers = history.firstOrNull()?.numbers ?: emptySet()
 
         if (activeFilters.isEmpty()) {
@@ -185,9 +184,9 @@ class GameGenerator @Inject constructor(
         }
 
         private fun maxSumOfNext(count: Int): Int {
-            // Sum of 'count' largest integers <= 25
-            // (25 + 25-count+1) * count / 2
-            return (count * (25 + (25 - count + 1))) / 2
+            // Sum of 'count' largest integers <= MAX_NUMBER
+            // (MAX + MAX-count+1) * count / 2
+            return (count * (LotofacilConstants.MAX_NUMBER + (LotofacilConstants.MAX_NUMBER - count + 1))) / 2
         }
 
         // Final thorough validation against all filters

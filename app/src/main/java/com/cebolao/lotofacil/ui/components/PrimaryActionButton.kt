@@ -43,15 +43,15 @@ fun PrimaryActionButton(
             .then(widthModifier)
             .bounceClick(scaleDown = 0.97f),
         enabled = enabled && !isLoading,
-        shape = MaterialTheme.shapes.small,
+        shape = MaterialTheme.shapes.medium, // Rounded corners (16dp)
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary,
             disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
         ),
         elevation = ButtonDefaults.buttonElevation(
-            defaultElevation = 0.dp,
-            pressedElevation = 0.dp
+            defaultElevation = Dimen.Elevation.Low,
+            pressedElevation = Dimen.Elevation.Low
         )
     ) {
         AnimatedContent(

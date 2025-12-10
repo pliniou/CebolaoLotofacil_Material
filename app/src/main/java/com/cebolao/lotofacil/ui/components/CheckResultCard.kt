@@ -40,7 +40,7 @@ fun CheckResultCard(result: CheckResult, modifier: Modifier = Modifier) {
     SectionCard(
         modifier = modifier.fillMaxWidth(),
         backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
-        verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding) // Tighter spacing
+        verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)
     ) {
         val totalWins = result.scoreCounts.values.sum()
         ResultHeader(totalWins, result.lastCheckedContest)

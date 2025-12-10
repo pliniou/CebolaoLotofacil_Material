@@ -13,7 +13,6 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -72,7 +71,7 @@ fun CheckerScreen(viewModel: CheckerViewModel = hiltViewModel()) {
         StandardPageLayout(scaffoldPadding = innerPadding) {
             item {
                 Row(
-                    modifier = Modifier.fillMaxWidth(), // Padding handled by StandardPageLayout
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -109,7 +108,7 @@ fun CheckerScreen(viewModel: CheckerViewModel = hiltViewModel()) {
                             icon = Icons.Default.CheckCircle,
                             title = stringResource(R.string.checker_how_it_works_title),
                             message = stringResource(R.string.checker_how_it_works_desc),
-                            modifier = Modifier.padding(Dimen.SpacingMedium)
+                            modifier = Modifier.padding(Dimen.SpacingShort)
                         )
                      }
                  }
@@ -166,7 +165,7 @@ private fun CheckerResultSection(state: CheckerUiState) {
                 Text(stringResource(R.string.checker_performance_analysis), style = MaterialTheme.typography.titleMedium)
                 Spacer(Modifier.height(Dimen.SpacingShort))
                 CheckResultCard(state.result)
-                Spacer(Modifier.height(Dimen.SpacingMedium))
+                Spacer(Modifier.height(Dimen.SpacingShort))
                 SimpleStatsCard(state.simpleStats)
             }
             is CheckerUiState.Loading -> LinearProgressIndicator(Modifier.fillMaxWidth())

@@ -1,6 +1,5 @@
 package com.cebolao.lotofacil.ui.screens
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -139,7 +138,7 @@ fun FiltersScreen(navController: NavController, viewModel: FiltersViewModel = hi
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                    modifier = Modifier.padding(top = Dimen.SpacingMedium, bottom = Dimen.SpacingShort)
+                    modifier = Modifier.padding(top = Dimen.SpacingShort, bottom = Dimen.SpacingShort)
                 )
             }
             items(basic, key = { it.type.name }) { filter ->
@@ -149,7 +148,7 @@ fun FiltersScreen(navController: NavController, viewModel: FiltersViewModel = hi
                     onRange = { viewModel.onRangeAdjust(filter.type, it) },
                     onInfo = { viewModel.showFilterInfo(filter.type) },
                     lastDraw = uiState.lastDraw,
-                    modifier = Modifier.padding(vertical = Dimen.Spacing4)
+                    modifier = Modifier.padding(vertical = Dimen.SpacingShort)
                 )
             }
 
@@ -160,7 +159,7 @@ fun FiltersScreen(navController: NavController, viewModel: FiltersViewModel = hi
                     style = MaterialTheme.typography.titleSmall,
                      color = MaterialTheme.colorScheme.tertiary,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                    modifier = Modifier.padding(top = Dimen.SpacingLarge, bottom = Dimen.SpacingShort)
+                    modifier = Modifier.padding(top = Dimen.SpacingShort, bottom = Dimen.SpacingShort)
                 )
             }
             items(advanced, key = { it.type.name }) { filter ->

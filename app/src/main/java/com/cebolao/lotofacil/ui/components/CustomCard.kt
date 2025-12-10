@@ -4,7 +4,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -14,29 +13,35 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cebolao.lotofacil.ui.theme.Dimen
+import com.cebolao.lotofacil.ui.theme.Shapes
 
 @Composable
 fun CustomCard(
     modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
-    hasBorder: Boolean = false,
-    elevation: Dp = 0.dp,
+    hasBorder: Boolean = true, // Default to true for better separation in Flat UI
+    elevation: Dp = Dimen.Elevation.None, // No elevation by default
     contentPadding: Dp = Dimen.CardContentPadding,
     onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    val shape = RoundedCornerShape(16.dp)
+    val shape = Shapes.medium // Standard 12dp
+    
+    // Subtle border for definition
     val border = if (hasBorder) {
-        BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+        BorderStroke(Dimen.Border.Hairline, MaterialTheme.colorScheme.outlineVariant)
     } else null
+
+    val colors = CardDefaults.cardColors(containerColor = backgroundColor)
+    val cardElevation = CardDefaults.cardElevation(defaultElevation = elevation)
 
     if (onClick != null) {
         Card(
             onClick = onClick,
             modifier = modifier,
             shape = shape,
-            colors = CardDefaults.cardColors(containerColor = backgroundColor),
-            elevation = CardDefaults.cardElevation(defaultElevation = elevation),
+            colors = colors,
+            elevation = cardElevation,
             border = border
         ) {
             Column(Modifier.padding(contentPadding)) {
@@ -47,8 +52,8 @@ fun CustomCard(
         Card(
             modifier = modifier,
             shape = shape,
-            colors = CardDefaults.cardColors(containerColor = backgroundColor),
-            elevation = CardDefaults.cardElevation(defaultElevation = elevation),
+            colors = colors,
+            elevation = cardElevation,
             border = border
         ) {
             Column(Modifier.padding(contentPadding)) {

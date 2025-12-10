@@ -18,13 +18,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.data.FilterState
+import com.cebolao.lotofacil.data.FilterType
 import com.cebolao.lotofacil.navigation.Screen
 import com.cebolao.lotofacil.ui.components.AppConfirmationDialog
 import com.cebolao.lotofacil.ui.components.FilterCard
@@ -69,44 +69,69 @@ fun FiltersScreen(navController: NavController, viewModel: FiltersViewModel = hi
     }
 
     if (uiState.showResetDialog) {
-        AppConfirmationDialog(R.string.filters_reset_dialog_title, R.string.filters_reset_dialog_message, R.string.filters_reset_confirm, viewModel::confirmResetFilters, viewModel::dismissResetDialog, icon = Icons.Default.DeleteSweep)
+        AppConfirmationDialog(
+            title = R.string.filters_reset_dialog_title,
+            message = R.string.filters_reset_dialog_message,
+            confirmText = R.string.filters_reset_confirm,
+            onConfirm = viewModel::confirmResetFilters,
+            onDismiss = viewModel::dismissResetDialog,
+            icon = Icons.Default.DeleteSweep
+        )
     }
 
     uiState.filterInfoToShow?.let { type ->
-        InfoDialog(stringResource(R.string.filters_info_dialog_title_format, stringResource(type.titleRes)), type.filterIcon, viewModel::dismissFilterInfo) {
+        InfoDialog(
+            dialogTitle = stringResource(R.string.filters_info_dialog_title_format, stringResource(type.titleRes)),
+            icon = type.filterIcon,
+            onDismissRequest = viewModel::dismissFilterInfo
+        ) {
             SectionCard {
                 InfoPoint(
-                    stringResource(R.string.filters_info_button_description),
-                    stringResource(type.descriptionRes)
+                    title = stringResource(R.string.filters_info_button_description),
+                    description = stringResource(type.descriptionRes)
                 )
             }
         }
     }
 
     val allFilters: List<FilterState> = uiState.filterStates
-    val partitionResult = allFilters.partition { 
+    val (basic, advanced) = allFilters.partition { 
          it.type in listOf(
-             com.cebolao.lotofacil.data.FilterType.SOMA_DEZENAS,
-             com.cebolao.lotofacil.data.FilterType.PARES,
-             com.cebolao.lotofacil.data.FilterType.PRIMOS
+             FilterType.SOMA_DEZENAS,
+             FilterType.PARES,
+             FilterType.PRIMOS
          )
     }
-    val basic = partitionResult.first
-    val advanced = partitionResult.second
 
     AppScreen(
         title = stringResource(R.string.filters_title),
         subtitle = stringResource(R.string.filters_subtitle),
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        actions = { TextButton(onClick = viewModel::requestResetFilters) { Text(stringResource(R.string.filters_reset_button_description)) } },
-        bottomBar = { GenerationActionsPanel(uiState.generationState, viewModel::generateGames, viewModel::cancelGeneration) }
+        actions = { 
+            TextButton(onClick = viewModel::requestResetFilters) { 
+                Text(stringResource(R.string.filters_reset_button_description)) 
+            } 
+        },
+        bottomBar = { 
+            GenerationActionsPanel(uiState.generationState, viewModel::generateGames, viewModel::cancelGeneration) 
+        }
     ) { innerPadding ->
         StandardPageLayout(scaffoldPadding = innerPadding) {
-            item { FilterPresetSelector(viewModel::applyPreset, Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.SmallPadding)) }
-            item { HorizontalDivider(Modifier.padding(vertical = Dimen.ExtraSmallPadding), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)) }
+            // Preset Selector
+            item { 
+                FilterPresetSelector(
+                    onPresetSelected = viewModel::applyPreset,
+                    modifier = Modifier.padding(bottom = Dimen.SpacingShort)
+                ) 
+            }
             
-            // Group Filters (Moved up)
-
+            item { 
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                    thickness = Dimen.Border.Hairline
+                ) 
+            }
+            
             // Basic Section
             item {
                 Text(
@@ -114,11 +139,18 @@ fun FiltersScreen(navController: NavController, viewModel: FiltersViewModel = hi
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                    modifier = Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.SmallPadding)
+                    modifier = Modifier.padding(top = Dimen.SpacingMedium, bottom = Dimen.SpacingShort)
                 )
             }
             items(basic, key = { it.type.name }) { filter ->
-                FilterCard(filter, { viewModel.onFilterToggle(filter.type, it) }, { viewModel.onRangeAdjust(filter.type, it) }, { viewModel.showFilterInfo(filter.type) }, uiState.lastDraw, Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.SpacingXS))
+                FilterCard(
+                    state = filter,
+                    onToggle = { viewModel.onFilterToggle(filter.type, it) },
+                    onRange = { viewModel.onRangeAdjust(filter.type, it) },
+                    onInfo = { viewModel.showFilterInfo(filter.type) },
+                    lastDraw = uiState.lastDraw,
+                    modifier = Modifier.padding(vertical = Dimen.Spacing4)
+                )
             }
 
             // Advanced Section
@@ -126,13 +158,20 @@ fun FiltersScreen(navController: NavController, viewModel: FiltersViewModel = hi
                 Text(
                     text = "Avançado",
                     style = MaterialTheme.typography.titleSmall,
-                     color = MaterialTheme.colorScheme.tertiary, // Pink for advanced/secondary
+                     color = MaterialTheme.colorScheme.tertiary,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                    modifier = Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.SmallPadding).padding(top = Dimen.MediumPadding)
+                    modifier = Modifier.padding(top = Dimen.SpacingLarge, bottom = Dimen.SpacingShort)
                 )
             }
             items(advanced, key = { it.type.name }) { filter ->
-                FilterCard(filter, { viewModel.onFilterToggle(filter.type, it) }, { viewModel.onRangeAdjust(filter.type, it) }, { viewModel.showFilterInfo(filter.type) }, uiState.lastDraw, Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.SpacingXS))
+                FilterCard(
+                    state = filter,
+                    onToggle = { viewModel.onFilterToggle(filter.type, it) },
+                    onRange = { viewModel.onRangeAdjust(filter.type, it) },
+                    onInfo = { viewModel.showFilterInfo(filter.type) },
+                    lastDraw = uiState.lastDraw,
+                    modifier = Modifier.padding(vertical = Dimen.Spacing4)
+                )
             }
         }
     }

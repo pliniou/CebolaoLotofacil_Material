@@ -21,7 +21,6 @@ import androidx.compose.material.icons.filled.PrivacyTip
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -49,10 +48,10 @@ import com.cebolao.lotofacil.ui.theme.AccentPalette
 import com.cebolao.lotofacil.ui.theme.CaixaBlue
 import com.cebolao.lotofacil.ui.theme.CaixaOrange
 import com.cebolao.lotofacil.ui.theme.Dimen
+import com.cebolao.lotofacil.ui.theme.Shapes
 
 // Constants for URLs
 private const val URL_CAIXA = "https://loterias.caixa.gov.br/Paginas/Lotofacil.aspx"
-// Trocando para links reais ou placeholders uteis
 private const val URL_TERMS = "https://google.com" 
 private const val URL_PRIVACY = "https://google.com"
 
@@ -82,7 +81,7 @@ fun AboutScreen(
 
             item {
                 SectionHeader(stringResource(R.string.about_resources_title))
-                Column(verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
+                Column(verticalArrangement = Arrangement.spacedBy(Dimen.SpacingShort)) {
                      ProbabilityCard()
                      CaixaCard { openUrl(URL_CAIXA) }
                 }
@@ -102,7 +101,7 @@ fun AboutScreen(
             }
             
             item {
-                Spacer(Modifier.height(Dimen.LargePadding))
+                Spacer(Modifier.height(Dimen.SpacingLarge))
                 FormattedText(
                     text = stringResource(R.string.about_disclaimer),
                     style = MaterialTheme.typography.labelSmall,
@@ -121,11 +120,11 @@ private fun AboutItemRow(icon: ImageVector, text: String, isClickable: Boolean =
         modifier = Modifier
             .fillMaxWidth()
             .clickable(enabled = isClickable, onClick = onClick)
-            .padding(Dimen.MediumPadding),
+            .padding(Dimen.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(Dimen.SmallIcon))
-        Spacer(Modifier.width(Dimen.MediumPadding))
+        Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(Dimen.IconSmall))
+        Spacer(Modifier.width(Dimen.SpacingMedium))
         Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
         if (isClickable) {
             Icon(Icons.AutoMirrored.Filled.ArrowForward, null, tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.5f), modifier = Modifier.size(16.dp))
@@ -136,14 +135,16 @@ private fun AboutItemRow(icon: ImageVector, text: String, isClickable: Boolean =
 @Composable private fun ProbabilityCard() {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        shape = Shapes.medium,
+        elevation = CardDefaults.cardElevation(0.dp)
     ) {
         Row(
-            modifier = Modifier.padding(Dimen.MediumPadding),
+            modifier = Modifier.padding(Dimen.SpacingMedium),
             verticalAlignment = Alignment.Top
         ) {
-            Icon(Icons.Default.Casino, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(Dimen.LargeIcon))
-            Spacer(Modifier.width(Dimen.MediumPadding))
+            Icon(Icons.Default.Casino, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(Dimen.IconLarge))
+            Spacer(Modifier.width(Dimen.SpacingMedium))
             Column {
                 Text(
                     text = stringResource(R.string.about_probabilities_desc),
@@ -159,44 +160,22 @@ private fun AboutItemRow(icon: ImageVector, text: String, isClickable: Boolean =
     Card(
         onClick = onClick,
         colors = CardDefaults.cardColors(containerColor = CaixaBlue, contentColor = Color.White),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        shape = Shapes.medium,
+        elevation = CardDefaults.cardElevation(0.dp)
     ) {
         Row(
-            modifier = Modifier.padding(Dimen.MediumPadding),
+            modifier = Modifier.padding(Dimen.SpacingMedium),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Default.Public, contentDescription = null, modifier = Modifier.size(Dimen.LargeIcon), tint = Color.White)
-            Spacer(Modifier.width(Dimen.MediumPadding))
+            Icon(Icons.Default.Public, contentDescription = null, modifier = Modifier.size(Dimen.IconLarge), tint = Color.White)
+            Spacer(Modifier.width(Dimen.SpacingMedium))
             Column(Modifier.weight(1f)) {
                 Text(stringResource(R.string.about_caixa_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Text(stringResource(R.string.about_caixa_desc), style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(0.9f))
             }
-            Spacer(Modifier.width(Dimen.MediumPadding))
+            Spacer(Modifier.width(Dimen.SpacingMedium))
             Icon(Icons.AutoMirrored.Filled.Launch, contentDescription = stringResource(R.string.open_external_link), tint = CaixaOrange)
         }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable private fun AboutItem(icon: ImageVector, text: String, isClickable: Boolean = true, onClick: () -> Unit) {
-    androidx.compose.material3.OutlinedCard(
-        onClick = onClick,
-        enabled = isClickable,
-        modifier = Modifier.fillMaxWidth().padding(vertical = Dimen.SpacingXS),
-        colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = androidx.compose.foundation.BorderStroke(Dimen.Border.Hairline, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-    ) {
-        ListItem(
-            headlineContent = {
-                Text(text, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
-            },
-            leadingContent = {
-                Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-            },
-            trailingContent = {
-                if (isClickable) Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.5f), modifier = Modifier.size(Dimen.SmallIcon))
-            },
-            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-        )
     }
 }

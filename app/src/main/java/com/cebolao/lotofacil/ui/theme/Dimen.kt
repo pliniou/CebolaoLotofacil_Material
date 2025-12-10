@@ -4,63 +4,88 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 object Dimen {
-    // --- Spacing System (Golden Ratio / Fibonacci Approximations) ---
-    // 4, 8, 12, 20, 32, 52, 84
-    val SpacingXS = 4.dp
-    val SpacingS = 8.dp
-    val SpacingM = 12.dp 
-    val SpacingL = 20.dp
-    val SpacingXL = 32.dp
-    val SpacingXXL = 52.dp
-    val Spacing3XL = 84.dp
+    // --- Modern Spacing System (8pt Grid) ---
+    val Spacing4 = 4.dp
+    val Spacing8 = 8.dp
+    val Spacing12 = 12.dp
+    val Spacing16 = 16.dp   // Base unit
+    val Spacing24 = 24.dp
+    val Spacing32 = 32.dp
+    val Spacing48 = 48.dp
+    val Spacing64 = 64.dp
+    val Spacing80 = 80.dp
 
-    // --- Aliases for Semantic Usage ---
+    // --- Semantic Spacing (Short vs Long) ---
+    val SpacingShort = Spacing8    // Between related items (e.g., text and icon)
+    val SpacingMedium = Spacing16  // Standard padding
+    val SpacingLong = Spacing32    // Between distinct sections
+
+    // --- Aliases for Legacy Compatibility ---
+    val SpacingXS = Spacing4
+    val SpacingS = Spacing8
+    val SpacingM = Spacing16 // Shifted to 16 for better breathing room
+    val SpacingL = Spacing24
+    val SpacingXL = Spacing32
+    val SpacingXXL = Spacing48
+    val Spacing3XL = Spacing80
+
     val ExtraSmallPadding = SpacingXS
     val SmallPadding = SpacingS
     val MediumPadding = SpacingM
     val LargePadding = SpacingL
     val ExtraLargePadding = SpacingXL
     
-    val SectionSpacing = SpacingXL
-    val ItemSpacing = SpacingS
+    val SectionSpacing = SpacingLong
+    val ItemSpacing = SpacingShort
 
     // --- Layout ---
-    val ScreenPadding = SpacingL // 20dp lateral padding for clean look
-    val CardContentPadding = SpacingM
-    val BottomContentPadding = 100.dp 
-    val BottomBarSpacer = 84.dp 
+    val ScreenPadding = SpacingMedium // 16dp standard android margin
+    val CardContentPadding = SpacingMedium
+    val BottomContentPadding = 96.dp 
+    val BottomBarSpacer = 80.dp 
 
     // --- Component Sizes ---
-    val LargeButtonHeight = 52.dp // Golden ratioish
+    val ActionButtonHeight = 48.dp // Standard minimum touch target
     val SmallButtonHeight = 32.dp 
-    val MinButtonWidth = 128.dp 
-    val PaletteCardWidth = 128.dp
-    val PaletteCardHeight = 84.dp
-    val HeroCardMinHeight = 180.dp 
-    val ProgressBarHeight = 12.dp // Chunky & Flat
+    val MinButtonWidth = 120.dp
+    
+    val PaletteCardWidth = 120.dp
+    val PaletteCardHeight = 80.dp
+    val HeroCardMinHeight = 160.dp 
+    val ProgressBarHeight = 8.dp 
     
     // --- Icons ---
-    val SmallIcon = 20.dp 
-    val MediumIcon = 24.dp
-    val LargeIcon = 32.dp
-    val ExtraLargeIcon = 52.dp
-    val ActionIconSize = 24.dp
-    val Logo = 84.dp
+    val IconSmall = 16.dp
+    val IconMedium = 24.dp
+    val IconLarge = 32.dp
+    val IconExtraLarge = 48.dp
+
+    // Legacy Aliases
+    val SmallIcon = IconSmall
+    val MediumIcon = IconMedium
+    val LargeIcon = IconLarge
+    val ExtraLargeIcon = IconExtraLarge
+    val ActionIconSize = IconMedium
+    val Logo = 80.dp
+    
+    // Compatibility
+    val LargeButtonHeight = ActionButtonHeight
+    val SpacingLarge = Spacing24
 
     // --- Lotofácil Balls ---
-    val BallSizeLarge = 52.dp
+    val BallSizeLarge = 48.dp
     val BallSizeMedium = 32.dp 
     val BallSizeSmall = 24.dp
     val BallSpacing = 4.dp
     
-    val BallTextLarge = 20.sp
+    val BallTextLarge = 18.sp
     val BallTextMedium = 14.sp
     val BallTextSmall = 10.sp
 
     // --- Charts ---
-    val ChartHeight = 220.dp 
-    val CheckResultChartHeight = 180.dp
-    val BarChartHeight = 200.dp
+    val ChartHeight = 200.dp 
+    val CheckResultChartHeight = 160.dp
+    val BarChartHeight = 180.dp
 
     object Border {
         val Hairline = 0.5.dp
@@ -69,8 +94,9 @@ object Dimen {
     }
     
     object Elevation {
+        val None = 0.dp
         val Low = 2.dp
-        val Medium = 8.dp
-        val High = 16.dp
+        val Medium = 4.dp
+        val High = 8.dp
     }
 }

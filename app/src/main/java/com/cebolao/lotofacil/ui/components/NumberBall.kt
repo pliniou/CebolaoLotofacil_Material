@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -17,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import com.cebolao.lotofacil.ui.theme.AppConfig
 import com.cebolao.lotofacil.ui.theme.Dimen
 import com.cebolao.lotofacil.ui.theme.FontFamilyNumeric
@@ -37,7 +37,7 @@ fun NumberBall(
     sizeVariant: NumberBallSize = NumberBallSize.Medium,
     isSelected: Boolean = false,
     isDisabled: Boolean = false,
-    variant: NumberBallVariant = NumberBallVariant.Primary
+    variant: NumberBallVariant = NumberBallVariant.Neutral
 ) {
     val size = when (sizeVariant) {
         NumberBallSize.Large -> Dimen.BallSizeLarge
@@ -58,10 +58,10 @@ fun NumberBall(
     val bg by animateColorAsState(colors.container, label = "bg")
     val content by animateColorAsState(colors.content, label = "content")
     
-    // Shadow for depth (except when disabled or neutral flat variant)
-    val shadowElevation = if (!isDisabled && (isSelected || variant == NumberBallVariant.Hit)) Dimen.Elevation.Low else 0.dp
+    // Flat Design: No shadows
+    val shadowElevation = Dimen.Elevation.None
 
-    androidx.compose.material3.Surface(
+    Surface(
         modifier = modifier
             .size(size)
             .alpha(if (isDisabled) AppConfig.UI.ALPHA_DISABLED else 1f),
@@ -69,7 +69,7 @@ fun NumberBall(
         color = bg,
         contentColor = content,
         shadowElevation = shadowElevation,
-        border = if (colors.border != Color.Transparent) BorderStroke(Dimen.Border.Thin, colors.border) else null
+        border = if (colors.border != Color.Transparent) BorderStroke(Dimen.Border.Hairline, colors.border) else null
     ) {
         Box(contentAlignment = Alignment.Center) {
             Text(
@@ -104,20 +104,17 @@ private fun resolveColors(
             content = scheme.onErrorContainer,
             border = Color.Transparent
         )
-        variant == NumberBallVariant.Secondary -> BallColors(
-            container = scheme.secondaryContainer,
-            content = scheme.onSecondaryContainer,
-            border = Color.Transparent
-        )
+        // Flat Neutral: Subtle surface with border
         variant == NumberBallVariant.Neutral -> BallColors(
             container = scheme.surfaceContainerHigh,
             content = scheme.onSurface,
             border = Color.Transparent
         )
+        // Default / Secondary: clean background
         else -> BallColors(
             container = scheme.surface,
             content = scheme.onSurface,
-            border = scheme.outlineVariant.copy(alpha = 0.5f)
+            border = scheme.outlineVariant
         )
     }
 }

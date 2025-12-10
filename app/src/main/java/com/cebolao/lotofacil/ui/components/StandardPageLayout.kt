@@ -27,22 +27,21 @@ fun StandardPageLayout(
     content: LazyListScope.() -> Unit
 ) {
     val layoutDirection = LocalLayoutDirection.current
-    val navBarsPadding = WindowInsets.navigationBars.asPaddingValues()
     
     // Bottom padding logic: Scaffold padding usually includes nav bar if present,
-    // but if we want extra space for visuals, we add it here.
+    // but if we want extra space for visuals (Fab, BottomBar), we add it here.
     val bottomPadding = if (addBottomSpace) {
         scaffoldPadding.calculateBottomPadding() + Dimen.BottomContentPadding
     } else {
-        scaffoldPadding.calculateBottomPadding() + Dimen.MediumPadding
+        scaffoldPadding.calculateBottomPadding() + Dimen.SpacingMedium
     }
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(
-            top = scaffoldPadding.calculateTopPadding() + Dimen.MediumPadding,
-            start = scaffoldPadding.calculateStartPadding(layoutDirection), // We assume content handles horizontal padding or we add it globally
-            end = scaffoldPadding.calculateEndPadding(layoutDirection),
+            top = scaffoldPadding.calculateTopPadding() + Dimen.SpacingMedium,
+            start = scaffoldPadding.calculateStartPadding(layoutDirection) + Dimen.ScreenPadding, // Add global horizontal padding
+            end = scaffoldPadding.calculateEndPadding(layoutDirection) + Dimen.ScreenPadding,
             bottom = bottomPadding
         ),
         verticalArrangement = Arrangement.spacedBy(Dimen.SectionSpacing),

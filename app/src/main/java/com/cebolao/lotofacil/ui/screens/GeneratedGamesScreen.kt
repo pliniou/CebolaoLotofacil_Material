@@ -148,6 +148,7 @@ private fun GameList(games: List<LotofacilGame>, isNewGamesTab: Boolean, onGener
     if (games.isEmpty()) {
         EmptyState(isNewGamesTab, onGenerateRequest)
     } else {
+        // StandardPageLayout handles content padding
         StandardPageLayout(scaffoldPadding = PaddingValues()) {
             items(
                 items = games,
@@ -201,9 +202,24 @@ private fun EmptyState(isNewGamesTab: Boolean, onGenerateRequest: () -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun GameTabs(selectedIndex: Int, onTabSelected: (Int) -> Unit) {
-    SecondaryTabRow(selectedTabIndex = selectedIndex, containerColor = MaterialTheme.colorScheme.background, divider = {}) {
+    SecondaryTabRow(
+        selectedTabIndex = selectedIndex, 
+        containerColor = MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        divider = {}
+    ) {
         listOf(R.string.games_tab_new, R.string.games_tab_pinned).forEachIndexed { index, titleRes ->
-            Tab(selected = selectedIndex == index, onClick = { onTabSelected(index) }, text = { Text(stringResource(titleRes), style = MaterialTheme.typography.titleMedium, fontWeight = if(selectedIndex == index) FontWeight.Bold else FontWeight.Normal) })
+            Tab(
+                selected = selectedIndex == index, 
+                onClick = { onTabSelected(index) }, 
+                text = { 
+                    Text(
+                        stringResource(titleRes), 
+                        style = MaterialTheme.typography.titleMedium, 
+                        fontWeight = if(selectedIndex == index) FontWeight.Bold else FontWeight.Normal
+                    ) 
+                }
+            )
         }
     }
 }

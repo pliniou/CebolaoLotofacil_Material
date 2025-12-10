@@ -68,7 +68,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
             ) {
                 if (uiState.isSyncing) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(Dimen.SmallIcon),
+                        modifier = Modifier.size(Dimen.IconSmall),
                         strokeWidth = Dimen.Border.Thick
                     )
                 } else {
@@ -80,6 +80,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
             }
         }
     ) { innerPadding ->
+        // StandardPageLayout handles horizontal padding now (ScreenPadding)
         StandardPageLayout(scaffoldPadding = innerPadding) {
             item {
                 AnimateOnEntry(delayMillis = 0) {
@@ -114,11 +115,10 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                 if (draw != null) {
                     item {
                         AnimateOnEntry(delayMillis = 200) {
-                            Column {
+                            Column(verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(Dimen.SpacingShort)) {
                                 SectionHeader(
                                     stringResource(R.string.home_last_contest_format, draw.contestNumber)
                                 )
-                                // Spacer(Modifier.height(Dimen.SmallPadding)) // StandardPageLayout handles spacing, but SectionHeader might need margin
                                 LastDrawCard(
                                     draw = draw,
                                     winnerData = (uiState.screenState as HomeScreenState.Success).winnerData,
@@ -179,10 +179,12 @@ private fun InfoTipCard() {
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.outlinedCardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.5f)
-        )
+        ),
+        // Flat style: No border or subtle border
+        border = androidx.compose.foundation.BorderStroke(Dimen.Border.Hairline, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Row(
-            modifier = Modifier.padding(Dimen.MediumPadding),
+            modifier = Modifier.padding(Dimen.SpacingMedium),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -191,7 +193,7 @@ private fun InfoTipCard() {
                 tint = MaterialTheme.colorScheme.primary
             )
             
-            Spacer(Modifier.width(Dimen.MediumPadding))
+            Spacer(Modifier.width(Dimen.SpacingMedium))
             
             Text(
                 text = stringResource(R.string.general_disclaimer_responsibility),

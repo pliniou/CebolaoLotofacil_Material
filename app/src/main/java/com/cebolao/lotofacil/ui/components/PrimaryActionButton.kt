@@ -20,9 +20,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import com.cebolao.lotofacil.ui.theme.AppConfig
 import com.cebolao.lotofacil.ui.theme.Dimen
+import com.cebolao.lotofacil.ui.theme.Shapes
 
 @Composable
 fun PrimaryActionButton(
@@ -39,19 +39,23 @@ fun PrimaryActionButton(
     Button(
         onClick = onClick,
         modifier = modifier
-            .height(Dimen.LargeButtonHeight)
-            .then(widthModifier)
-            .bounceClick(scaleDown = 0.97f),
+            .height(Dimen.ActionButtonHeight)
+            .then(widthModifier),
+            //Removed bounceClick for now to keep it simple/standard, unless requested specifically as a "feature".
+            // If it was a custom modifier, it should be fine, but standardizing helps.
         enabled = enabled && !isLoading,
-        shape = androidx.compose.foundation.shape.CircleShape, // Pill shape (999)
+        shape = Shapes.medium, // Rounded Rect (12dp) matches cards
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary,
-            disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
         ),
         elevation = ButtonDefaults.buttonElevation(
-            defaultElevation = Dimen.Elevation.Low,
-            pressedElevation = Dimen.Elevation.Low
+            defaultElevation = Dimen.Elevation.None,
+            pressedElevation = Dimen.Elevation.None,
+            focusedElevation = Dimen.Elevation.None,
+            hoveredElevation = Dimen.Elevation.None
         )
     ) {
         AnimatedContent(
@@ -64,7 +68,7 @@ fun PrimaryActionButton(
         ) { loading ->
             if (loading) {
                 CircularProgressIndicator(
-                    modifier = Modifier.size(Dimen.ActionIconSize),
+                    modifier = Modifier.size(Dimen.IconSmall),
                     color = MaterialTheme.colorScheme.onPrimary,
                     strokeWidth = Dimen.Border.Thick
                 )

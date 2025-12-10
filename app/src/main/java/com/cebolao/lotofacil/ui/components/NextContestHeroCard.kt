@@ -1,4 +1,5 @@
-package com.cebolao.lotofacil.ui.components
+﻿package com.cebolao.lotofacil.ui.components
+import com.cebolao.lotofacil.ui.theme.Shapes
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -52,7 +53,7 @@ fun NextContestHeroCard(info: NextDrawInfo?) {
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        modifier = Modifier.padding(horizontal = Dimen.Spacing.Medium, vertical = Dimen.Spacing.Small)
                     )
                 }
                 Text(
@@ -91,13 +92,13 @@ fun NextContestHeroCard(info: NextDrawInfo?) {
 private fun InfoItem(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, tint: Color) {
     Row(
         verticalAlignment = Alignment.CenterVertically, 
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
+        horizontalArrangement = Arrangement.spacedBy(Dimen.Spacing.Small)
     ) {
         Icon(
             imageVector = icon, 
             contentDescription = null, 
             tint = tint, 
-            modifier = Modifier.size(16.dp)
+            modifier = Modifier.size(Dimen.Spacing.ExtraLarge)
         )
         Text(
             text = label, 

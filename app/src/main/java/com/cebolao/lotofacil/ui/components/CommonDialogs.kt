@@ -1,4 +1,5 @@
-package com.cebolao.lotofacil.ui.components
+﻿package com.cebolao.lotofacil.ui.components
+import com.cebolao.lotofacil.ui.theme.Shapes
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.size

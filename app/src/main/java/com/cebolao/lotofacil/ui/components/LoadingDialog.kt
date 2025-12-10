@@ -1,4 +1,5 @@
-package com.cebolao.lotofacil.ui.components
+﻿package com.cebolao.lotofacil.ui.components
+import com.cebolao.lotofacil.ui.theme.Shapes
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

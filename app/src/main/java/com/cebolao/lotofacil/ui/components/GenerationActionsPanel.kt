@@ -1,4 +1,4 @@
-package com.cebolao.lotofacil.ui.components
+﻿package com.cebolao.lotofacil.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -52,8 +52,8 @@ fun GenerationActionsPanel(
     val loading = state is GenerationUiState.Loading
     val formatter = rememberCurrencyFormatter()
 
-    Surface(modifier.fillMaxWidth(), shadowElevation = 16.dp, color = MaterialTheme.colorScheme.surfaceContainer,  tonalElevation = 8.dp) {
-        Row(Modifier.windowInsetsPadding(WindowInsets.navigationBars).padding(horizontal = Dimen.ScreenPadding, vertical = 4.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
+    Surface(modifier.fillMaxWidth(), shadowElevation = Dimen.Spacing.ExtraLarge, color = MaterialTheme.colorScheme.surfaceContainer,  tonalElevation = Dimen.Spacing.Medium) {
+        Row(Modifier.windowInsetsPadding(WindowInsets.navigationBars).padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.Spacing.Small).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(0.dp)) {
                     Btn(Icons.Default.Remove, idx > 0 && !loading) { haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove); idx-- }

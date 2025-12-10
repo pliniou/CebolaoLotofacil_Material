@@ -1,4 +1,5 @@
-package com.cebolao.lotofacil.ui.components
+﻿package com.cebolao.lotofacil.ui.components
+import com.cebolao.lotofacil.ui.theme.Shapes
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.AnimationSpec
@@ -63,7 +64,7 @@ fun ColorPaletteCard(
     fun ColorSwatch(color: Color, modifier: Modifier = Modifier) {
         Box(
             modifier = modifier
-                .height(16.dp)
+                .height(Dimen.Spacing.ExtraLarge)
                 .clip(MaterialTheme.shapes.extraSmall)
                 .background(color)
                 .border(
@@ -133,7 +134,7 @@ fun ColorPaletteCard(
                             imageVector = Icons.Filled.CheckCircle,
                             contentDescription = stringResource(R.string.general_selected),
                             tint = colorScheme.primary,
-                            modifier = Modifier.size(12.dp)
+                            modifier = Modifier.size(Dimen.Spacing.Large)
                         )
                     }
                 }

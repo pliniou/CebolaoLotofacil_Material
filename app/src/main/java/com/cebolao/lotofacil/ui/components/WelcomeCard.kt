@@ -1,4 +1,5 @@
-package com.cebolao.lotofacil.ui.components
+﻿package com.cebolao.lotofacil.ui.components
+import com.cebolao.lotofacil.ui.theme.Shapes
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -62,14 +63,14 @@ fun WelcomeCard(modifier: Modifier = Modifier) {
 
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium, // Changed to medium
+        shape = MaterialTheme.shapes.medium,
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Box(modifier = Modifier.background(gradient)) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = Dimen.CardContentPadding, vertical = Dimen.SmallPadding), // Tighter padding
+                    .padding(horizontal = Dimen.CardContentPadding, vertical = Dimen.SmallPadding),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -79,7 +80,7 @@ fun WelcomeCard(modifier: Modifier = Modifier) {
                             imageVector = Icons.Default.WbSunny,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(Dimen.SmallIcon).padding(end = 4.dp)
+                            modifier = Modifier.size(Dimen.SmallIcon).padding(end = Dimen.ExtraSmallPadding)
                         )
                         Text(
                             text = stringResource(R.string.welcome_message_format, stringResource(greetingRes)),
@@ -90,7 +91,7 @@ fun WelcomeCard(modifier: Modifier = Modifier) {
                     }
                     
                      Text(
-                        text = "“$randomQuote”",
+                        text = "\"$randomQuote\"",
                         style = MaterialTheme.typography.bodySmall,
                         fontStyle = FontStyle.Italic,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,

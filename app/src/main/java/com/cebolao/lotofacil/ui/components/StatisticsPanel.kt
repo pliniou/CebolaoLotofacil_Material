@@ -1,4 +1,5 @@
-package com.cebolao.lotofacil.ui.components
+﻿package com.cebolao.lotofacil.ui.components
+import com.cebolao.lotofacil.ui.theme.Shapes
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -182,8 +183,8 @@ private fun StatRow(
 
         androidx.compose.foundation.layout.FlowRow(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(Dimen.Spacing.Medium),
+            verticalArrangement = Arrangement.spacedBy(Dimen.Spacing.Medium),
             maxItemsInEachRow = 3
         ) {
             data.forEach { (number, value) ->
@@ -203,7 +204,7 @@ private fun StatItem(number: Int, value: Int, highlightColor: androidx.compose.u
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.padding(horizontal = 8.dp)
+            modifier = Modifier.padding(horizontal = Dimen.Spacing.Medium)
         ) {
             NumberBall(
                 number = number,

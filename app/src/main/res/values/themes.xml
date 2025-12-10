@@ -8,7 +8,7 @@
 
         <!-- Window Light Status Bar (true = dark icons) -->
         <item name="android:windowLightStatusBar">true</item>
-        <item name="android:windowLightNavigationBar">true</item>
+        <!-- android:windowLightNavigationBar movido para values-v27 -->
     </style>
 
     <!-- Dark Theme Override (if we had values-night, but defining here for clarity or specific forcing) -->

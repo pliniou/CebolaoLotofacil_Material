@@ -1,4 +1,5 @@
-package com.cebolao.lotofacil.ui.components
+﻿package com.cebolao.lotofacil.ui.components
+import com.cebolao.lotofacil.ui.theme.Shapes
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -37,7 +38,7 @@ fun FilterStatsPanel(
     successProbability: Float,
     modifier: Modifier = Modifier
 ) {
-    // Outlined Card para distinção semântica (Painel de Info vs. Botão)
+    // Outlined Card para distinÃ§Ã£o semÃ¢ntica (Painel de Info vs. BotÃ£o)
     OutlinedCard(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,

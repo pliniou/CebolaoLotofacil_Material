@@ -99,4 +99,12 @@ object Dimen {
         val Medium = 4.dp
         val High = 8.dp
     }
+
+    // Sub-objeto para compatibilidade com referências Dimen.Spacing.XXX
+    object Spacing {
+        val Small = Spacing8
+        val Medium = Spacing16
+        val Large = Spacing24
+        val ExtraLarge = Spacing32
+    }
 }

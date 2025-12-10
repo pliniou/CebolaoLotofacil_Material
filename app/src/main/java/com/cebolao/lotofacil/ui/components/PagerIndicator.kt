@@ -1,4 +1,5 @@
-package com.cebolao.lotofacil.ui.components
+﻿package com.cebolao.lotofacil.ui.components
+import com.cebolao.lotofacil.ui.theme.Dimen
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
@@ -26,7 +27,7 @@ fun PagerIndicator(
     modifier: Modifier = Modifier,
     activeIndicatorWidth: Dp = 32.dp,
     indicatorHeight: Dp = 10.dp,
-    indicatorSpacing: Dp = 8.dp
+    indicatorSpacing: Dp = Dimen.Spacing.Medium
 ) {
     Row(
         modifier = modifier,

@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.ui.components.FormattedText
@@ -80,20 +81,24 @@ fun AboutScreen(
             }
 
             item {
-                SectionHeader(stringResource(R.string.about_probabilities_title))
-                ProbabilityCard()
+                SectionHeader(stringResource(R.string.about_resources_title))
+                Column(verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
+                     ProbabilityCard()
+                     CaixaCard { openUrl(URL_CAIXA) }
+                }
             }
 
             item {
-                SectionHeader(stringResource(R.string.about_official_source))
-                CaixaCard { openUrl(URL_CAIXA) }
-            }
-
-            item {
-                SectionHeader(stringResource(R.string.about_info_section))
-                AboutItem(icon = Icons.Default.Gavel, text = stringResource(R.string.about_terms)) { openUrl(URL_TERMS) }
-                AboutItem(icon = Icons.Default.PrivacyTip, text = stringResource(R.string.about_privacy_policy)) { openUrl(URL_PRIVACY) }
-                AboutItem(icon = Icons.Default.Info, text = stringResource(R.string.about_version_format, "1.0"), isClickable = false) {}
+                SectionHeader(stringResource(R.string.about_legal_title))
+                com.cebolao.lotofacil.ui.components.SectionCard(modifier = Modifier.fillMaxWidth()) {
+                    Column {
+                        AboutItemRow(Icons.Default.Gavel, stringResource(R.string.about_terms)) { openUrl(URL_TERMS) }
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
+                        AboutItemRow(Icons.Default.PrivacyTip, stringResource(R.string.about_privacy_policy)) { openUrl(URL_PRIVACY) }
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
+                        AboutItemRow(Icons.Default.Info, stringResource(R.string.about_version_format, "1.0"), isClickable = false) {}
+                    }
+                }
             }
             
             item {
@@ -106,6 +111,24 @@ fun AboutScreen(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = Dimen.ScreenPadding)
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun AboutItemRow(icon: ImageVector, text: String, isClickable: Boolean = true, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(enabled = isClickable, onClick = onClick)
+            .padding(Dimen.MediumPadding),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(Dimen.SmallIcon))
+        Spacer(Modifier.width(Dimen.MediumPadding))
+        Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
+        if (isClickable) {
+            Icon(Icons.AutoMirrored.Filled.ArrowForward, null, tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.5f), modifier = Modifier.size(16.dp))
         }
     }
 }

@@ -26,8 +26,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -67,12 +69,24 @@ fun CheckerScreen(viewModel: CheckerViewModel = hiltViewModel()) {
     ) { innerPadding ->
         StandardPageLayout(scaffoldPadding = innerPadding) {
             item {
-                Text(
-                    text = stringResource(R.string.checker_selection_instruction, LotofacilConstants.GAME_SIZE),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(horizontal = Dimen.ScreenPadding)
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = Dimen.ScreenPadding),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.checker_selection_instruction, LotofacilConstants.GAME_SIZE),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    
+                    Text(
+                        text = "${selectedNumbers.size}/15",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = if (selectedNumbers.size == 15) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
             
             item {

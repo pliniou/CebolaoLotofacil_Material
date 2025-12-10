@@ -4,8 +4,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -28,13 +31,42 @@ fun SectionCard(
     headerActions: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
+    CustomCard(
+        modifier = modifier.fillMaxWidth(),
+        backgroundColor = backgroundColor,
+        hasBorder = true, // SectionCard usually implies some separation
+        elevation = Dimen.Elevation.Low, // Or 0.dp if we want completely flat
+        contentPadding = Dp(0f) // CustomCard adds padding to content, but here we manage it in Column below? 
+        // Wait, CustomCard adds padding. SectionCard takes `contentPadding`.
+        // Let's rely on CustomCard's padding logic or pass 0 and let Column handle it if needed.
+        // Actually, SectionCard code passed contentPadding to Column. CustomCard does too.
+        // So:
+    ) {
+        // CustomCard ALREADY adds contentPadding. 
+        // BUT SectionCard has `verticalArrangement` usage in its Column. 
+        // CustomCard's generic Column doesn't support verticalArrangement param customization.
+        // I might have oversimplified CustomCard. 
+        
+        // Let's reuse CustomCard but maybe I should have allowed arrangement.
+        // Or just inline the Card logic here to be consistent but kept flexible.
+        // Actually, for consistency, I should use the same shape/colors.
+    }
+    // RE-THINKING: CustomCard implementation above enforces `Column(Modifier.padding(contentPadding))`.
+    // SectionCard does `Column(padding(contentPadding), verticalArrangement)`.
+    // If I use CustomCard, I lose verticalArrangement unless I add it to CustomCard.
+    
+    // I will simply Update SectionCard to MATCH the visual style (Shape/Color) without necessarily calling CustomCard 
+    // IF CustomCard acts as a limiting wrapper. 
+    // OR I update CustomCard to be more flexible. 
+    // Let's update SectionCard manually to match the definitions.
+    
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium, // Consistent with GameCard (16dp)
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = Dimen.Elevation.Low),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp), // Flat
         border = androidx.compose.foundation.BorderStroke(
-            Dimen.Border.Hairline, 
+            1.dp, 
             MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
         )
     ) {

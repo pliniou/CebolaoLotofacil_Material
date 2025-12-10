@@ -2,6 +2,7 @@ package com.cebolao.lotofacil.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,17 +17,12 @@ fun SimpleStatsCard(
     stats: ImmutableList<Pair<String, String>>,
     modifier: Modifier = Modifier
 ) {
-    SectionCard(modifier = modifier) {
-        Column(verticalArrangement = Arrangement.spacedBy(Dimen.CardContentPadding)) {
-            Text(
-                text = stringResource(R.string.checker_simple_stats_title),
-                style = MaterialTheme.typography.titleMedium
-            )
-            AppDivider()
-            
-            Column(verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
-                stats.forEach { (label, value) ->
-                    InfoValueRow(label = label, value = value)
+    SectionCard(modifier = modifier, title = stringResource(R.string.checker_simple_stats_title)) {
+        Column(verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
+            stats.forEachIndexed { index, (label, value) ->
+                InfoValueRow(label = label, value = value)
+                if (index < stats.lastIndex) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
                 }
             }
         }

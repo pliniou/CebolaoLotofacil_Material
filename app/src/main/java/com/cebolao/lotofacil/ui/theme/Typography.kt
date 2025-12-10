@@ -6,52 +6,59 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
 val Typography = Typography(
+    // --- FLAT MODERN HIERARCHY ---
+    // Hero Numbers
     displayLarge = TextStyle(
         fontFamily = FontFamilyDisplay,
-        fontWeight = FontWeight.Black,
-        fontSize = 57.sp,
-        lineHeight = 64.sp,
-        letterSpacing = (-0.25).sp
+        fontWeight = FontWeight.Bold,
+        fontSize = 32.sp,
+        lineHeight = 40.sp,
+        letterSpacing = (-0.5).sp
     ),
+    // Unused / Reserve
     displayMedium = TextStyle(
         fontFamily = FontFamilyDisplay,
         fontWeight = FontWeight.Bold,
-        fontSize = 45.sp,
-        lineHeight = 52.sp
+        fontSize = 28.sp, 
+        lineHeight = 36.sp
     ),
     displaySmall = TextStyle(
         fontFamily = FontFamilyDisplay,
         fontWeight = FontWeight.Bold,
-        fontSize = 36.sp,
-        lineHeight = 44.sp
+        fontSize = 24.sp,
+        lineHeight = 32.sp
     ),
+    // Screen Titles (H1 equivalent)
     headlineLarge = TextStyle(
         fontFamily = FontFamilyBody,
         fontWeight = FontWeight.Bold,
-        fontSize = 32.sp,
-        lineHeight = 40.sp
+        fontSize = 28.sp,
+        lineHeight = 34.sp,
+        letterSpacing = 0.sp
     ),
     headlineMedium = TextStyle(
         fontFamily = FontFamilyBody,
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 28.sp,
-        lineHeight = 36.sp
+        fontWeight = FontWeight.Bold,
+        fontSize = 24.sp,
+        lineHeight = 30.sp
     ),
     headlineSmall = TextStyle(
         fontFamily = FontFamilyBody,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 24.sp,
-        lineHeight = 32.sp
-    ),
-    titleLarge = TextStyle(
-        fontFamily = FontFamilyBody,
-        fontWeight = FontWeight.Medium,
         fontSize = 22.sp,
         lineHeight = 28.sp
     ),
+    // Section Headers (H2 equivalent)
+    titleLarge = TextStyle(
+        fontFamily = FontFamilyBody,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 20.sp,
+        lineHeight = 26.sp
+    ),
+    // Subtitles (H3)
     titleMedium = TextStyle(
         fontFamily = FontFamilyBody,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.SemiBold,
         fontSize = 16.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.15.sp

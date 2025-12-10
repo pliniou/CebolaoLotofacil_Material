@@ -43,7 +43,7 @@ fun PrimaryActionButton(
             .then(widthModifier)
             .bounceClick(scaleDown = 0.97f),
         enabled = enabled && !isLoading,
-        shape = MaterialTheme.shapes.medium, // Rounded corners (16dp)
+        shape = androidx.compose.foundation.shape.CircleShape, // Pill shape (999)
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary,

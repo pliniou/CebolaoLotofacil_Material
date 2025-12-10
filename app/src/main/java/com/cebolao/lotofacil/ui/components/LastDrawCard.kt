@@ -27,8 +27,27 @@ fun LastDrawCard(
     winnerData: List<WinnerData>,
     modifier: Modifier = Modifier
 ) {
-    SectionCard(modifier) {
-        Column(verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)) {
+    SectionCard(modifier, title = null) { // Remove default separate title to control hierarchy manually
+        Column(verticalArrangement = Arrangement.spacedBy(Dimen.CardContentPadding)) {
+            // Header: Title + Contest Number
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.home_last_contest_format, draw.contestNumber),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = draw.date ?: "",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                )
+            }
+
+            // Body: Numbers (Center Stage)
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(Dimen.BallSpacing, Alignment.CenterHorizontally),
@@ -43,12 +62,6 @@ fun LastDrawCard(
             if (winnerData.isNotEmpty()) {
                 AppDivider()
                 Column(verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
-                    Text(
-                        text = stringResource(R.string.home_winners_last_contest), 
-                        style = MaterialTheme.typography.titleSmall, 
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
-                    )
                     winnerData.forEach { WinnerRow(it) }
                 }
             }

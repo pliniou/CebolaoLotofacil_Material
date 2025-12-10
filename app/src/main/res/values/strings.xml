@@ -176,6 +176,8 @@
     <string name="about_official_source">Fonte da Verdade</string>
     <string name="about_caixa_title">Loterias Caixa</string>
     <string name="about_caixa_desc">Onde o dinheiro está. Site Oficial.</string>
+    <string name="about_resources_title">Recursos</string>
+    <string name="about_legal_title">Jurídico</string>
     <string name="about_info_section">Chatices Legais</string>
     <string name="about_terms">Termos que ninguém lê</string>
     <string name="about_privacy_policy">Política de Privacidade</string>

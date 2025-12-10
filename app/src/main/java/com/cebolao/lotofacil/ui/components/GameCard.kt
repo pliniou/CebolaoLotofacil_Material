@@ -48,61 +48,33 @@ fun GameCard(
 ) {
     val pinned = game.isPinned
     
-    // Refined Style: Sutil e Premium
-    // Pinned: Fundo levemente tintado, borda suave.
-    // Unpinned: Fundo surface, borda muito fina.
-    
-    val containerColor = if (pinned) {
-        MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.25f) // Muito mais sutil
-    } else {
-        MaterialTheme.colorScheme.surface
-    }
-    
-    val borderStroke = if (pinned) {
-        BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f))
-    } else {
-        BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)) // Hairline
-    }
+    // CustomCard Logic
+    val bg = if (pinned) MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surface
+    val border = pinned
 
-    Card(
+    CustomCard(
         modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium, 
-        colors = CardDefaults.cardColors(containerColor = containerColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = borderStroke
+        backgroundColor = bg,
+        hasBorder = border,
+        onClick = null
     ) {
-        Column(
-            modifier = Modifier
-                .padding(Dimen.CardContentPadding)
-                .animateContentSize()
-        ) {
-            Header(
-                hash = game.hashCode(),
-                pinned = pinned,
-                onPin = { onAction(GameCardAction.Pin) }
-            )
+        Column(modifier = Modifier.animateContentSize()) {
+            Header(game.hashCode(), pinned, { onAction(GameCardAction.Pin) })
             
-            Spacer(Modifier.height(Dimen.SectionSpacing))
+            Spacer(Modifier.height(Dimen.SmallPadding))
             
             NumberGrid(
                 selectedNumbers = game.numbers,
-                onNumberClick = {},
+                onNumberClick = {}, // Read only
                 modifier = Modifier.fillMaxWidth(),
                 maxSelection = LotofacilConstants.GAME_SIZE,
                 sizeVariant = NumberBallSize.Small,
-                // Se pinned, usamos Secondary, mas talvez seja melhor usar Neutral ou Primary com alpha menor se ainda estiver grosseiro.
-                // Vamos manter Secondary mas confiar que o tema cuida das cores.
-                ballVariant = if (pinned) NumberBallVariant.Secondary else NumberBallVariant.Neutral 
+                ballVariant = if (pinned) NumberBallVariant.Secondary else NumberBallVariant.Neutral
             )
             
-            Spacer(Modifier.height(Dimen.MediumPadding))
+            Spacer(Modifier.height(Dimen.SmallPadding))
             
-            Actions(
-                pinned = pinned,
-                onDelete = { onAction(GameCardAction.Delete) },
-                onShare = { onAction(GameCardAction.Share) },
-                onCheck = { onAction(GameCardAction.Check) }
-            )
+            Actions(pinned, { onAction(GameCardAction.Delete) }, { onAction(GameCardAction.Share) }, { onAction(GameCardAction.Check) })
         }
     }
 }
@@ -114,33 +86,19 @@ private fun Header(hash: Int, pinned: Boolean, onPin: () -> Unit) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Tag,
-                contentDescription = null,
-                tint = if(pinned) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
-                modifier = Modifier.size(Dimen.SmallIcon)
-            )
-            
-            Text(
-                text = "Aposta #${hash.absoluteValue.toString().takeLast(4)}",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Medium, // Reduzido de SemiBold para Medium para leveza
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        }
+        Text(
+            text = "Aposta #${hash.absoluteValue.toString().takeLast(4)}",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
         
         IconButton(onClick = onPin) {
-            AnimatedContent(targetState = pinned, label = "Pin") { isPinned ->
-                Icon(
-                    imageVector = if (isPinned) Icons.Filled.PushPin else Icons.Outlined.PushPin,
-                    contentDescription = null,
-                    tint = if (isPinned) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.outline
-                )
-            }
+            Icon(
+                imageVector = if (pinned) Icons.Filled.PushPin else Icons.Outlined.PushPin,
+                contentDescription = null,
+                tint = if (pinned) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
@@ -154,56 +112,29 @@ private fun Actions(
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.End, // Aligned Right
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Row {
-            IconButton(onClick = onDelete) {
-                Icon(
-                    imageVector = Icons.Default.DeleteOutline,
-                    contentDescription = stringResource(R.string.general_delete),
-                    tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f) // Menos agressivo
-                )
-            }
-            IconButton(onClick = onShare) {
-                Icon(
-                    imageVector = Icons.Default.Share,
-                    contentDescription = stringResource(R.string.general_share),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+        // Context Actions
+        IconButton(onClick = onShare) {
+            Icon(Icons.Default.Share, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
+        IconButton(onClick = onDelete) {
+            Icon(Icons.Default.DeleteOutline, null, tint = MaterialTheme.colorScheme.error)
+        }
+        
+        Spacer(Modifier.width(Dimen.SmallPadding))
 
-        // Botão de conferir mais limpo
+        // Check Button (Primary Action for this card if needed, or context menu. User said "Delete/Share aligned right... Button Context...").
+        // We keep "Check" as a button because it's important.
         if (pinned) {
-             Button(
-                onClick = onCheck,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary
-                )
-            ) {
-                Icon(
-                    imageVector = Icons.Default.CheckCircle,
-                    contentDescription = null,
-                    modifier = Modifier.size(Dimen.SmallIcon)
-                )
-                Spacer(Modifier.width(Dimen.SmallPadding))
+             Button(onClick = onCheck, contentPadding = ButtonDefaults.ContentPadding) {
                 Text(stringResource(R.string.game_card_action_check))
-            }
+             }
         } else {
-             OutlinedButton(
-                onClick = onCheck,
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.CheckCircle,
-                    contentDescription = null,
-                    modifier = Modifier.size(Dimen.SmallIcon)
-                )
-                Spacer(Modifier.width(Dimen.SmallPadding))
+             OutlinedButton(onClick = onCheck) {
                 Text(stringResource(R.string.game_card_action_check))
-            }
+             }
         }
     }
 }

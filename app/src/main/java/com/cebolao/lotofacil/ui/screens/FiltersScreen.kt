@@ -24,6 +24,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.cebolao.lotofacil.R
+import com.cebolao.lotofacil.data.FilterState
 import com.cebolao.lotofacil.navigation.Screen
 import com.cebolao.lotofacil.ui.components.AppConfirmationDialog
 import com.cebolao.lotofacil.ui.components.FilterCard
@@ -82,6 +83,17 @@ fun FiltersScreen(navController: NavController, viewModel: FiltersViewModel = hi
         }
     }
 
+    val allFilters: List<FilterState> = uiState.filterStates
+    val partitionResult = allFilters.partition { 
+         it.type in listOf(
+             com.cebolao.lotofacil.data.FilterType.SOMA_DEZENAS,
+             com.cebolao.lotofacil.data.FilterType.PARES,
+             com.cebolao.lotofacil.data.FilterType.PRIMOS
+         )
+    }
+    val basic = partitionResult.first
+    val advanced = partitionResult.second
+
     AppScreen(
         title = stringResource(R.string.filters_title),
         subtitle = stringResource(R.string.filters_subtitle),
@@ -93,7 +105,33 @@ fun FiltersScreen(navController: NavController, viewModel: FiltersViewModel = hi
             item { FilterPresetSelector(viewModel::applyPreset, Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.SmallPadding)) }
             item { HorizontalDivider(Modifier.padding(vertical = Dimen.ExtraSmallPadding), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)) }
             
-            items(uiState.filterStates, key = { it.type.name }) { filter ->
+            // Group Filters (Moved up)
+
+            // Basic Section
+            item {
+                Text(
+                    text = "Básico",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.SmallPadding)
+                )
+            }
+            items(basic, key = { it.type.name }) { filter ->
+                FilterCard(filter, { viewModel.onFilterToggle(filter.type, it) }, { viewModel.onRangeAdjust(filter.type, it) }, { viewModel.showFilterInfo(filter.type) }, uiState.lastDraw, Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.SpacingXS))
+            }
+
+            // Advanced Section
+            item {
+                Text(
+                    text = "Avançado",
+                    style = MaterialTheme.typography.titleSmall,
+                     color = MaterialTheme.colorScheme.tertiary, // Pink for advanced/secondary
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.SmallPadding).padding(top = Dimen.MediumPadding)
+                )
+            }
+            items(advanced, key = { it.type.name }) { filter ->
                 FilterCard(filter, { viewModel.onFilterToggle(filter.type, it) }, { viewModel.onRangeAdjust(filter.type, it) }, { viewModel.showFilterInfo(filter.type) }, uiState.lastDraw, Modifier.padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.SpacingXS))
             }
         }

@@ -135,7 +135,7 @@ private fun DrawScope.drawBars(data: List<Pair<String, Int>>, max: Int, m: Chart
         
         if (h > 0) {
             val color = if (selIdx == i) c.secondary else c.primary
-            drawRoundRect(Brush.verticalGradient(listOf(color, color.copy(alpha = 0.7f)), y, y + h), Offset(x, y), Size(m.barWidth, h), CornerRadius(8f))
+            drawRoundRect(color = color, topLeft = Offset(x, y), size = Size(m.barWidth, h), cornerRadius = CornerRadius(8f, 8f))
         }
         if (data.size <= 15 || i % 2 == 0) {
             drawContext.canvas.nativeCanvas.withSave {

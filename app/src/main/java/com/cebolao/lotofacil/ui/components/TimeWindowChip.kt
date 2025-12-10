@@ -19,27 +19,11 @@ fun TimeWindowChip(
     enabled: Boolean = true,
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
-    FilterChip(
+    CustomChip(
         selected = isSelected,
-        enabled = enabled,
         onClick = onClick,
-        label = {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
-            )
-        },
+        label = label,
         modifier = modifier,
-        colors = FilterChipDefaults.filterChipColors(
-            selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-            selectedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer,
-            containerColor = MaterialTheme.colorScheme.surface,
-            labelColor = MaterialTheme.colorScheme.onSurfaceVariant
-        ),
-        border = BorderStroke(
-            width = if (isSelected) Dimen.Border.Thin else Dimen.Border.Hairline,
-            color = if (isSelected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.outlineVariant
-        )
+        enabled = enabled
     )
 }

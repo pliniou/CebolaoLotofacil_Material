@@ -4,30 +4,31 @@ import androidx.compose.ui.graphics.Color
 
 // --- BRAND IDENTITY (Cores Chapadas e Vivas) ---
 // Cores inspiradas em Neon/Cyberpunk mas com legibilidade Material Design
-val BrandAzul = Color(0xFF2979FF)   // Azul Elétrico
-val BrandRoxo = Color(0xFFD500F9)   // Roxo Neon
-val BrandVerde = Color(0xFF00E676)  // Verde Matrix
-val BrandAmarelo = Color(0xFFFFEA00) // Amarelo Laser
-val BrandRosa = Color(0xFFFF4081)   // Rosa Choque
-val BrandLaranja = Color(0xFFFF9100) // Laranja Vivo
+val BrandVerde = Color(0xFF00E676)  // Verde Neon (Primary Action)
+val BrandRosa = Color(0xFFFF4081)   // Rosa Neon (Secondary/Stats)
+val BrandAzul = Color(0xFF42A5F5)   // Azul (Info)
+val BrandAmarelo = Color(0xFFFFC107) // Amarelo (Warning)
+val BrandVermelho = Color(0xFFFF5252) // Vermelho (Error)
+val BrandRoxo = Color(0xFFD500F9)   // Roxo (Alternative)
+val BrandLaranja = Color(0xFFFF9100) // Laranja (Alternative)
 
 // --- BACKGROUNDS & SURFACES (Dark Mode Only) ---
-// Tons de cinza azulado muito escuro para contraste alto com as cores vivas
-val DarkBackground = Color(0xFF121212) // Quase preto absoluto
-val DarkSurface = Color(0xFF1E1E1E)    // Cinza escuro padrão Material
-val DarkSurfaceElevated = Color(0xFF2D2D2D) // Um pouco mais claro para cards
-val DarkSurfaceHighlight = Color(0xFF383838) // Destaques
+val DarkBackground = Color(0xFF050608) // Fundo Principal (Deep Dark)
+val DarkSurface = Color(0xFF111318)    // Cards / Superfícies
+val DarkSurfaceElevated = Color(0xFF1E2127) // Divisores / Bordas / Inativos
+val DarkSurfaceHighlight = Color(0xFF2A2D35) // Destaques sutis
 
 // --- CONTENT COLORS ---
 val WhiteHighEmphasis = Color(0xFFFFFFFF)
-val WhiteMediumEmphasis = Color(0xB3FFFFFF) // 70%
-val WhiteDisabled = Color(0x61FFFFFF)       // 38%
+val WhiteMediumEmphasis = Color(0xFF9BA0B0) // Texto secundário (Blue-ish Grey)
+val WhiteDisabled = Color(0xFF1E2127)       // Inativo / Bordas
 
 // --- STATE COLORS ---
-val ErrorColor = Color(0xFFFF5252)   // Vermelho Alerta
-val SuccessColor = BrandVerde        // O mesmo verde da marca
-val WarningColor = BrandAmarelo      // O mesmo amarelo da marca
-val InfoColor = BrandAzul            // O mesmo azul da marca
+// --- STATE COLORS ---
+val ErrorColor = BrandVermelho
+val SuccessColor = BrandVerde
+val WarningColor = BrandAmarelo
+val InfoColor = BrandAzul
 
 // --- LOTOFÁCIL SPECIFIC ---
 val CaixaBlue = Color(0xFF005CA9)    // Mantendo identidade oficial onde necessário

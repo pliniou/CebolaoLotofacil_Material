@@ -15,27 +15,25 @@ enum class AccentPalette(val paletteName: String, val seed: Color) {
 
 fun darkColorSchemeFor(palette: AccentPalette): ColorScheme {
     val primary = palette.seed
-    // Design "Flat & Vivid": Manter a cor pura como Primária.
     
-    val secondary = if (palette == AccentPalette.AMARELO) BrandRoxo else BrandAmarelo
-    // Terciária para destaques extremos
-    val tertiary = if (palette == AccentPalette.VERDE) BrandRosa else BrandVerde
+    // Regra: Secondary é quase sempre Rosa para estatísticas, salvo se a primary for Rosa/Vermelho.
+    val secondary = BrandRosa
 
     return darkColorScheme(
         primary = primary,
-        onPrimary = if (palette == AccentPalette.AMARELO) Color.Black else Color.White,
-        primaryContainer = primary.copy(alpha = 0.2f),
-        onPrimaryContainer = primary, // Texto da container deve ser a propria cor vibrante para brilhar no dark
+        onPrimary = Color.Black, // Contraste máximo em neon
+        primaryContainer = primary.copy(alpha = 0.15f),
+        onPrimaryContainer = primary,
         
         secondary = secondary,
-        onSecondary = if (secondary == BrandAmarelo) Color.Black else Color.White,
-        secondaryContainer = secondary.copy(alpha = 0.2f),
+        onSecondary = Color.White,
+        secondaryContainer = secondary.copy(alpha = 0.15f),
         onSecondaryContainer = secondary,
 
-        tertiary = tertiary,
+        tertiary = BrandAmarelo, // Warning / Highlights
         onTertiary = Color.Black,
-        tertiaryContainer = tertiary.copy(alpha = 0.2f),
-        onTertiaryContainer = tertiary,
+        tertiaryContainer = BrandAmarelo.copy(alpha = 0.15f),
+        onTertiaryContainer = BrandAmarelo,
 
         background = DarkBackground,
         onBackground = WhiteHighEmphasis,
@@ -43,15 +41,15 @@ fun darkColorSchemeFor(palette: AccentPalette): ColorScheme {
         surface = DarkSurface,
         onSurface = WhiteHighEmphasis,
         
-        surfaceVariant = DarkSurfaceElevated,
+        surfaceVariant = DarkSurfaceElevated, // Usado para bordas ou cards secundários
         onSurfaceVariant = WhiteMediumEmphasis,
         
-        surfaceContainer = DarkSurfaceElevated,
-        surfaceContainerHigh = DarkSurfaceHighlight,
+        surfaceContainer = DarkSurface,
+        surfaceContainerHigh = DarkSurfaceElevated,
         surfaceContainerLow = DarkBackground,
         
-        outline = WhiteDisabled,
-        outlineVariant = WhiteDisabled.copy(alpha = 0.3f),
+        outline = DarkSurfaceElevated, // Bordas sutis
+        outlineVariant = DarkSurfaceElevated.copy(alpha = 0.5f),
         
         error = ErrorColor,
         onError = Color.White

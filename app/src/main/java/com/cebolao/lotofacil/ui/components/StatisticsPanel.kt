@@ -9,6 +9,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,7 +25,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cebolao.lotofacil.R
@@ -144,20 +147,24 @@ private fun StatsContent(stats: StatisticsReport) {
         // Hot Numbers
         StatRow(
             title = stringResource(R.string.home_hot_numbers),
-            data = stats.mostFrequentNumbers.map { it.number to it.frequency }.toImmutableList(),
+            data = stats.mostFrequentNumbers.map { it.number to it.frequency }.take(6).toImmutableList(), // Limit to 6 for 2 rows of 3
             highlightColor = MaterialTheme.colorScheme.tertiary
         )
 
         // Cold Numbers
         StatRow(
             title = stringResource(R.string.home_overdue_numbers),
-            data = stats.mostOverdueNumbers.map { it.number to it.frequency }.toImmutableList(),
+            data = stats.mostOverdueNumbers.map { it.number to it.frequency }.take(6).toImmutableList(),
             highlightColor = MaterialTheme.colorScheme.error,
             isOverdue = true
         )
+        
+        // Legend
+        LegendFooter()
     }
 }
 
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 private fun StatRow(
     title: String,
@@ -175,46 +182,66 @@ private fun StatRow(
             color = MaterialTheme.colorScheme.onSurface
         )
 
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(Dimen.BallSpacing),
-            modifier = Modifier.fillMaxWidth()
+        androidx.compose.foundation.layout.FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            maxItemsInEachRow = 3
         ) {
-            items(
-                items = data,
-                key = { it.first }
-            ) { (number, value) ->
-                Surface(
-                    shape = MaterialTheme.shapes.small,
-                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    modifier = Modifier.width(56.dp)
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    ) {
-                        NumberBall(
-                            number = number,
-                            sizeVariant = NumberBallSize.Medium,
-                            variant = NumberBallVariant.Neutral
-                        )
-                        
-                        Text(
-                            text = value.toString(),
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.Black,
-                            color = highlightColor
-                        )
-                        
-                        Text(
-                            text = if (isOverdue) "atraso" else "freq",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                            fontSize = 9.sp
-                        )
-                    }
-                }
+            data.forEach { (number, value) ->
+                StatItem(number, value, highlightColor, isOverdue, Modifier.weight(1f))
             }
         }
+    }
+}
+
+@Composable
+private fun StatItem(number: Int, value: Int, highlightColor: androidx.compose.ui.graphics.Color, isOverdue: Boolean, modifier: Modifier) {
+     Surface(
+        shape = MaterialTheme.shapes.small,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        modifier = modifier.height(50.dp) // Fixed height for consistency
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.padding(horizontal = 8.dp)
+        ) {
+            NumberBall(
+                number = number,
+                sizeVariant = NumberBallSize.Small, // Smaller ball
+                variant = NumberBallVariant.Neutral
+            )
+            
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    text = value.toString(),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Black,
+                    color = highlightColor
+                )
+                Text(
+                    text = if (isOverdue) "atraso" else "freq",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                    fontSize = 10.sp
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LegendFooter() {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(top = Dimen.SmallPadding),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Text(
+             text = "freq = vezes sorteado | atraso = concursos sem sair",
+             style = MaterialTheme.typography.bodySmall,
+             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+             textAlign = TextAlign.Center
+        )
     }
 }

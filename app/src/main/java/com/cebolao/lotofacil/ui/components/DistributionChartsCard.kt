@@ -38,11 +38,10 @@ fun DistributionChartsCard(
                     items = StatisticPattern.entries.toTypedArray(),
                     key = { it.name }
                 ) { pattern ->
-                    FilterChip(
+                    CustomChip(
                         selected = selectedPattern == pattern,
                         onClick = { onPatternSelected(pattern) },
-                        label = { Text(pattern.title) },
-                        leadingIcon = { if (selectedPattern == pattern) Icon(pattern.icon, null) }
+                        label = pattern.title
                     )
                 }
             }

@@ -32,7 +32,7 @@ fun InfoDialog(
         },
         title = {
             Text(
-                text = dialogTitle, 
+                text = dialogTitle,
                 style = MaterialTheme.typography.headlineSmall
             )
         },
@@ -40,7 +40,7 @@ fun InfoDialog(
         confirmButton = {
             TextButton(onClick = onDismissRequest) {
                 Text(
-                    stringResource(R.string.general_close),
+                    text = stringResource(R.string.general_close),
                     style = MaterialTheme.typography.labelLarge
                 )
             }

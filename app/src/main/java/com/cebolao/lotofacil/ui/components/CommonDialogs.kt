@@ -1,5 +1,4 @@
 ﻿package com.cebolao.lotofacil.ui.components
-import com.cebolao.lotofacil.ui.theme.Shapes
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.size
@@ -31,12 +30,13 @@ fun AppConfirmationDialog(
     AlertDialog(
         modifier = modifier,
         onDismissRequest = onDismiss,
-        shape = MaterialTheme.shapes.extraLarge, 
+        shape = MaterialTheme.shapes.extraLarge,
         icon = {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.size(Dimen.LargeIcon)
+                modifier = Modifier.size(Dimen.LargeIcon),
+                tint = MaterialTheme.colorScheme.error
             )
         },
         title = {
@@ -55,7 +55,8 @@ fun AppConfirmationDialog(
             TextButton(onClick = onConfirm) {
                 Text(
                     text = stringResource(confirmText),
-                    style = MaterialTheme.typography.labelLarge
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         },

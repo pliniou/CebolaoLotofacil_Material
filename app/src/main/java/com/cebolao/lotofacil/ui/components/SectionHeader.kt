@@ -21,7 +21,7 @@ fun SectionHeader(
         modifier = modifier.padding(
             start = Dimen.ScreenPadding,
             end = Dimen.ScreenPadding,
-            top = Dimen.LargePadding,
+            top = Dimen.SectionSpacing,
             bottom = Dimen.SmallPadding
         )
     )

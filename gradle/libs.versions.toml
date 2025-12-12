@@ -54,6 +54,9 @@ androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
+androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout" }
+androidx-compose-ui-text = { group = "androidx.compose.ui", name = "ui-text" }
 
 # Hilt (DI)
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
@@ -102,7 +105,11 @@ compose = [
     "androidx-activity-compose",
     "androidx-lifecycle-runtime-compose",
     "androidx-lifecycle-viewmodel-compose",
-    "androidx-navigation-compose"
+    "androidx-lifecycle-viewmodel-compose",
+    "androidx-navigation-compose",
+    "androidx-compose-foundation",
+    "androidx-compose-foundation-layout",
+    "androidx-compose-ui-text"
 ]
 networking = ["retrofit-core", "retrofit-converter-kotlinx", "okhttp-logging"]
 testing = ["junit", "androidx-junit", "androidx-espresso-core", "androidx-ui-test-junit4", "kotlinx-coroutines-test"]

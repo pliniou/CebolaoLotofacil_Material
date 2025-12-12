@@ -33,11 +33,11 @@ fun GameAnalysisDialog(
     AlertDialog(
         onDismissRequest = onDismissRequest,
         containerColor = MaterialTheme.colorScheme.surface,
-        title = { 
+        title = {
             Text(
-                stringResource(R.string.games_analysis_dialog_title), 
-                style = MaterialTheme.typography.headlineMedium 
-            ) 
+                text = stringResource(R.string.games_analysis_dialog_title),
+                style = MaterialTheme.typography.headlineMedium
+            )
         },
         text = {
             Column(
@@ -46,21 +46,26 @@ fun GameAnalysisDialog(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(Dimen.CardContentPadding)
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)
+                ) {
                     Text(
-                        stringResource(R.string.games_analysis_combination_title), 
+                        text = stringResource(R.string.games_analysis_combination_title),
                         style = MaterialTheme.typography.titleMedium
                     )
                     FlowRow(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(Dimen.ExtraSmallPadding, Alignment.CenterHorizontally),
+                        horizontalArrangement = Arrangement.spacedBy(
+                            Dimen.ExtraSmallPadding,
+                            Alignment.CenterHorizontally
+                        ),
                         verticalArrangement = Arrangement.spacedBy(Dimen.ExtraSmallPadding),
                         maxItemsInEachRow = AppConfig.UI.NUMBER_GRID_ITEMS_PER_ROW
                     ) {
-                        result.game.numbers.sorted().forEach {                            
+                        result.game.numbers.sorted().forEach { number ->
                             NumberBall(
-                                number = it,
-                                sizeVariant = NumberBallSize.Medium, 
+                                number = number,
+                                sizeVariant = NumberBallSize.Medium,
                                 variant = NumberBallVariant.Primary
                             )
                         }
@@ -70,37 +75,56 @@ fun GameAnalysisDialog(
                 SimpleStatsCard(stats = result.simpleStats)
 
                 SectionCard {
-                    Column(verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)
+                    ) {
                         Text(
-                            stringResource(R.string.games_analysis_prize_summary_title), 
+                            text = stringResource(R.string.games_analysis_prize_summary_title),
                             style = MaterialTheme.typography.titleMedium
                         )
                         AppDivider()
-                        val totalPremios = result.checkResult.scoreCounts.values.sum()
-                        val ultimoConcurso = result.checkResult.lastHitContest?.toString() ?: DEFAULT_PLACEHOLDER
-                        val ultimoAcerto = result.checkResult.lastHitScore?.toString() ?: DEFAULT_PLACEHOLDER
+
+                        val totalPremios =
+                            result.checkResult.scoreCounts.values.sum()
+                        val ultimoConcurso =
+                            result.checkResult.lastHitContest?.toString()
+                                ?: DEFAULT_PLACEHOLDER
+                        val ultimoAcerto =
+                            result.checkResult.lastHitScore?.toString()
+                                ?: DEFAULT_PLACEHOLDER
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(stringResource(R.string.games_analysis_total_label), style = MaterialTheme.typography.bodyMedium)
                             Text(
-                                "$totalPremios", 
-                                style = MaterialTheme.typography.headlineSmall, 
+                                text = stringResource(R.string.games_analysis_total_label),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Text(
+                                text = "$totalPremios",
+                                style = MaterialTheme.typography.headlineSmall,
                                 fontFamily = StackSans,
                                 color = MaterialTheme.colorScheme.primary
                             )
                         }
+
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(stringResource(R.string.games_analysis_last_prize_label), style = MaterialTheme.typography.bodyMedium)
                             Text(
-                                stringResource(R.string.games_analysis_last_prize_value, ultimoConcurso, ultimoAcerto),
+                                text = stringResource(R.string.games_analysis_last_prize_label),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Text(
+                                text = stringResource(
+                                    R.string.games_analysis_last_prize_value,
+                                    ultimoConcurso,
+                                    ultimoAcerto
+                                ),
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface
@@ -113,7 +137,7 @@ fun GameAnalysisDialog(
         confirmButton = {
             TextButton(onClick = onDismissRequest) {
                 Text(
-                    stringResource(id = R.string.general_close),
+                    text = stringResource(id = R.string.general_close),
                     style = MaterialTheme.typography.labelLarge
                 )
             }

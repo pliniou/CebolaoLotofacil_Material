@@ -18,6 +18,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -29,7 +30,11 @@ import javax.inject.Inject
 sealed interface CheckerUiState {
     data object Idle : CheckerUiState
     data object Loading : CheckerUiState
-    data class Success(val result: CheckResult, val simpleStats: ImmutableList<Pair<String, String>>) : CheckerUiState
+    data class Success(
+        val result: CheckResult,
+        val simpleStats: ImmutableList<Pair<String, String>>
+    ) : CheckerUiState
+
     data class Error(@param:StringRes val messageResId: Int) : CheckerUiState
 }
 
@@ -41,21 +46,29 @@ class CheckerViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<CheckerUiState>(CheckerUiState.Idle)
-    val uiState = _uiState.asStateFlow()
+    val uiState: StateFlow<CheckerUiState> = _uiState.asStateFlow()
 
     private val _selectedNumbers = MutableStateFlow<Set<Int>>(emptySet())
-    val selectedNumbers = _selectedNumbers.asStateFlow()
+    val selectedNumbers: StateFlow<Set<Int>> = _selectedNumbers.asStateFlow()
 
-    val isGameComplete = _selectedNumbers
+    val isGameComplete: StateFlow<Boolean> = _selectedNumbers
         .map { it.size == LotofacilConstants.GAME_SIZE }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), false)
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS),
+            false
+        )
 
     private val _events = Channel<Int>(Channel.BUFFERED)
     val events = _events.receiveAsFlow()
 
     init {
         savedStateHandle.get<String>(Screen.Checker.ARG_NUMBERS)?.let { arg ->
-            val numbers = arg.split(CHECKER_ARG_SEPARATOR).mapNotNull { it.toIntOrNull() }.toSet()
+            val numbers = arg
+                .split(CHECKER_ARG_SEPARATOR)
+                .mapNotNull { it.toIntOrNull() }
+                .toSet()
+
             if (numbers.size == LotofacilConstants.GAME_SIZE) {
                 _selectedNumbers.value = numbers
                 checkGame()
@@ -71,7 +84,10 @@ class CheckerViewModel @Inject constructor(
                 else -> current
             }
         }
-        if (_uiState.value !is CheckerUiState.Idle) _uiState.value = CheckerUiState.Idle
+
+        if (_uiState.value !is CheckerUiState.Idle) {
+            _uiState.value = CheckerUiState.Idle
+        }
     }
 
     fun clearNumbers() {
@@ -80,14 +96,17 @@ class CheckerViewModel @Inject constructor(
     }
 
     fun checkGame() {
+        if (_uiState.value is CheckerUiState.Loading) return
+
         if (!isGameComplete.value) {
             sendEvent(R.string.checker_incomplete_game_message)
             return
         }
 
+        val numbers = _selectedNumbers.value
         viewModelScope.launch {
             _uiState.value = CheckerUiState.Loading
-            analyzeGameUseCase(LotofacilGame(_selectedNumbers.value))
+            analyzeGameUseCase(LotofacilGame(numbers))
                 .onSuccess {
                     _uiState.value = CheckerUiState.Success(it.checkResult, it.simpleStats)
                 }
@@ -99,14 +118,18 @@ class CheckerViewModel @Inject constructor(
 
     fun saveGame() {
         if (!isGameComplete.value) return
+
+        val numbers = _selectedNumbers.value
         viewModelScope.launch {
-            saveGameUseCase(LotofacilGame(_selectedNumbers.value))
+            saveGameUseCase(LotofacilGame(numbers))
                 .onSuccess { sendEvent(R.string.checker_save_success_message) }
                 .onFailure { sendEvent(R.string.checker_save_fail_message) }
         }
     }
 
     private fun sendEvent(@StringRes resId: Int) {
-        viewModelScope.launch { _events.send(resId) }
+        viewModelScope.launch {
+            _events.send(resId)
+        }
     }
 }

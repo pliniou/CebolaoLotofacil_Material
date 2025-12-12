@@ -1,5 +1,4 @@
 ﻿package com.cebolao.lotofacil.ui.components
-import com.cebolao.lotofacil.ui.theme.Shapes
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.AnimationSpec
@@ -19,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Card
@@ -49,19 +49,21 @@ import com.cebolao.lotofacil.ui.theme.darkColorSchemeFor
 fun ColorPaletteCard(
     currentPalette: AccentPalette,
     onPaletteChange: (AccentPalette) -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val palettes = remember { AccentPalette.entries }
-    val animationSpec: AnimationSpec<Color> = tween(AppConfig.Animation.SHORT_DURATION)
+    val animationSpec: AnimationSpec<Color> =
+        tween(AppConfig.Animation.SHORT_DURATION)
 
     val previewColorSchemes = remember {
-        palettes.map { palette ->
-            darkColorSchemeFor(palette)
-        }
+        palettes.map { palette -> darkColorSchemeFor(palette) }
     }
 
     @Composable
-    fun ColorSwatch(color: Color, modifier: Modifier = Modifier) {
+    fun ColorSwatch(
+        color: Color,
+        modifier: Modifier = Modifier
+    ) {
         Box(
             modifier = modifier
                 .height(Dimen.Spacing.ExtraLarge)
@@ -79,12 +81,12 @@ fun ColorPaletteCard(
     fun PalettePreviewCard(
         palette: AccentPalette,
         colorScheme: ColorScheme,
-        isSelected: Boolean,
+        isSelected: Boolean
     ) {
         val borderColor by animateColorAsState(
             targetValue = if (isSelected) colorScheme.primary else Color.Transparent,
             animationSpec = animationSpec,
-            label = "border"
+            label = "paletteBorder"
         )
 
         Card(
@@ -93,7 +95,10 @@ fun ColorPaletteCard(
                 .width(Dimen.PaletteCardWidth)
                 .height(Dimen.PaletteCardHeight),
             shape = MaterialTheme.shapes.small,
-            colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
+            colors = CardDefaults.cardColors(
+                containerColor = colorScheme.surface,
+                contentColor = colorScheme.onSurface
+            ),
             border = BorderStroke(
                 width = if (isSelected) Dimen.Border.Thick else Dimen.Border.Hairline,
                 color = borderColor
@@ -142,8 +147,14 @@ fun ColorPaletteCard(
         }
     }
 
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
-        Text(stringResource(R.string.about_personalization_title), style = MaterialTheme.typography.titleMedium)
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)
+    ) {
+        Text(
+            text = stringResource(R.string.about_personalization_title),
+            style = MaterialTheme.typography.titleMedium
+        )
 
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
@@ -156,7 +167,7 @@ fun ColorPaletteCard(
                 PalettePreviewCard(
                     palette = palette,
                     colorScheme = colorScheme,
-                    isSelected = currentPalette == palette,
+                    isSelected = currentPalette == palette
                 )
             }
         }
@@ -167,6 +178,9 @@ fun ColorPaletteCard(
 @Composable
 private fun ColorPaletteCardPreview() {
     MaterialTheme {
-        ColorPaletteCard(currentPalette = AccentPalette.entries.first(), onPaletteChange = {})
+        ColorPaletteCard(
+            currentPalette = AccentPalette.entries.first(),
+            onPaletteChange = {}
+        )
     }
 }

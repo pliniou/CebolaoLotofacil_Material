@@ -1,15 +1,8 @@
 ﻿package com.cebolao.lotofacil.ui.components
-import com.cebolao.lotofacil.ui.theme.Shapes
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
@@ -40,39 +33,46 @@ fun ThemeSettingsCard(
     onPaletteChange: (AccentPalette) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    SectionCard(modifier = modifier) {
-        Column(verticalArrangement = Arrangement.spacedBy(Dimen.LargePadding)) {
-            Column(verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
-                Text(
-                    text = stringResource(R.string.about_theme_title),
-                    style = MaterialTheme.typography.titleMedium
-                )
-                ThemeModeSelector(currentTheme, onThemeChange)
-            }
+    SectionCard(
+        modifier = modifier,
+        title = stringResource(R.string.about_theme_title),
+        backgroundColor = MaterialTheme.colorScheme.surfaceContainerHigh
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(Dimen.SectionSpacing)
+        ) {
+            ThemeModeSelector(
+                currentTheme = currentTheme,
+                onThemeChange = onThemeChange
+            )
 
-            AppDivider()
-
-            ColorPaletteCard(currentPalette, onPaletteChange)
+            ColorPaletteCard(
+                currentPalette = currentPalette,
+                onPaletteChange = onPaletteChange
+            )
         }
     }
 }
 
 @Composable
-private fun ThemeModeSelector(currentTheme: String, onThemeChange: (String) -> Unit) {
+private fun ThemeModeSelector(
+    currentTheme: String,
+    onThemeChange: (String) -> Unit
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)
+        horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)
     ) {
         ThemeModeButton(
             selected = currentTheme == THEME_MODE_LIGHT,
-            icon = Icons.Default.LightMode,
+            icon = Icons.Filled.LightMode,
             label = stringResource(R.string.about_theme_light),
             onClick = { onThemeChange(THEME_MODE_LIGHT) },
             modifier = Modifier.weight(1f)
         )
         ThemeModeButton(
             selected = currentTheme == THEME_MODE_DARK,
-            icon = Icons.Default.DarkMode,
+            icon = Icons.Filled.DarkMode,
             label = stringResource(R.string.about_theme_dark),
             onClick = { onThemeChange(THEME_MODE_DARK) },
             modifier = Modifier.weight(1f)
@@ -89,42 +89,57 @@ private fun ThemeModeButton(
     modifier: Modifier = Modifier
 ) {
     val containerColor by animateColorAsState(
-        if (selected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
-        label = "modeContainer"
+        targetValue = if (selected) {
+            MaterialTheme.colorScheme.secondaryContainer
+        } else {
+            MaterialTheme.colorScheme.surfaceContainerHigh
+        },
+        label = "themeModeContainer"
     )
+
     val contentColor by animateColorAsState(
-        if (selected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface,
-        label = "modeContent"
+        targetValue = if (selected) {
+            MaterialTheme.colorScheme.onSecondaryContainer
+        } else {
+            MaterialTheme.colorScheme.onSurface
+        },
+        label = "themeModeContent"
     )
+
     val borderColor by animateColorAsState(
-        targetValue = if (selected) Color.Transparent else MaterialTheme.colorScheme.outlineVariant,
-        label = "modeBorder"
-    )
-    val fontWeight by animateFloatAsState(
-        targetValue = if (selected) FontWeight.Bold.weight.toFloat() else FontWeight.Normal.weight.toFloat(),
-        label = "modeFontWeight"
+        targetValue = if (selected) {
+            Color.Transparent
+        } else {
+            MaterialTheme.colorScheme.outlineVariant
+        },
+        label = "themeModeBorder"
     )
 
     Surface(
         onClick = onClick,
-        modifier = modifier
-            .height(Dimen.LargeButtonHeight)
-            .animateContentSize(),
+        modifier = modifier.height(Dimen.ActionButtonHeight),
         shape = MaterialTheme.shapes.medium,
         color = containerColor,
         contentColor = contentColor,
-        border = BorderStroke(1.dp, borderColor)
+        tonalElevation = Dimen.Elevation.None,
+        shadowElevation = Dimen.Elevation.None,
+        border = BorderStroke(Dimen.Border.Hairline, borderColor)
     ) {
         Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Dimen.MediumPadding),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding, Alignment.CenterHorizontally),
-            modifier = Modifier.fillMaxWidth()
+            horizontalArrangement = Arrangement.spacedBy(
+                Dimen.SmallPadding,
+                Alignment.CenterHorizontally
+            )
         ) {
             Icon(imageVector = icon, contentDescription = null)
             Text(
-                text = label, 
-                style = MaterialTheme.typography.labelLarge, 
-                fontWeight = FontWeight(fontWeight.toInt())
+                text = label,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium
             )
         }
     }

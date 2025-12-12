@@ -70,20 +70,31 @@ class GameViewModel @Inject constructor(
 ) : ViewModel() {
 
     val unpinnedGames = observeUnpinnedGamesUseCase()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), kotlinx.collections.immutable.persistentListOf())
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS),
+            kotlinx.collections.immutable.persistentListOf()
+        )
 
     val pinnedGames = observePinnedGamesUseCase()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), kotlinx.collections.immutable.persistentListOf())
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS),
+            kotlinx.collections.immutable.persistentListOf()
+        )
 
     private val _gameToDelete = MutableStateFlow<LotofacilGame?>(null)
-    private val _analysisState = MutableStateFlow<GameAnalysisUiState>(GameAnalysisUiState.Idle)
+    private val _analysisState =
+        MutableStateFlow<GameAnalysisUiState>(GameAnalysisUiState.Idle)
     private val _events = Channel<GameScreenEvent>(Channel.BUFFERED)
-    
+
     val analysisState = _analysisState.asStateFlow()
     val events = _events.receiveAsFlow()
 
     val uiState: StateFlow<GameScreenUiState> = combine(
-        unpinnedGames, pinnedGames, _gameToDelete
+        unpinnedGames,
+        pinnedGames,
+        _gameToDelete
     ) { unpinned, pinned, gameToDelete ->
         val total = unpinned.size + pinned.size
         GameScreenUiState(
@@ -94,18 +105,28 @@ class GameViewModel @Inject constructor(
                 totalCost = LotofacilConstants.GAME_COST.multiply(BigDecimal(total))
             )
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS), GameScreenUiState())
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS),
+        GameScreenUiState()
+    )
 
     private var analyzeJob: Job? = null
 
     fun togglePinState(game: LotofacilGame) = viewModelScope.launch {
         togglePinStateUseCase(game)
-        val msg = if (game.isPinned) R.string.game_card_unpinned else R.string.game_card_pinned
+        val msg =
+            if (game.isPinned) R.string.game_card_unpinned else R.string.game_card_pinned
         _events.send(GameScreenEvent.ShowSnackbar(msg))
     }
 
-    fun requestDeleteGame(game: LotofacilGame) { _gameToDelete.value = game }
-    fun dismissDeleteDialog() { _gameToDelete.value = null }
+    fun requestDeleteGame(game: LotofacilGame) {
+        _gameToDelete.value = game
+    }
+
+    fun dismissDeleteDialog() {
+        _gameToDelete.value = null
+    }
 
     fun confirmDeleteGame() {
         _gameToDelete.value?.let { game ->
@@ -123,12 +144,15 @@ class GameViewModel @Inject constructor(
     fun analyzeGame(game: LotofacilGame) {
         if (_analysisState.value is GameAnalysisUiState.Loading) return
         analyzeJob?.cancel()
-        
+
         analyzeJob = viewModelScope.launch {
             _analysisState.value = GameAnalysisUiState.Loading
             analyzeGameUseCase(game)
                 .onSuccess { _analysisState.value = GameAnalysisUiState.Success(it) }
-                .onFailure { _analysisState.value = GameAnalysisUiState.Error(R.string.error_analysis_failed) }
+                .onFailure {
+                    _analysisState.value =
+                        GameAnalysisUiState.Error(R.string.error_analysis_failed)
+                }
         }
     }
 
@@ -138,6 +162,12 @@ class GameViewModel @Inject constructor(
     }
 
     fun shareGame(game: LotofacilGame) {
-        viewModelScope.launch { _events.send(GameScreenEvent.ShareGame(game.numbers.sorted())) }
+        viewModelScope.launch {
+            _events.send(
+                GameScreenEvent.ShareGame(
+                    game.numbers.sorted()
+                )
+            )
+        }
     }
 }

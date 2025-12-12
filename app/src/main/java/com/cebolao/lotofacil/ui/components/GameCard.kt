@@ -14,7 +14,6 @@ import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,95 +36,125 @@ fun GameCard(
     modifier: Modifier = Modifier,
     onAction: (GameCardAction) -> Unit
 ) {
-    val pinned = game.isPinned
-    
-    // CustomCard Logic
-    val bg = if (pinned) MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surface
-    val border = pinned
+    val isPinned = game.isPinned
+
+    val background = if (isPinned) {
+        MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.2f)
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
 
     CustomCard(
         modifier = modifier.fillMaxWidth(),
-        backgroundColor = bg,
-        hasBorder = border,
+        backgroundColor = background,
+        hasBorder = isPinned,
         onClick = null
     ) {
-        Column(modifier = Modifier.animateContentSize()) {
-            Header(game.hashCode(), pinned, { onAction(GameCardAction.Pin) })
-            
-            Spacer(Modifier.height(Dimen.SmallPadding))
-            
+        Column(
+            modifier = Modifier.animateContentSize()
+        ) {
+            GameCardHeader(
+                gameId = game.hashCode(),
+                isPinned = isPinned,
+                onPinClick = { onAction(GameCardAction.Pin) }
+            )
+
+            Spacer(modifier = Modifier.height(Dimen.SmallPadding))
+
             NumberGrid(
                 selectedNumbers = game.numbers,
-                onNumberClick = {}, // Read only
+                onNumberClick = {}, // read-only
                 modifier = Modifier.fillMaxWidth(),
                 maxSelection = LotofacilConstants.GAME_SIZE,
                 sizeVariant = NumberBallSize.Small,
-                ballVariant = if (pinned) NumberBallVariant.Secondary else NumberBallVariant.Neutral
+                ballVariant = if (isPinned) {
+                    NumberBallVariant.Secondary
+                } else {
+                    NumberBallVariant.Neutral
+                }
             )
-            
-            Spacer(Modifier.height(Dimen.SmallPadding))
-            
-            Actions(pinned, { onAction(GameCardAction.Delete) }, { onAction(GameCardAction.Share) }, { onAction(GameCardAction.Check) })
+
+            Spacer(modifier = Modifier.height(Dimen.SmallPadding))
+
+            GameCardActions(
+                isPinned = isPinned,
+                onDelete = { onAction(GameCardAction.Delete) },
+                onShare = { onAction(GameCardAction.Share) },
+                onCheck = { onAction(GameCardAction.Check) }
+            )
         }
     }
 }
 
 @Composable
-private fun Header(hash: Int, pinned: Boolean, onPin: () -> Unit) {
+private fun GameCardHeader(
+    gameId: Int,
+    isPinned: Boolean,
+    onPinClick: () -> Unit
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "Aposta #${hash.absoluteValue.toString().takeLast(4)}",
+            text = "Aposta #${gameId.absoluteValue.toString().takeLast(4)}",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
         )
-        
-        IconButton(onClick = onPin) {
+
+        IconButton(onClick = onPinClick) {
             Icon(
-                imageVector = if (pinned) Icons.Filled.PushPin else Icons.Outlined.PushPin,
+                imageVector = if (isPinned) Icons.Filled.PushPin else Icons.Outlined.PushPin,
                 contentDescription = null,
-                tint = if (pinned) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurfaceVariant
+                tint = if (isPinned) {
+                    MaterialTheme.colorScheme.secondary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                }
             )
         }
     }
 }
 
 @Composable
-private fun Actions(
-    pinned: Boolean,
+private fun GameCardActions(
+    isPinned: Boolean,
     onDelete: () -> Unit,
     onShare: () -> Unit,
     onCheck: () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.End, // Aligned Right
+        horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Context Actions
         IconButton(onClick = onShare) {
-            Icon(Icons.Default.Share, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            Icon(
+                imageVector = Icons.Filled.Share,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
         IconButton(onClick = onDelete) {
-            Icon(Icons.Default.DeleteOutline, null, tint = MaterialTheme.colorScheme.error)
+            Icon(
+                imageVector = Icons.Filled.DeleteOutline,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.error
+            )
         }
-        
-        Spacer(Modifier.width(Dimen.SmallPadding))
 
-        // Check Button (Primary Action for this card if needed, or context menu. User said "Delete/Share aligned right... Button Context...").
-        // We keep "Check" as a button because it's important.
-        if (pinned) {
-             Button(onClick = onCheck, contentPadding = ButtonDefaults.ContentPadding) {
-                Text(stringResource(R.string.game_card_action_check))
-             }
+        Spacer(modifier = Modifier.width(Dimen.SmallPadding))
+
+        if (isPinned) {
+            Button(onClick = onCheck) {
+                Text(text = stringResource(R.string.game_card_action_check))
+            }
         } else {
-             OutlinedButton(onClick = onCheck) {
-                Text(stringResource(R.string.game_card_action_check))
-             }
+            OutlinedButton(onClick = onCheck) {
+                Text(text = stringResource(R.string.game_card_action_check))
+            }
         }
     }
 }

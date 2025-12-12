@@ -22,7 +22,8 @@ import com.cebolao.lotofacil.ui.theme.Dimen
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
-private val ALL_NUMBERS = (LotofacilConstants.MIN_NUMBER..LotofacilConstants.MAX_NUMBER).toImmutableList()
+private val ALL_NUMBERS: ImmutableList<Int> =
+    (LotofacilConstants.MIN_NUMBER..LotofacilConstants.MAX_NUMBER).toImmutableList()
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -34,7 +35,10 @@ fun NumberGrid(
     maxSelection: Int? = null,
     sizeVariant: NumberBallSize = NumberBallSize.Medium,
     ballVariant: NumberBallVariant = NumberBallVariant.Primary,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(Dimen.SpacingXS, Alignment.CenterHorizontally)
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(
+        Dimen.BallSpacing,
+        Alignment.CenterHorizontally
+    )
 ) {
     val haptic = LocalHapticFeedback.current
     val isFull = maxSelection != null && selectedNumbers.size >= maxSelection
@@ -42,24 +46,34 @@ fun NumberGrid(
     FlowRow(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = horizontalArrangement,
-        verticalArrangement = Arrangement.spacedBy(Dimen.SpacingXS),
+        verticalArrangement = Arrangement.spacedBy(Dimen.BallSpacing),
         maxItemsInEachRow = AppConfig.UI.GRID_COLUMNS
     ) {
         allNumbers.forEach { number ->
             key(number) {
                 val isSelected = number in selectedNumbers
                 val clickable = !isFull || isSelected
+
                 Box(
-                    Modifier.clip(CircleShape).clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        enabled = clickable
-                    ) {
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        onNumberClick(number)
-                    }
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            enabled = clickable
+                        ) {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onNumberClick(number)
+                        }
                 ) {
-                    NumberBall(number, Modifier, sizeVariant, isSelected, !clickable, ballVariant)
+                    NumberBall(
+                        number = number,
+                        modifier = Modifier,
+                        sizeVariant = sizeVariant,
+                        isSelected = isSelected,
+                        isDisabled = !clickable,
+                        variant = ballVariant
+                    )
                 }
             }
         }

@@ -12,14 +12,35 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.graphicsLayer
 
 fun Modifier.bounceClick(
-    scaleDown: Float = 0.95f,
+    scaleDown: Float = 0.96f,
     onClick: (() -> Unit)? = null
-) = composed {
-
+): Modifier = composed {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-    val scale by animateFloatAsState(if (isPressed) scaleDown else 1f, spring(dampingRatio = 0.6f, stiffness = 400f), label = "bounce")
 
-    this.graphicsLayer { scaleX = scale; scaleY = scale }
-        .then(if (onClick != null) Modifier.clickable(interactionSource, null, onClick = onClick) else Modifier)
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) scaleDown else 1f,
+        animationSpec = spring(
+            dampingRatio = 0.7f,
+            stiffness = 500f
+        ),
+        label = "bounceClickScale"
+    )
+
+    val base = this.graphicsLayer {
+        scaleX = scale
+        scaleY = scale
+    }
+
+    if (onClick != null) {
+        base.then(
+            Modifier.clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            )
+        )
+    } else {
+        base
+    }
 }

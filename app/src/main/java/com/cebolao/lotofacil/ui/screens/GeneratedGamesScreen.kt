@@ -76,12 +76,18 @@ fun GeneratedGamesScreen(navController: NavController, viewModel: GameViewModel 
         viewModel.events.collectLatest { event ->
             when (event) {
                 is GameScreenEvent.ShareGame -> context.shareGameIntent(event.numbers)
-                is GameScreenEvent.ShowSnackbar -> snackbarHostState.showSnackbar(context.getString(event.messageRes))
+                is GameScreenEvent.ShowSnackbar -> snackbarHostState.showSnackbar(
+                    context.getString(event.messageRes)
+                )
             }
         }
     }
 
-    AnalysisDialogHandler(analysisState, viewModel::dismissAnalysisDialog, snackbarHostState)
+    AnalysisDialogHandler(
+        analysisState,
+        viewModel::dismissAnalysisDialog,
+        snackbarHostState
+    )
     ConfirmationsHandler(
         showClearDialog = showClearDialog,
         gameToDelete = uiState.gameToDelete,
@@ -94,31 +100,44 @@ fun GeneratedGamesScreen(navController: NavController, viewModel: GameViewModel 
     AppScreen(
         title = stringResource(R.string.games_title),
         subtitle = stringResource(R.string.games_subtitle),
-        navigationIcon = { Icon(Icons.AutoMirrored.Filled.ListAlt, null, tint = MaterialTheme.colorScheme.primary) },
+        navigationIcon = {
+            Icon(
+                Icons.AutoMirrored.Filled.ListAlt,
+                null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+        },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         actions = {
             if (unpinned.isNotEmpty()) {
                 IconButton(onClick = { showClearDialog = true }) {
-                    Icon(Icons.Default.DeleteSweep, stringResource(R.string.games_clear_unpinned_button_description))
+                    Icon(
+                        Icons.Default.DeleteSweep,
+                        stringResource(R.string.games_clear_unpinned_button_description)
+                    )
                 }
             }
         }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(top = innerPadding.calculateTopPadding())) {
-            GameTabs(pagerState.currentPage) { index -> scope.launch { pagerState.animateScrollToPage(index) } }
+            GameTabs(pagerState.currentPage) { index ->
+                scope.launch { pagerState.animateScrollToPage(index) }
+            }
             HorizontalPager(state = pagerState, modifier = Modifier.weight(1f)) { page ->
                 val games = if (page == 0) unpinned else pinned
-                
+
                 val onGenerateRequestRe = remember(navController) {
                     {
                         navController.navigate(Screen.Filters.route) {
-                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
                             launchSingleTop = true
                             restoreState = true
                         }
                     }
                 }
-                
+
                 val onActionRe = remember(viewModel, navController) {
                     { action: GameCardAction, game: LotofacilGame ->
                         when (action) {
@@ -144,7 +163,12 @@ fun GeneratedGamesScreen(navController: NavController, viewModel: GameViewModel 
 }
 
 @Composable
-private fun GameList(games: List<LotofacilGame>, isNewGamesTab: Boolean, onGenerateRequest: () -> Unit, onAction: (GameCardAction, LotofacilGame) -> Unit) {
+private fun GameList(
+    games: List<LotofacilGame>,
+    isNewGamesTab: Boolean,
+    onGenerateRequest: () -> Unit,
+    onAction: (GameCardAction, LotofacilGame) -> Unit
+) {
     if (games.isEmpty()) {
         EmptyState(isNewGamesTab, onGenerateRequest)
     } else {
@@ -164,7 +188,14 @@ private fun GameList(games: List<LotofacilGame>, isNewGamesTab: Boolean, onGener
 }
 
 @Composable
-private fun ConfirmationsHandler(showClearDialog: Boolean, gameToDelete: LotofacilGame?, onClearConfirm: () -> Unit, onClearDismiss: () -> Unit, onDeleteConfirm: () -> Unit, onDeleteDismiss: () -> Unit) {
+private fun ConfirmationsHandler(
+    showClearDialog: Boolean,
+    gameToDelete: LotofacilGame?,
+    onClearConfirm: () -> Unit,
+    onClearDismiss: () -> Unit,
+    onDeleteConfirm: () -> Unit,
+    onDeleteDismiss: () -> Unit
+) {
     if (showClearDialog) {
         AppConfirmationDialog(
             title = R.string.games_clear_dialog_title,
@@ -192,9 +223,12 @@ private fun EmptyState(isNewGamesTab: Boolean, onGenerateRequest: () -> Unit) {
     MessageState(
         icon = Icons.AutoMirrored.Filled.ListAlt,
         title = stringResource(R.string.games_empty_state_title),
-        message = stringResource(if(isNewGamesTab) R.string.games_empty_state_description else R.string.widget_no_pinned_games),
-        actionLabel = if(isNewGamesTab) stringResource(R.string.filters_button_generate) else null,
-        onActionClick = if(isNewGamesTab) onGenerateRequest else null,
+        message = stringResource(
+            if (isNewGamesTab) R.string.games_empty_state_description
+            else R.string.widget_no_pinned_games
+        ),
+        actionLabel = if (isNewGamesTab) stringResource(R.string.filters_button_generate) else null,
+        onActionClick = if (isNewGamesTab) onGenerateRequest else null,
         modifier = Modifier.padding(horizontal = Dimen.ScreenPadding)
     )
 }
@@ -203,21 +237,21 @@ private fun EmptyState(isNewGamesTab: Boolean, onGenerateRequest: () -> Unit) {
 @Composable
 private fun GameTabs(selectedIndex: Int, onTabSelected: (Int) -> Unit) {
     SecondaryTabRow(
-        selectedTabIndex = selectedIndex, 
+        selectedTabIndex = selectedIndex,
         containerColor = MaterialTheme.colorScheme.background,
         contentColor = MaterialTheme.colorScheme.onSurface,
         divider = {}
     ) {
         listOf(R.string.games_tab_new, R.string.games_tab_pinned).forEachIndexed { index, titleRes ->
             Tab(
-                selected = selectedIndex == index, 
-                onClick = { onTabSelected(index) }, 
-                text = { 
+                selected = selectedIndex == index,
+                onClick = { onTabSelected(index) },
+                text = {
                     Text(
-                        stringResource(titleRes), 
-                        style = MaterialTheme.typography.titleMedium, 
-                        fontWeight = if(selectedIndex == index) FontWeight.Bold else FontWeight.Normal
-                    ) 
+                        stringResource(titleRes),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = if (selectedIndex == index) FontWeight.Bold else FontWeight.Normal
+                    )
                 }
             )
         }
@@ -225,10 +259,17 @@ private fun GameTabs(selectedIndex: Int, onTabSelected: (Int) -> Unit) {
 }
 
 @Composable
-private fun AnalysisDialogHandler(state: GameAnalysisUiState, onDismiss: () -> Unit, snackbarHostState: SnackbarHostState) {
+private fun AnalysisDialogHandler(
+    state: GameAnalysisUiState,
+    onDismiss: () -> Unit,
+    snackbarHostState: SnackbarHostState
+) {
     when (state) {
         is GameAnalysisUiState.Success -> GameAnalysisDialog(state.result, onDismiss)
-        is GameAnalysisUiState.Loading -> LoadingDialog(stringResource(R.string.games_analysis_dialog_title), stringResource(R.string.general_loading_analysis)) {}
+        is GameAnalysisUiState.Loading -> LoadingDialog(
+            stringResource(R.string.games_analysis_dialog_title),
+            stringResource(R.string.general_loading_analysis)
+        ) {}
         is GameAnalysisUiState.Error -> {
             val message = stringResource(R.string.general_analysis_failed_snackbar)
             LaunchedEffect(state) {
@@ -236,6 +277,7 @@ private fun AnalysisDialogHandler(state: GameAnalysisUiState, onDismiss: () -> U
                 onDismiss()
             }
         }
+
         else -> Unit
     }
 }
@@ -245,7 +287,13 @@ private fun Context.shareGameIntent(numbers: List<Int>) {
     val intent = Intent(Intent.ACTION_SEND).apply {
         type = MIME_TYPE_TEXT_PLAIN
         putExtra(Intent.EXTRA_SUBJECT, getString(R.string.games_share_game_subject))
-        putExtra(Intent.EXTRA_TEXT, HtmlCompat.fromHtml(getString(R.string.share_game_message_template, numbersStr), HtmlCompat.FROM_HTML_MODE_COMPACT).toString())
+        putExtra(
+            Intent.EXTRA_TEXT,
+            HtmlCompat.fromHtml(
+                getString(R.string.share_game_message_template, numbersStr),
+                HtmlCompat.FROM_HTML_MODE_COMPACT
+            ).toString()
+        )
     }
     startActivity(Intent.createChooser(intent, getString(R.string.games_share_chooser_title)))
 }

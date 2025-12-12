@@ -16,8 +16,11 @@ fun InfoValueRow(
     label: String,
     value: String,
     modifier: Modifier = Modifier,
-    isHighlighed: Boolean = false
+    isHighlighed: Boolean = false,
+    isHighlighted: Boolean = isHighlighed
 ) {
+    val highlight = isHighlighed || isHighlighted
+
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -28,13 +31,21 @@ fun InfoValueRow(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
+
         Text(
             text = value,
-            style = if (isHighlighed) MaterialTheme.typography.titleLarge else MaterialTheme.typography.titleMedium,
+            style = if (highlight) {
+                MaterialTheme.typography.titleLarge
+            } else {
+                MaterialTheme.typography.titleMedium
+            },
             fontFamily = StackSans,
-            fontWeight = if (isHighlighed) FontWeight.Black else FontWeight.Bold,
-            color = if (isHighlighed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+            fontWeight = if (highlight) FontWeight.Black else FontWeight.Bold,
+            color = if (highlight) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onSurface
+            }
         )
     }
 }

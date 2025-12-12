@@ -8,7 +8,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
@@ -20,6 +19,8 @@ fun CustomChip(
     modifier: Modifier = Modifier,
     enabled: Boolean = true
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     FilterChip(
         selected = selected,
         onClick = onClick,
@@ -34,17 +35,18 @@ fun CustomChip(
         enabled = enabled,
         shape = CircleShape,
         colors = FilterChipDefaults.filterChipColors(
-            selectedContainerColor = MaterialTheme.colorScheme.primary, // Green
-            selectedLabelColor = Color.Black, // Contrast on Green
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh, // Gray
-            labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.5f)
+            selectedContainerColor = colorScheme.primary,
+            selectedLabelColor = colorScheme.onPrimary,
+            containerColor = colorScheme.surfaceContainerHigh,
+            labelColor = colorScheme.onSurfaceVariant,
+            disabledContainerColor = colorScheme.surfaceContainerHigh.copy(alpha = 0.5f),
+            disabledLabelColor = colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
         ),
         border = FilterChipDefaults.filterChipBorder(
             enabled = enabled,
             selected = selected,
-            borderColor = Color.Transparent, // No border for flat look usually, or match container
-            selectedBorderColor = Color.Transparent
+            borderColor = colorScheme.outlineVariant.copy(alpha = 0.0f),
+            selectedBorderColor = colorScheme.outlineVariant.copy(alpha = 0.0f)
         )
     )
 }

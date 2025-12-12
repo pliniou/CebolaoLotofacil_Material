@@ -79,21 +79,40 @@ class HomeViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     private val homeDataFlow = syncStatus
         .flatMapLatest { getHomeScreenDataUseCase() }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Result.success(null))
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            Result.success(null)
+        )
 
     // Flow de Estatísticas, reage à janela de tempo
     @OptIn(ExperimentalCoroutinesApi::class)
     private val statsFlow = _selectedTimeWindow
-        .flatMapLatest { window -> flow { emit(getAnalyzedStatsUseCase(window)) } }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Result.success(StatisticsReport()))
+        .flatMapLatest { window ->
+            flow { emit(getAnalyzedStatsUseCase(window)) }
+        }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            Result.success(StatisticsReport())
+        )
 
-    private val settingsFlow = combine(_selectedTimeWindow, _selectedPattern) { window, pattern ->
-        Pair(window, pattern)
-    }
+    private val settingsFlow =
+        combine(_selectedTimeWindow, _selectedPattern) { window, pattern ->
+            Pair(window, pattern)
+        }
 
     val uiState: StateFlow<HomeUiState> = combine(
-        homeDataFlow, statsFlow, syncStatus, settingsFlow, _syncMessageEvent
-    ) { homeResult: Result<HomeScreenData?>, statsResult: Result<StatisticsReport>, status: SyncStatus, settings: Pair<Int, StatisticPattern>, syncMsg: Int? ->
+        homeDataFlow,
+        statsFlow,
+        syncStatus,
+        settingsFlow,
+        _syncMessageEvent
+    ) { homeResult: Result<HomeScreenData?>,
+        statsResult: Result<StatisticsReport>,
+        status: SyncStatus,
+        settings: Pair<Int, StatisticPattern>,
+        syncMsg: Int? ->
 
         val (window, pattern) = settings
 
@@ -115,7 +134,15 @@ class HomeViewModel @Inject constructor(
             else -> null
         }
 
-        HomeUiState(screenState, stats, statsLoading, status is SyncStatus.Syncing, pattern, window, finalMsg)
+        HomeUiState(
+            screenState,
+            stats,
+            statsLoading,
+            status is SyncStatus.Syncing,
+            pattern,
+            window,
+            finalMsg
+        )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HomeUiState())
 
     init {
@@ -123,19 +150,42 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun processSuccess(data: HomeScreenData): HomeScreenState.Success {
-        val simpleStats = data.lastDraw?.let { getGameSimpleStatsUseCase(it) } ?: persistentListOf()
+        val simpleStats =
+            data.lastDraw?.let { getGameSimpleStatsUseCase(it) } ?: persistentListOf()
         return HomeScreenState.Success(
-            data.lastDraw, simpleStats, data.lastDrawCheckResult, data.nextDrawInfo, data.winnerData
+            data.lastDraw,
+            simpleStats,
+            data.lastDrawCheckResult,
+            data.nextDrawInfo,
+            data.winnerData
         )
     }
 
     private fun scheduleWidgetUpdate() {
-        val request = PeriodicWorkRequestBuilder<WidgetUpdateWorker>(WIDGET_UPDATE_INTERVAL_HOURS, TimeUnit.HOURS).build()
-        workManager.enqueueUniquePeriodicWork(WIDGET_UPDATE_WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, request)
+        val request = PeriodicWorkRequestBuilder<WidgetUpdateWorker>(
+            WIDGET_UPDATE_INTERVAL_HOURS,
+            TimeUnit.HOURS
+        ).build()
+        workManager.enqueueUniquePeriodicWork(
+            WIDGET_UPDATE_WORK_NAME,
+            ExistingPeriodicWorkPolicy.KEEP,
+            request
+        )
     }
 
-    fun forceSync() { syncHistoryUseCase() }
-    fun onMessageShown() { _syncMessageEvent.value = null }
-    fun onTimeWindowSelected(window: Int) { _selectedTimeWindow.value = window }
-    fun onPatternSelected(pattern: StatisticPattern) { _selectedPattern.value = pattern }
+    fun forceSync() {
+        syncHistoryUseCase()
+    }
+
+    fun onMessageShown() {
+        _syncMessageEvent.value = null
+    }
+
+    fun onTimeWindowSelected(window: Int) {
+        _selectedTimeWindow.value = window
+    }
+
+    fun onPatternSelected(pattern: StatisticPattern) {
+        _selectedPattern.value = pattern
+    }
 }

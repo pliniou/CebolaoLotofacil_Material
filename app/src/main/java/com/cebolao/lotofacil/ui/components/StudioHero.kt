@@ -16,8 +16,13 @@ import com.cebolao.lotofacil.R
 import com.cebolao.lotofacil.ui.theme.Dimen
 
 @Composable
-fun StudioHero(modifier: Modifier = Modifier) {
-    SectionCard(modifier = modifier) {
+fun StudioHero(
+    modifier: Modifier = Modifier
+) {
+    SectionCard(
+        modifier = modifier,
+        backgroundColor = MaterialTheme.colorScheme.surfaceContainerHigh
+    ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,

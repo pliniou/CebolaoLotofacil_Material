@@ -13,45 +13,62 @@ enum class AccentPalette(val paletteName: String, val seed: Color) {
     LARANJA("Laranja Vivo", BrandLaranja)
 }
 
+/**
+ * Gera o esquema de cores escuro baseado na paleta de acento,
+ * mantendo um visual flat dark consistente em toda a aplicação.
+ */
 fun darkColorSchemeFor(palette: AccentPalette): ColorScheme {
     val primary = palette.seed
-    
-    // Regra: Secondary é quase sempre Rosa para estatísticas, salvo se a primary for Rosa/Vermelho.
-    val secondary = BrandRosa
+
+    // Secondary é quase sempre Rosa (ênfase em estatísticas).
+    // Quando a primary já é Rosa, usamos Azul para preservar contraste.
+    val secondary = when (palette) {
+        AccentPalette.ROSA -> BrandAzul
+        else -> BrandRosa
+    }
 
     return darkColorScheme(
         primary = primary,
-        onPrimary = Color.Black, // Contraste máximo em neon
-        primaryContainer = primary.copy(alpha = 0.15f),
+        onPrimary = Color.Black,
+        primaryContainer = primary.copy(alpha = 0.18f),
         onPrimaryContainer = primary,
-        
+
         secondary = secondary,
         onSecondary = Color.White,
-        secondaryContainer = secondary.copy(alpha = 0.15f),
+        secondaryContainer = secondary.copy(alpha = 0.18f),
         onSecondaryContainer = secondary,
 
-        tertiary = BrandAmarelo, // Warning / Highlights
+        tertiary = BrandAmarelo,
         onTertiary = Color.Black,
-        tertiaryContainer = BrandAmarelo.copy(alpha = 0.15f),
+        tertiaryContainer = BrandAmarelo.copy(alpha = 0.18f),
         onTertiaryContainer = BrandAmarelo,
 
         background = DarkBackground,
         onBackground = WhiteHighEmphasis,
-        
+
         surface = DarkSurface,
         onSurface = WhiteHighEmphasis,
-        
-        surfaceVariant = DarkSurfaceElevated, // Usado para bordas ou cards secundários
+        surfaceVariant = DarkSurfaceElevated,
         onSurfaceVariant = WhiteMediumEmphasis,
-        
+
+        surfaceContainerLowest = DarkBackground,
+        surfaceContainerLow = DarkBackground,
         surfaceContainer = DarkSurface,
         surfaceContainerHigh = DarkSurfaceElevated,
-        surfaceContainerLow = DarkBackground,
-        
-        outline = DarkSurfaceElevated, // Bordas sutis
+        surfaceContainerHighest = DarkSurfaceHighlight,
+
+        outline = DarkSurfaceElevated,
         outlineVariant = DarkSurfaceElevated.copy(alpha = 0.5f),
-        
+
         error = ErrorColor,
-        onError = Color.White
+        onError = Color.White,
+        errorContainer = ErrorColor.copy(alpha = 0.18f),
+        onErrorContainer = ErrorColor,
+
+        surfaceTint = primary,
+        inverseSurface = WhiteHighEmphasis,
+        inverseOnSurface = DarkBackground,
+        inversePrimary = primary,
+        scrim = Color.Black.copy(alpha = 0.32f)
     )
 }

@@ -50,7 +50,7 @@ import com.cebolao.lotofacil.ui.theme.Shapes
 
 // Constants for URLs
 private const val URL_CAIXA = "https://loterias.caixa.gov.br/Paginas/Lotofacil.aspx"
-private const val URL_TERMS = "https://google.com" 
+private const val URL_TERMS = "https://google.com"
 private const val URL_PRIVACY = "https://google.com"
 
 @Composable
@@ -66,12 +66,15 @@ fun AboutScreen(
         context.startActivity(intent)
     }
 
-    AppScreen(title = stringResource(R.string.about_title), subtitle = stringResource(R.string.about_subtitle)) { padding ->
+    AppScreen(
+        title = stringResource(R.string.about_title),
+        subtitle = stringResource(R.string.about_subtitle)
+    ) { padding ->
         StandardPageLayout(scaffoldPadding = padding) {
             item {
                 StudioHero()
             }
-            
+
             item {
                 SectionHeader(stringResource(R.string.about_appearance))
                 ThemeSettingsCard(currentTheme, currentPalette, onThemeChange, onPaletteChange)
@@ -79,25 +82,47 @@ fun AboutScreen(
 
             item {
                 SectionHeader(stringResource(R.string.about_resources_title))
-                Column(verticalArrangement = Arrangement.spacedBy(Dimen.SpacingShort)) {
-                     ProbabilityCard()
-                     CaixaCard { openUrl(URL_CAIXA) }
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(Dimen.SpacingShort)
+                ) {
+                    ProbabilityCard()
+                    CaixaCard { openUrl(URL_CAIXA) }
                 }
             }
 
             item {
                 SectionHeader(stringResource(R.string.about_legal_title))
-                com.cebolao.lotofacil.ui.components.SectionCard(modifier = Modifier.fillMaxWidth()) {
+                com.cebolao.lotofacil.ui.components.SectionCard(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Column {
-                        AboutItemRow(Icons.Default.Gavel, stringResource(R.string.about_terms)) { openUrl(URL_TERMS) }
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
-                        AboutItemRow(Icons.Default.PrivacyTip, stringResource(R.string.about_privacy_policy)) { openUrl(URL_PRIVACY) }
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
-                        AboutItemRow(Icons.Default.Info, stringResource(R.string.about_version_format, "1.0"), isClickable = false) {}
+                        AboutItemRow(
+                            Icons.Default.Gavel,
+                            stringResource(R.string.about_terms)
+                        ) { openUrl(URL_TERMS) }
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(
+                                alpha = 0.2f
+                            )
+                        )
+                        AboutItemRow(
+                            Icons.Default.PrivacyTip,
+                            stringResource(R.string.about_privacy_policy)
+                        ) { openUrl(URL_PRIVACY) }
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(
+                                alpha = 0.2f
+                            )
+                        )
+                        AboutItemRow(
+                            Icons.Default.Info,
+                            stringResource(R.string.about_version_format, "1.0"),
+                            isClickable = false
+                        ) {}
                     }
                 }
             }
-            
+
             item {
                 Spacer(Modifier.height(Dimen.SpacingLarge))
                 FormattedText(
@@ -105,7 +130,9 @@ fun AboutScreen(
                     style = MaterialTheme.typography.labelSmall,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = Dimen.ScreenPadding)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Dimen.ScreenPadding)
                 )
             }
         }
@@ -113,7 +140,12 @@ fun AboutScreen(
 }
 
 @Composable
-private fun AboutItemRow(icon: ImageVector, text: String, isClickable: Boolean = true, onClick: () -> Unit) {
+private fun AboutItemRow(
+    icon: ImageVector,
+    text: String,
+    isClickable: Boolean = true,
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -121,16 +153,32 @@ private fun AboutItemRow(icon: ImageVector, text: String, isClickable: Boolean =
             .padding(Dimen.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(Dimen.IconSmall))
+        Icon(
+            icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(Dimen.IconSmall)
+        )
         Spacer(Modifier.width(Dimen.SpacingMedium))
-        Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
+        Text(
+            text,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f)
+        )
         if (isClickable) {
-            Icon(Icons.AutoMirrored.Filled.ArrowForward, null, tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.5f), modifier = Modifier.size(16.dp))
+            Icon(
+                Icons.AutoMirrored.Filled.ArrowForward,
+                null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.5f),
+                modifier = Modifier.size(16.dp)
+            )
         }
     }
 }
 
-@Composable private fun ProbabilityCard() {
+@Composable
+private fun ProbabilityCard() {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         modifier = Modifier.fillMaxWidth(),
@@ -141,7 +189,12 @@ private fun AboutItemRow(icon: ImageVector, text: String, isClickable: Boolean =
             modifier = Modifier.padding(Dimen.SpacingMedium),
             verticalAlignment = Alignment.Top
         ) {
-            Icon(Icons.Default.Casino, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(Dimen.IconLarge))
+            Icon(
+                Icons.Default.Casino,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(Dimen.IconLarge)
+            )
             Spacer(Modifier.width(Dimen.SpacingMedium))
             Column {
                 Text(
@@ -154,10 +207,14 @@ private fun AboutItemRow(icon: ImageVector, text: String, isClickable: Boolean =
     }
 }
 
-@Composable private fun CaixaCard(onClick: () -> Unit) {
+@Composable
+private fun CaixaCard(onClick: () -> Unit) {
     Card(
         onClick = onClick,
-        colors = CardDefaults.cardColors(containerColor = CaixaBlue, contentColor = Color.White),
+        colors = CardDefaults.cardColors(
+            containerColor = CaixaBlue,
+            contentColor = Color.White
+        ),
         modifier = Modifier.fillMaxWidth(),
         shape = Shapes.medium,
         elevation = CardDefaults.cardElevation(0.dp)
@@ -166,14 +223,31 @@ private fun AboutItemRow(icon: ImageVector, text: String, isClickable: Boolean =
             modifier = Modifier.padding(Dimen.SpacingMedium),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Default.Public, contentDescription = null, modifier = Modifier.size(Dimen.IconLarge), tint = Color.White)
+            Icon(
+                Icons.Default.Public,
+                contentDescription = null,
+                modifier = Modifier.size(Dimen.IconLarge),
+                tint = Color.White
+            )
             Spacer(Modifier.width(Dimen.SpacingMedium))
             Column(Modifier.weight(1f)) {
-                Text(stringResource(R.string.about_caixa_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(stringResource(R.string.about_caixa_desc), style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(0.9f))
+                Text(
+                    stringResource(R.string.about_caixa_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    stringResource(R.string.about_caixa_desc),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White.copy(0.9f)
+                )
             }
             Spacer(Modifier.width(Dimen.SpacingMedium))
-            Icon(Icons.AutoMirrored.Filled.Launch, contentDescription = stringResource(R.string.open_external_link), tint = CaixaOrange)
+            Icon(
+                Icons.AutoMirrored.Filled.Launch,
+                contentDescription = stringResource(R.string.open_external_link),
+                tint = CaixaOrange
+            )
         }
     }
 }

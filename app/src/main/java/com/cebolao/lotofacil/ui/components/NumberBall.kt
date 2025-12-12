@@ -28,7 +28,11 @@ enum class NumberBallSize { Large, Medium, Small }
 enum class NumberBallVariant { Primary, Secondary, Neutral, Hit, Miss }
 
 @Immutable
-private data class BallColors(val container: Color, val content: Color, val border: Color)
+private data class BallColors(
+    val container: Color,
+    val content: Color,
+    val border: Color
+)
 
 @Composable
 fun NumberBall(
@@ -44,6 +48,7 @@ fun NumberBall(
         NumberBallSize.Medium -> Dimen.BallSizeMedium
         NumberBallSize.Small -> Dimen.BallSizeSmall
     }
+
     val fontSize = when (sizeVariant) {
         NumberBallSize.Large -> Dimen.BallTextLarge
         NumberBallSize.Medium -> Dimen.BallTextMedium
@@ -52,32 +57,36 @@ fun NumberBall(
 
     val scheme = MaterialTheme.colorScheme
     val colors = remember(isSelected, variant, scheme) {
-        resolveColors(isSelected, variant, scheme)
+        resolveColors(isSelected = isSelected, variant = variant, scheme = scheme)
     }
 
-    val bg by animateColorAsState(colors.container, label = "bg")
-    val content by animateColorAsState(colors.content, label = "content")
-    
-    // Flat Design: No shadows
-    val shadowElevation = Dimen.Elevation.None
+    val background by animateColorAsState(colors.container, label = "ballBackground")
+    val content by animateColorAsState(colors.content, label = "ballContent")
 
     Surface(
         modifier = modifier
             .size(size)
             .alpha(if (isDisabled) AppConfig.UI.ALPHA_DISABLED else 1f),
         shape = CircleShape,
-        color = bg,
+        color = background,
         contentColor = content,
-        shadowElevation = shadowElevation,
-        border = if (colors.border != Color.Transparent) BorderStroke(Dimen.Border.Hairline, colors.border) else null
+        shadowElevation = Dimen.Elevation.None,
+        border = if (colors.border != Color.Transparent) {
+            BorderStroke(Dimen.Border.Hairline, colors.border)
+        } else {
+            null
+        }
     ) {
         Box(contentAlignment = Alignment.Center) {
             Text(
                 text = DEFAULT_NUMBER_FORMAT.format(number),
                 fontFamily = FontFamilyNumeric,
                 fontSize = fontSize,
-                fontWeight = if (isSelected || variant == NumberBallVariant.Hit) FontWeight.Bold else FontWeight.Medium,
-                modifier = Modifier.align(Alignment.Center)
+                fontWeight = if (isSelected || variant == NumberBallVariant.Hit) {
+                    FontWeight.Bold
+                } else {
+                    FontWeight.Medium
+                }
             )
         }
     }
@@ -94,23 +103,25 @@ private fun resolveColors(
             content = scheme.onPrimary,
             border = Color.Transparent
         )
+
         variant == NumberBallVariant.Hit -> BallColors(
             container = SuccessColor,
             content = Color.White,
             border = Color.Transparent
         )
+
         variant == NumberBallVariant.Miss -> BallColors(
             container = scheme.errorContainer,
             content = scheme.onErrorContainer,
             border = Color.Transparent
         )
-        // Flat Neutral: Subtle surface with border
+
         variant == NumberBallVariant.Neutral -> BallColors(
             container = scheme.surfaceContainerHigh,
             content = scheme.onSurface,
             border = Color.Transparent
         )
-        // Default / Secondary: clean background
+
         else -> BallColors(
             container = scheme.surface,
             content = scheme.onSurface,

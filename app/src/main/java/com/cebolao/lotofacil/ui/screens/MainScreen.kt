@@ -53,14 +53,16 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
         bottomBar = { AppBottomBar(navController, navBackStackEntry?.destination) }
     ) { innerPadding ->
         if (!uiState.isReady) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
         } else {
             NavigationGraph(
-                navController, 
-                startDestination.destination, 
-                Modifier.padding(innerPadding), 
-                viewModel, 
-                themeMode, 
+                navController,
+                startDestination.destination,
+                Modifier.padding(innerPadding),
+                viewModel,
+                themeMode,
                 accentPalette
             )
         }
@@ -70,28 +72,53 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
 @Composable
 private fun AppBottomBar(navController: NavHostController, currentDestination: NavDestination?) {
     val isVisible by remember(currentDestination) {
-        derivedStateOf { bottomNavItems.any { it.baseRoute == currentDestination?.route?.substringBefore('?') } }
+        derivedStateOf {
+            bottomNavItems.any {
+                it.baseRoute == currentDestination?.route?.substringBefore('?')
+            }
+        }
     }
 
-    AnimatedVisibility(visible = isVisible, enter = slideInVertically { it }, exit = slideOutVertically { it }) {
-        NavigationBar(containerColor = MaterialTheme.colorScheme.background, tonalElevation = 0.dp) {
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = slideInVertically { it } + fadeIn(),
+        exit = slideOutVertically { it } + fadeOut()
+    ) {
+        NavigationBar(
+            containerColor = MaterialTheme.colorScheme.surface,
+            tonalElevation = 0.dp
+        ) {
             bottomNavItems.forEach { screen ->
-                val selected = currentDestination?.hierarchy?.any { it.route?.substringBefore('?') == screen.baseRoute } == true
+                val selected =
+                    currentDestination?.hierarchy?.any {
+                        it.route?.substringBefore('?') == screen.baseRoute
+                    } == true
                 NavigationBarItem(
                     selected = selected,
                     alwaysShowLabel = true,
                     onClick = {
                         navController.navigate(screen.route) {
-                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
                             launchSingleTop = true
                             restoreState = true
                         }
                     },
-                    icon = { 
-                        (if (selected) screen.selectedIcon else screen.unselectedIcon)?.let { Icon(it, screen.title) } 
+                    icon = {
+                        (if (selected) screen.selectedIcon else screen.unselectedIcon)?.let {
+                            Icon(it, screen.title)
+                        }
                     },
-                    label = { 
-                        screen.title?.let { Text(it, style = MaterialTheme.typography.labelSmall, fontFamily = Outfit, fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium) } 
+                    label = {
+                        screen.title?.let {
+                            Text(
+                                it,
+                                style = MaterialTheme.typography.labelSmall,
+                                fontFamily = Outfit,
+                                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
+                            )
+                        }
                     },
                     colors = NavigationBarItemDefaults.colors(
                         indicatorColor = MaterialTheme.colorScheme.primaryContainer,
@@ -115,11 +142,19 @@ private fun NavigationGraph(
     theme: String,
     palette: AccentPalette
 ) {
-    NavHost(navController, startDestination, modifier, enterTransition = { fadeIn() }, exitTransition = { fadeOut() }) {
+    NavHost(
+        navController,
+        startDestination,
+        modifier,
+        enterTransition = { fadeIn() },
+        exitTransition = { fadeOut() }
+    ) {
         composable(Screen.Onboarding.route) {
             OnboardingScreen {
                 viewModel.onOnboardingComplete()
-                navController.navigate(Screen.Home.route) { popUpTo(Screen.Onboarding.route) { inclusive = true } }
+                navController.navigate(Screen.Home.route) {
+                    popUpTo(Screen.Onboarding.route) { inclusive = true }
+                }
             }
         }
         composable(Screen.Home.route) { HomeScreen() }
@@ -127,7 +162,12 @@ private fun NavigationGraph(
         composable(Screen.GeneratedGames.route) { GeneratedGamesScreen(navController) }
         composable(Screen.Checker.route, Screen.Checker.arguments) { CheckerScreen() }
         composable(Screen.About.route) {
-            AboutScreen(theme, palette, viewModel::setThemeMode, viewModel::setAccentPalette)
+            AboutScreen(
+                theme,
+                palette,
+                viewModel::setThemeMode,
+                viewModel::setAccentPalette
+            )
         }
     }
 }

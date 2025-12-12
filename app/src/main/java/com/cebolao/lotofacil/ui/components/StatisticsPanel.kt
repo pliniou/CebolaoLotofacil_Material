@@ -1,5 +1,4 @@
 ﻿package com.cebolao.lotofacil.ui.components
-import com.cebolao.lotofacil.ui.theme.Shapes
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -8,14 +7,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
@@ -26,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,10 +41,12 @@ fun StatisticsPanel(
         modifier = modifier,
         title = stringResource(R.string.home_statistics_center),
         headerActions = {
-             AnimatedVisibility(
+            AnimatedVisibility(
                 visible = isStatsLoading,
-                enter = androidx.compose.animation.scaleIn() + androidx.compose.animation.fadeIn(),
-                exit = androidx.compose.animation.scaleOut() + androidx.compose.animation.fadeOut()
+                enter = androidx.compose.animation.scaleIn() +
+                    androidx.compose.animation.fadeIn(),
+                exit = androidx.compose.animation.scaleOut() +
+                    androidx.compose.animation.fadeOut()
             ) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(Dimen.SmallIcon),
@@ -71,7 +66,6 @@ fun StatisticsPanel(
                 )
             )
         ) {
-            // Selector
             TimeWindowSelector(
                 selectedWindow = selectedWindow,
                 onTimeWindowSelected = onTimeWindowSelected,
@@ -80,17 +74,16 @@ fun StatisticsPanel(
 
             AppDivider()
 
-            // Content with Animation
             AnimatedContent(
                 targetState = isStatsLoading,
                 transitionSpec = {
-                    if (targetState) {
-                        (androidx.compose.animation.fadeIn() + androidx.compose.animation.expandVertically())
-                            .togetherWith(androidx.compose.animation.fadeOut() + androidx.compose.animation.shrinkVertically())
-                    } else {
-                        (androidx.compose.animation.fadeIn() + androidx.compose.animation.expandVertically())
-                            .togetherWith(androidx.compose.animation.fadeOut() + androidx.compose.animation.shrinkVertically())
-                    }.using(SizeTransform(clip = false))
+                    (androidx.compose.animation.fadeIn() +
+                        androidx.compose.animation.expandVertically())
+                        .togetherWith(
+                            androidx.compose.animation.fadeOut() +
+                                androidx.compose.animation.shrinkVertically()
+                        )
+                        .using(SizeTransform(clip = false))
                 },
                 label = "StatsContentTransition"
             ) { loading ->
@@ -104,8 +97,6 @@ fun StatisticsPanel(
     }
 }
 
-
-
 @Composable
 private fun TimeWindowSelector(
     selectedWindow: Int,
@@ -114,7 +105,7 @@ private fun TimeWindowSelector(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
         Text(
-            stringResource(R.string.home_analysis_period),
+            text = stringResource(R.string.home_analysis_period),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
                 alpha = if (enabled) 1f else 0.6f
@@ -124,10 +115,16 @@ private fun TimeWindowSelector(
             horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding),
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(items = AppConfig.UI.TIME_WINDOWS, key = { it }) { window ->
+            items(
+                items = AppConfig.UI.TIME_WINDOWS,
+                key = { it }
+            ) { window ->
                 val label = when (window) {
                     0 -> stringResource(R.string.home_all_contests)
-                    else -> stringResource(R.string.home_last_contests_format, window)
+                    else -> stringResource(
+                        R.string.home_last_contests_format,
+                        window
+                    )
                 }
                 TimeWindowChip(
                     isSelected = window == selectedWindow,
@@ -143,27 +140,32 @@ private fun TimeWindowSelector(
 @Composable
 private fun StatsContent(stats: StatisticsReport) {
     Column(verticalArrangement = Arrangement.spacedBy(Dimen.SectionSpacing)) {
-        // Hot Numbers
+        // Números quentes
         StatRow(
             title = stringResource(R.string.home_hot_numbers),
-            data = stats.mostFrequentNumbers.map { it.number to it.frequency }.take(6).toImmutableList(), // Limit to 6 for 2 rows of 3
+            data = stats.mostFrequentNumbers
+                .map { it.number to it.frequency }
+                .take(6)
+                .toImmutableList(),
             highlightColor = MaterialTheme.colorScheme.tertiary
         )
 
-        // Cold Numbers
+        // Números atrasados
         StatRow(
             title = stringResource(R.string.home_overdue_numbers),
-            data = stats.mostOverdueNumbers.map { it.number to it.frequency }.take(6).toImmutableList(),
+            data = stats.mostOverdueNumbers
+                .map { it.number to it.frequency }
+                .take(6)
+                .toImmutableList(),
             highlightColor = MaterialTheme.colorScheme.error,
             isOverdue = true
         )
-        
-        // Legend
+
         LegendFooter()
     }
 }
 
-@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun StatRow(
     title: String,
@@ -177,29 +179,41 @@ private fun StatRow(
         Text(
             text = title,
             style = MaterialTheme.typography.titleSmall,
-            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+            fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
         )
 
-        androidx.compose.foundation.layout.FlowRow(
+        FlowRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(Dimen.Spacing.Medium),
             verticalArrangement = Arrangement.spacedBy(Dimen.Spacing.Medium),
             maxItemsInEachRow = 3
         ) {
             data.forEach { (number, value) ->
-                StatItem(number, value, highlightColor, isOverdue, Modifier.weight(1f))
+                StatItem(
+                    number = number,
+                    value = value,
+                    highlightColor = highlightColor,
+                    isOverdue = isOverdue,
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
     }
 }
 
 @Composable
-private fun StatItem(number: Int, value: Int, highlightColor: androidx.compose.ui.graphics.Color, isOverdue: Boolean, modifier: Modifier) {
-     Surface(
+private fun StatItem(
+    number: Int,
+    value: Int,
+    highlightColor: androidx.compose.ui.graphics.Color,
+    isOverdue: Boolean,
+    modifier: Modifier
+) {
+    Surface(
         shape = MaterialTheme.shapes.small,
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        modifier = modifier.height(50.dp) // Fixed height for consistency
+        modifier = modifier.height(50.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -208,15 +222,15 @@ private fun StatItem(number: Int, value: Int, highlightColor: androidx.compose.u
         ) {
             NumberBall(
                 number = number,
-                sizeVariant = NumberBallSize.Small, // Smaller ball
+                sizeVariant = NumberBallSize.Small,
                 variant = NumberBallVariant.Neutral
             )
-            
+
             Column(horizontalAlignment = Alignment.End) {
                 Text(
                     text = value.toString(),
                     style = MaterialTheme.typography.labelLarge,
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.Black,
+                    fontWeight = FontWeight.Black,
                     color = highlightColor
                 )
                 Text(
@@ -233,14 +247,16 @@ private fun StatItem(number: Int, value: Int, highlightColor: androidx.compose.u
 @Composable
 private fun LegendFooter() {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(top = Dimen.SmallPadding),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = Dimen.SmallPadding),
         horizontalArrangement = Arrangement.Center
     ) {
         Text(
-             text = "freq = vezes sorteado | atraso = concursos sem sair",
-             style = MaterialTheme.typography.bodySmall,
-             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-             textAlign = TextAlign.Center
+            text = "freq = vezes sorteado | atraso = concursos sem sair",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+            textAlign = TextAlign.Center
         )
     }
 }

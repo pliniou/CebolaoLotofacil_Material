@@ -1,8 +1,5 @@
 package com.cebolao.lotofacil.ui.screens
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -48,37 +45,86 @@ private data class Page(val img: Int, val title: Int, val desc: Int)
 fun OnboardingScreen(onComplete: () -> Unit) {
     val pages = remember {
         listOf(
-            Page(R.drawable.img_onboarding_step_1, R.string.onboarding_title_1, R.string.onboarding_desc_1),
-            Page(R.drawable.img_onboarding_step_2, R.string.onboarding_title_2, R.string.onboarding_desc_2),
-            Page(R.drawable.img_onboarding_step_3, R.string.onboarding_title_3, R.string.onboarding_desc_3),
-            Page(R.drawable.img_onboarding_step_4, R.string.onboarding_title_4, R.string.onboarding_desc_4)
+            Page(
+                R.drawable.img_onboarding_step_1,
+                R.string.onboarding_title_1,
+                R.string.onboarding_desc_1
+            ),
+            Page(
+                R.drawable.img_onboarding_step_2,
+                R.string.onboarding_title_2,
+                R.string.onboarding_desc_2
+            ),
+            Page(
+                R.drawable.img_onboarding_step_3,
+                R.string.onboarding_title_3,
+                R.string.onboarding_desc_3
+            ),
+            Page(
+                R.drawable.img_onboarding_step_4,
+                R.string.onboarding_title_4,
+                R.string.onboarding_desc_4
+            )
         )
     }
     val pagerState = rememberPagerState { pages.size }
     val scope = rememberCoroutineScope()
     val isLast = pagerState.currentPage == pages.lastIndex
 
-    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-        Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.statusBars)) {
-            HorizontalPager(state = pagerState, modifier = Modifier.weight(1f)) { idx ->
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .windowInsetsPadding(WindowInsets.statusBars)
+        ) {
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.weight(1f)
+            ) { idx ->
                 OnboardingContent(pages[idx])
             }
 
             Row(
-                Modifier.navigationBarsPadding().padding(Dimen.LargePadding).fillMaxWidth(),
+                Modifier
+                    .navigationBarsPadding()
+                    .padding(Dimen.LargePadding)
+                    .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(Modifier.weight(1f)) {
-                    AnimatedVisibility(visible = !isLast, enter = fadeIn(), exit = fadeOut()) {
-                        TextButton(onClick = onComplete) { Text(stringResource(R.string.onboarding_skip)) }
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = !isLast,
+                        enter = androidx.compose.animation.fadeIn(),
+                        exit = androidx.compose.animation.fadeOut()
+                    ) {
+                        TextButton(onClick = onComplete) {
+                            Text(stringResource(R.string.onboarding_skip))
+                        }
                     }
                 }
-                PagerIndicator(pages.size, pagerState.currentPage, Modifier.weight(1f))
-                Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
+                PagerIndicator(
+                    pages.size,
+                    pagerState.currentPage,
+                    Modifier.weight(1f)
+                )
+                Box(
+                    Modifier
+                        .weight(1f),
+                    contentAlignment = Alignment.CenterEnd
+                ) {
                     PrimaryActionButton(
-                        text = stringResource(if (isLast) R.string.onboarding_start else R.string.onboarding_next),
-                        onClick = { if (isLast) onComplete() else scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) } },
+                        text = stringResource(
+                            if (isLast) R.string.onboarding_start else R.string.onboarding_next
+                        ),
+                        onClick = {
+                            if (isLast) onComplete() else scope.launch {
+                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                            }
+                        },
                         modifier = Modifier.widthIn(min = Dimen.MinButtonWidth),
                         isFullWidth = false
                     )
@@ -90,10 +136,34 @@ fun OnboardingScreen(onComplete: () -> Unit) {
 
 @Composable
 private fun OnboardingContent(page: Page) {
-    Column(Modifier.fillMaxSize().padding(horizontal = Dimen.LargePadding), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-        Image(painterResource(page.img), null, Modifier.fillMaxWidth().fillMaxHeight(0.5f).padding(bottom = Dimen.LargePadding), contentScale = ContentScale.Fit)
-        Text(stringResource(page.title), style = MaterialTheme.typography.displaySmall, textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onBackground)
+    Column(
+        Modifier
+            .fillMaxSize()
+            .padding(horizontal = Dimen.LargePadding),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Image(
+            painterResource(page.img),
+            null,
+            Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.5f)
+                .padding(bottom = Dimen.LargePadding),
+            contentScale = ContentScale.Fit
+        )
+        Text(
+            stringResource(page.title),
+            style = MaterialTheme.typography.displaySmall,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onBackground
+        )
         Spacer(Modifier.height(Dimen.MediumPadding))
-        Text(stringResource(page.desc), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
+        Text(
+            stringResource(page.desc),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
     }
 }

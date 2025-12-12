@@ -27,10 +27,16 @@ fun DistributionChartsCard(
     val chartData = remember(selectedPattern, stats) { prepareData(stats, selectedPattern) }
     val maxValue = remember(chartData) { chartData.maxOfOrNull { it.second } ?: 0 }
 
-    SectionCard(modifier, title = stringResource(R.string.edu_distribution_title)) {
-        Column(verticalArrangement = Arrangement.spacedBy(Dimen.CardContentPadding)) {
-
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
+    SectionCard(
+        modifier = modifier,
+        title = stringResource(R.string.edu_distribution_title)
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(Dimen.CardContentPadding)
+        ) {
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)
+            ) {
                 items(
                     items = StatisticPattern.entries.toTypedArray(),
                     key = { it.name }
@@ -43,12 +49,21 @@ fun DistributionChartsCard(
                 }
             }
 
-            BarChart(chartData.toImmutableList(), maxValue, Modifier.fillMaxWidth().height(Dimen.BarChartHeight))
+            BarChart(
+                data = chartData.toImmutableList(),
+                maxValue = maxValue,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(Dimen.BarChartHeight)
+            )
         }
     }
 }
 
-private fun prepareData(stats: StatisticsReport, pattern: StatisticPattern): List<Pair<String, Int>> {
+private fun prepareData(
+    stats: StatisticsReport,
+    pattern: StatisticPattern
+): List<Pair<String, Int>> {
     val raw: Map<Int, Int> = when (pattern) {
         StatisticPattern.SUM -> stats.sumDistribution
         StatisticPattern.EVENS -> stats.evenDistribution
@@ -60,14 +75,23 @@ private fun prepareData(stats: StatisticsReport, pattern: StatisticPattern): Lis
     }
 
     if (pattern == StatisticPattern.SUM) {
-        val buckets = (AppConfig.UI.SUM_MIN_RANGE..AppConfig.UI.SUM_MAX_RANGE step AppConfig.UI.SUM_STEP).associateWith { 0 }.toMutableMap()
-        // Correção: Iteração explícita sobre entries para evitar ambiguidade
+        val buckets =
+            (AppConfig.UI.SUM_MIN_RANGE..AppConfig.UI.SUM_MAX_RANGE step AppConfig.UI.SUM_STEP)
+                .associateWith { 0 }
+                .toMutableMap()
+
         raw.entries.forEach { entry ->
             if (buckets.containsKey(entry.key)) {
                 buckets[entry.key] = entry.value
             }
         }
-        return buckets.entries.sortedBy { it.key }.map { it.key.toString() to it.value }
+
+        return buckets.entries
+            .sortedBy { it.key }
+            .map { it.key.toString() to it.value }
     }
-    return raw.entries.sortedBy { it.key }.map { it.key.toString() to it.value }
+
+    return raw.entries
+        .sortedBy { it.key }
+        .map { it.key.toString() to it.value }
 }

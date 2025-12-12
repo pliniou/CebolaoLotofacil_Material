@@ -1,5 +1,4 @@
 ﻿package com.cebolao.lotofacil.ui.components
-import com.cebolao.lotofacil.ui.theme.Shapes
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -38,27 +37,33 @@ fun FilterStatsPanel(
     successProbability: Float,
     modifier: Modifier = Modifier
 ) {
-    // Outlined Card para distinÃ§Ã£o semÃ¢ntica (Painel de Info vs. BotÃ£o)
+    // Card informativo com visual flat e destaque sutil
     OutlinedCard(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(Dimen.Border.Thin, MaterialTheme.colorScheme.outlineVariant)
+        colors = CardDefaults.outlinedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ),
+        border = BorderStroke(
+            Dimen.Border.Hairline,
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = AppConfig.UI.ALPHA_BORDER_DEFAULT)
+        )
     ) {
         Column(
             modifier = Modifier.padding(Dimen.CardContentPadding),
             verticalArrangement = Arrangement.spacedBy(Dimen.CardContentPadding)
         ) {
             Text(
-                text = stringResource(R.string.filters_analysis_title), 
+                text = stringResource(R.string.filters_analysis_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            
+
             FilterRestrictiveness(probability = successProbability)
-            
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            
+
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+
             FilterStatistics(activeFilters)
         }
     }
@@ -67,7 +72,7 @@ fun FilterStatsPanel(
 @Composable
 private fun FilterRestrictiveness(probability: Float) {
     val animatedProbability by animateFloatAsState(
-        targetValue = probability,
+        targetValue = probability.coerceIn(0f, 1f),
         animationSpec = tween(AppConfig.Animation.MEDIUM_DURATION),
         label = "probabilityAnimation"
     )
@@ -79,8 +84,16 @@ private fun FilterRestrictiveness(probability: Float) {
         else -> colorScheme.primary to colorScheme.primary
     }
 
-    val animatedProgressColor by animateColorAsState(targetValue = progressColor, label = "progressColor")
-    val animatedTextColor by animateColorAsState(targetValue = textColor, label = "textColor")
+    val animatedProgressColor by animateColorAsState(
+        targetValue = progressColor,
+        animationSpec = tween(AppConfig.Animation.MEDIUM_DURATION),
+        label = "progressColor"
+    )
+    val animatedTextColor by animateColorAsState(
+        targetValue = textColor,
+        animationSpec = tween(AppConfig.Animation.MEDIUM_DURATION),
+        label = "textColor"
+    )
 
     Column(verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
         Row(
@@ -89,7 +102,7 @@ private fun FilterRestrictiveness(probability: Float) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                stringResource(R.string.filters_success_chance), 
+                stringResource(R.string.filters_success_chance),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -107,7 +120,7 @@ private fun FilterRestrictiveness(probability: Float) {
                 .height(Dimen.ProgressBarHeight)
                 .clip(MaterialTheme.shapes.small),
             color = animatedProgressColor,
-            trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+            trackColor = MaterialTheme.colorScheme.surfaceContainerHighest
         )
     }
 }
@@ -137,7 +150,7 @@ private fun FilterStatRow(filter: FilterState) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = stringResource(filter.type.titleRes), 
+            text = stringResource(filter.type.titleRes),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurface
         )
@@ -149,10 +162,19 @@ private fun FilterStatRow(filter: FilterState) {
 private fun RestrictivenessChip(category: RestrictivenessCategory) {
     val colorScheme = MaterialTheme.colorScheme
     val (containerColor, contentColor) = when (category) {
-        RestrictivenessCategory.VERY_TIGHT, RestrictivenessCategory.TIGHT -> colorScheme.errorContainer to colorScheme.onErrorContainer
-        RestrictivenessCategory.MODERATE -> colorScheme.tertiaryContainer to colorScheme.onTertiaryContainer
-        RestrictivenessCategory.LOOSE, RestrictivenessCategory.VERY_LOOSE -> colorScheme.secondaryContainer to colorScheme.onSecondaryContainer
-        RestrictivenessCategory.DISABLED -> colorScheme.surfaceContainer to colorScheme.onSurfaceVariant
+        RestrictivenessCategory.VERY_TIGHT,
+        RestrictivenessCategory.TIGHT ->
+            colorScheme.errorContainer to colorScheme.onErrorContainer
+
+        RestrictivenessCategory.MODERATE ->
+            colorScheme.tertiaryContainer to colorScheme.onTertiaryContainer
+
+        RestrictivenessCategory.LOOSE,
+        RestrictivenessCategory.VERY_LOOSE ->
+            colorScheme.secondaryContainer to colorScheme.onSecondaryContainer
+
+        RestrictivenessCategory.DISABLED ->
+            colorScheme.surfaceContainer to colorScheme.onSurfaceVariant
     }
 
     val textRes = when (category) {
@@ -167,9 +189,12 @@ private fun RestrictivenessChip(category: RestrictivenessCategory) {
     Surface(
         color = containerColor,
         shape = MaterialTheme.shapes.extraSmall,
-        modifier = Modifier.height(Dimen.MediumIcon),
+        modifier = Modifier.height(Dimen.MediumIcon)
     ) {
-        Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(horizontal = Dimen.SmallPadding)) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.padding(horizontal = Dimen.SmallPadding)
+        ) {
             Text(
                 text = stringResource(textRes),
                 style = MaterialTheme.typography.labelSmall,

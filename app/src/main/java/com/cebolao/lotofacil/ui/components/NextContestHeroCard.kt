@@ -1,5 +1,4 @@
 ﻿package com.cebolao.lotofacil.ui.components
-import com.cebolao.lotofacil.ui.theme.Shapes
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,20 +25,26 @@ import com.cebolao.lotofacil.domain.model.NextDrawInfo
 import com.cebolao.lotofacil.ui.theme.Dimen
 
 @Composable
-fun NextContestHeroCard(info: NextDrawInfo?) {
+fun NextContestHeroCard(
+    info: NextDrawInfo?,
+    modifier: Modifier = Modifier
+) {
     if (info == null) return
 
     CustomCard(
-        modifier = Modifier.fillMaxWidth().bounceClick(scaleDown = 0.98f),
-        backgroundColor = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.3f), // Flat dark bg
+        modifier = modifier
+            .fillMaxWidth()
+            .bounceClick(scaleDown = 0.98f),
+        backgroundColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         hasBorder = true
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(Dimen.CardContentPadding),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(Dimen.CardContentPadding),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)
         ) {
-            // Line 1: Badge + Date
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)
@@ -49,11 +54,17 @@ fun NextContestHeroCard(info: NextDrawInfo?) {
                     shape = MaterialTheme.shapes.extraSmall
                 ) {
                     Text(
-                        text = stringResource(R.string.home_next_contest, info.contestNumber),
+                        text = stringResource(
+                            R.string.home_next_contest,
+                            info.contestNumber
+                        ),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = Dimen.Spacing.Medium, vertical = Dimen.Spacing.Small)
+                        modifier = Modifier.padding(
+                            horizontal = Dimen.Spacing.Medium,
+                            vertical = Dimen.Spacing.Small
+                        )
                     )
                 }
                 Text(
@@ -63,7 +74,6 @@ fun NextContestHeroCard(info: NextDrawInfo?) {
                 )
             }
 
-            // Line 2: Value (Hero)
             Text(
                 text = info.formattedPrize,
                 style = MaterialTheme.typography.displayLarge,
@@ -72,13 +82,14 @@ fun NextContestHeroCard(info: NextDrawInfo?) {
                 textAlign = TextAlign.Center
             )
 
-            // Line 3: Info Footer (Simple Row)
             Row(
-                modifier = Modifier.fillMaxWidth().padding(top = Dimen.SmallPadding),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = Dimen.SmallPadding),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                 InfoItem(
+                InfoItem(
                     icon = Icons.Default.LocalAtm,
                     label = "Final 0/5: ${info.formattedPrizeFinalFive}",
                     tint = MaterialTheme.colorScheme.tertiary
@@ -89,19 +100,23 @@ fun NextContestHeroCard(info: NextDrawInfo?) {
 }
 
 @Composable
-private fun InfoItem(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, tint: Color) {
+private fun InfoItem(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    tint: Color
+) {
     Row(
-        verticalAlignment = Alignment.CenterVertically, 
+        verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Dimen.Spacing.Small)
     ) {
         Icon(
-            imageVector = icon, 
-            contentDescription = null, 
-            tint = tint, 
+            imageVector = icon,
+            contentDescription = null,
+            tint = tint,
             modifier = Modifier.size(Dimen.Spacing.ExtraLarge)
         )
         Text(
-            text = label, 
+            text = label,
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurfaceVariant

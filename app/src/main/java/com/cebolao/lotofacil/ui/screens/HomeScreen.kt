@@ -1,14 +1,6 @@
 package com.cebolao.lotofacil.ui.screens
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.Info
@@ -95,6 +87,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                         is HomeScreenState.Success -> {
                             NextContestHeroCard(screenState.nextDrawInfo)
                         }
+
                         is HomeScreenState.Loading -> {
                             Box(
                                 modifier = Modifier
@@ -105,6 +98,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                                 CircularProgressIndicator()
                             }
                         }
+
                         else -> Unit
                     }
                 }
@@ -115,9 +109,16 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                 if (draw != null) {
                     item {
                         AnimateOnEntry(delayMillis = 200) {
-                            Column(verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(Dimen.SpacingShort)) {
+                            Column(
+                                verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(
+                                    Dimen.SpacingShort
+                                )
+                            ) {
                                 SectionHeader(
-                                    stringResource(R.string.home_last_contest_format, draw.contestNumber)
+                                    stringResource(
+                                        R.string.home_last_contest_format,
+                                        draw.contestNumber
+                                    )
                                 )
                                 LastDrawCard(
                                     draw = draw,
@@ -162,7 +163,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                     }
                 }
             }
-            
+
             item {
                 AnimateOnEntry(delayMillis = 600) {
                     InfoTipCard()
@@ -172,7 +173,6 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
     }
 }
 
-
 @Composable
 private fun InfoTipCard() {
     OutlinedCard(
@@ -181,7 +181,10 @@ private fun InfoTipCard() {
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.5f)
         ),
         // Flat style: No border or subtle border
-        border = androidx.compose.foundation.BorderStroke(Dimen.Border.Hairline, MaterialTheme.colorScheme.outlineVariant)
+        border = androidx.compose.foundation.BorderStroke(
+            Dimen.Border.Hairline,
+            MaterialTheme.colorScheme.outlineVariant
+        )
     ) {
         Row(
             modifier = Modifier.padding(Dimen.SpacingMedium),
@@ -192,9 +195,9 @@ private fun InfoTipCard() {
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary
             )
-            
+
             Spacer(Modifier.width(Dimen.SpacingMedium))
-            
+
             Text(
                 text = stringResource(R.string.general_disclaimer_responsibility),
                 style = MaterialTheme.typography.bodyMedium,

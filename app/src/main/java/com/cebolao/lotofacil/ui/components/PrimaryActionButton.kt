@@ -35,16 +35,14 @@ fun PrimaryActionButton(
     isFullWidth: Boolean = true
 ) {
     val widthModifier = if (isFullWidth) Modifier.fillMaxWidth() else Modifier
-    
+
     Button(
         onClick = onClick,
         modifier = modifier
             .height(Dimen.ActionButtonHeight)
             .then(widthModifier),
-            //Removed bounceClick for now to keep it simple/standard, unless requested specifically as a "feature".
-            // If it was a custom modifier, it should be fine, but standardizing helps.
         enabled = enabled && !isLoading,
-        shape = Shapes.medium, // Rounded Rect (12dp) matches cards
+        shape = Shapes.medium,
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary,
@@ -60,11 +58,11 @@ fun PrimaryActionButton(
     ) {
         AnimatedContent(
             targetState = isLoading,
-            transitionSpec = { 
-                fadeIn(tween(AppConfig.Animation.SHORT_DURATION)) togetherWith 
-                fadeOut(tween(AppConfig.Animation.SHORT_DURATION)) 
+            transitionSpec = {
+                fadeIn(tween(AppConfig.Animation.SHORT_DURATION)) togetherWith
+                    fadeOut(tween(AppConfig.Animation.SHORT_DURATION))
             },
-            label = "ButtonContent"
+            label = "PrimaryButtonContent"
         ) { loading ->
             if (loading) {
                 CircularProgressIndicator(

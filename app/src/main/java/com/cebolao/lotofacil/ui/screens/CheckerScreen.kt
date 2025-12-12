@@ -28,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -52,9 +53,13 @@ fun CheckerScreen(viewModel: CheckerViewModel = hiltViewModel()) {
     val selectedNumbers by viewModel.selectedNumbers.collectAsStateWithLifecycle()
     val isGameComplete by viewModel.isGameComplete.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        viewModel.events.collectLatest { msgId -> snackbarHostState.showSnackbar(message = "Info: $msgId") }
+        viewModel.events.collectLatest { msgId ->
+            val message = context.getString(msgId)
+            snackbarHostState.showSnackbar(message = message)
+        }
     }
 
     AppScreen(
@@ -62,11 +67,22 @@ fun CheckerScreen(viewModel: CheckerViewModel = hiltViewModel()) {
         subtitle = stringResource(R.string.checker_subtitle),
         snackbarHost = { SnackbarHost(snackbarHostState) },
         actions = {
-            IconButton(onClick = viewModel::clearNumbers, enabled = selectedNumbers.isNotEmpty()) {
-                Icon(Icons.Default.Delete, stringResource(R.string.checker_clear_button_description))
+            IconButton(
+                onClick = viewModel::clearNumbers,
+                enabled = selectedNumbers.isNotEmpty()
+            ) {
+                Icon(
+                    Icons.Default.Delete,
+                    stringResource(R.string.checker_clear_button_description)
+                )
             }
         },
-        bottomBar = { if (isGameComplete) CheckerBottomBar(viewModel::saveGame, viewModel::checkGame) }
+        bottomBar = {
+            if (isGameComplete) CheckerBottomBar(
+                viewModel::saveGame,
+                viewModel::checkGame
+            )
+        }
     ) { innerPadding ->
         StandardPageLayout(scaffoldPadding = innerPadding) {
             item {
@@ -76,20 +92,24 @@ fun CheckerScreen(viewModel: CheckerViewModel = hiltViewModel()) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = stringResource(R.string.checker_selection_instruction, LotofacilConstants.GAME_SIZE),
+                        text = stringResource(
+                            R.string.checker_selection_instruction,
+                            LotofacilConstants.GAME_SIZE
+                        ),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    
+
                     Text(
                         text = "${selectedNumbers.size}/15",
                         style = MaterialTheme.typography.titleLarge,
-                        color = if (selectedNumbers.size == 15) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = if (selectedNumbers.size == 15) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Bold
                     )
                 }
             }
-            
+
             item {
                 NumberGrid(
                     selectedNumbers = selectedNumbers,
@@ -100,18 +120,18 @@ fun CheckerScreen(viewModel: CheckerViewModel = hiltViewModel()) {
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-            
+
             if (uiState is CheckerUiState.Idle || uiState is CheckerUiState.Error) {
-                 item {
-                     SectionCard(modifier = Modifier.fillMaxWidth()) {
-                         MessageState(
+                item {
+                    SectionCard(modifier = Modifier.fillMaxWidth()) {
+                        MessageState(
                             icon = Icons.Default.CheckCircle,
                             title = stringResource(R.string.checker_how_it_works_title),
                             message = stringResource(R.string.checker_how_it_works_desc),
                             modifier = Modifier.padding(Dimen.SpacingShort)
                         )
-                     }
-                 }
+                    }
+                }
             }
 
             item {
@@ -136,22 +156,26 @@ private fun CheckerBottomBar(onSave: () -> Unit, onCheck: () -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(Dimen.SpacingMedium)
         ) {
             OutlinedButton(
-                onClick = onSave, 
-                modifier = Modifier.weight(1f).height(Dimen.ActionButtonHeight),
+                onClick = onSave,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(Dimen.ActionButtonHeight),
                 shape = Shapes.medium
-            ) { 
+            ) {
                 Icon(Icons.Default.Save, null)
                 Spacer(Modifier.width(Dimen.SpacingShort))
-                Text(stringResource(R.string.general_save)) 
+                Text(stringResource(R.string.general_save))
             }
             Button(
-                onClick = onCheck, 
-                modifier = Modifier.weight(1f).height(Dimen.ActionButtonHeight),
+                onClick = onCheck,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(Dimen.ActionButtonHeight),
                 shape = Shapes.medium
-            ) { 
-                Icon(Icons.Default.CheckCircle, null) 
+            ) {
+                Icon(Icons.Default.CheckCircle, null)
                 Spacer(Modifier.width(Dimen.SpacingShort))
-                Text(stringResource(R.string.checker_check_button)) 
+                Text(stringResource(R.string.checker_check_button))
             }
         }
     }
@@ -162,14 +186,24 @@ private fun CheckerResultSection(state: CheckerUiState) {
     Column {
         when (state) {
             is CheckerUiState.Success -> {
-                Text(stringResource(R.string.checker_performance_analysis), style = MaterialTheme.typography.titleMedium)
+                Text(
+                    stringResource(R.string.checker_performance_analysis),
+                    style = MaterialTheme.typography.titleMedium
+                )
                 Spacer(Modifier.height(Dimen.SpacingShort))
                 CheckResultCard(state.result)
                 Spacer(Modifier.height(Dimen.SpacingShort))
                 SimpleStatsCard(state.simpleStats)
             }
+
             is CheckerUiState.Loading -> LinearProgressIndicator(Modifier.fillMaxWidth())
-            is CheckerUiState.Error -> MessageState(Icons.Default.CheckCircle, stringResource(R.string.general_error_title), stringResource(state.messageResId), iconTint = MaterialTheme.colorScheme.error)
+            is CheckerUiState.Error -> MessageState(
+                Icons.Default.CheckCircle,
+                stringResource(R.string.general_error_title),
+                stringResource(state.messageResId),
+                iconTint = MaterialTheme.colorScheme.error
+            )
+
             CheckerUiState.Idle -> {}
         }
     }

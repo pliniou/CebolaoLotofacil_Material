@@ -20,7 +20,7 @@ import com.cebolao.lotofacil.ui.theme.Dimen
 
 sealed interface IconSource {
     data class Vector(val imageVector: ImageVector) : IconSource
-    data class Resource(@param:DrawableRes val resId: Int) : IconSource
+    data class Resource(@DrawableRes val resId: Int) : IconSource
 }
 
 @Composable
@@ -31,7 +31,13 @@ fun InfoListCard(
     modifier: Modifier = Modifier,
     trailingIcon: ImageVector = Icons.AutoMirrored.Filled.ArrowForward
 ) {
-    InfoListCardImpl(title, subtitle, IconSource.Vector(icon), modifier, trailingIcon)
+    InfoListCardImpl(
+        title = title,
+        subtitle = subtitle,
+        iconSource = IconSource.Vector(icon),
+        modifier = modifier,
+        trailingIcon = trailingIcon
+    )
 }
 
 @Composable
@@ -56,6 +62,7 @@ private fun InfoListCardImpl(
                         modifier = Modifier.size(Dimen.MediumIcon)
                     )
                 }
+
                 is IconSource.Resource -> {
                     Image(
                         painter = painterResource(id = iconSource.resId),

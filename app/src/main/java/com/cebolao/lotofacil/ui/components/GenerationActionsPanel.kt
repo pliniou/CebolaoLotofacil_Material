@@ -47,36 +47,139 @@ fun GenerationActionsPanel(
     modifier: Modifier = Modifier
 ) {
     val haptic = LocalHapticFeedback.current
-    var idx by remember { mutableIntStateOf(0) }
-    val qty = AppConfig.UI.GAME_QUANTITY_OPTIONS[idx]
-    val loading = state is GenerationUiState.Loading
+    var index by remember { mutableIntStateOf(0) }
+    val quantity = AppConfig.UI.GAME_QUANTITY_OPTIONS[index]
+    val isLoading = state is GenerationUiState.Loading
     val formatter = rememberCurrencyFormatter()
+    val totalCost = LotofacilConstants.GAME_COST.multiply(quantity.toBigDecimal())
 
-    Surface(modifier.fillMaxWidth(), shadowElevation = Dimen.Spacing.ExtraLarge, color = MaterialTheme.colorScheme.surfaceContainer,  tonalElevation = Dimen.Spacing.Medium) {
-        Row(Modifier.windowInsetsPadding(WindowInsets.navigationBars).padding(horizontal = Dimen.ScreenPadding, vertical = Dimen.Spacing.Small).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(0.dp)) {
-                    Btn(Icons.Default.Remove, idx > 0 && !loading) { haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove); idx-- }
-                    Text("$qty", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(horizontal = Dimen.SmallPadding))
-                    Btn(Icons.Default.Add, idx < AppConfig.UI.GAME_QUANTITY_OPTIONS.lastIndex && !loading) { haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove); idx++ }
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        tonalElevation = Dimen.Elevation.Low,
+        shadowElevation = Dimen.Elevation.Medium
+    ) {
+        Row(
+            modifier = Modifier
+                .windowInsetsPadding(WindowInsets.navigationBars)
+                .padding(
+                    horizontal = Dimen.ScreenPadding,
+                    vertical = Dimen.Spacing.Small
+                )
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(Dimen.ExtraSmallPadding)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(0.dp)
+                ) {
+                    QuantityAdjustButton(
+                        icon = Icons.Filled.Remove,
+                        enabled = index > 0 && !isLoading
+                    ) {
+                        index--
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    }
+
+                    Text(
+                        text = quantity.toString(),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(horizontal = Dimen.SmallPadding)
+                    )
+
+                    QuantityAdjustButton(
+                        icon = Icons.Filled.Add,
+                        enabled = index < AppConfig.UI.GAME_QUANTITY_OPTIONS.lastIndex && !isLoading
+                    ) {
+                        index++
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    }
                 }
-                Text(formatter.format(LotofacilConstants.GAME_COST.multiply(qty.toBigDecimal())), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+
+                Text(
+                    text = formatter.format(totalCost),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
-            Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
-                if (loading) FilledIconButton(onCancel, colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.errorContainer, contentColor = MaterialTheme.colorScheme.onErrorContainer)) { Icon(Icons.Default.Cancel, null) }
+
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)
+            ) {
+                if (isLoading) {
+                    FilledIconButton(
+                        onClick = onCancel,
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Cancel,
+                            contentDescription = stringResource(R.string.general_cancel)
+                        )
+                    }
+                }
+
+                val primaryText = when {
+                    !isLoading -> stringResource(R.string.filters_button_generate)
+                    state.total > 0 ->
+                        stringResource(
+                            R.string.filters_button_generating_progress,
+                            state.progress,
+                            state.total
+                        )
+
+                    else -> stringResource(state.messageRes)
+                }
+
                 PrimaryActionButton(
-                    text = if (loading) (if (state.total > 0) stringResource(R.string.filters_button_generating_progress, state.progress, state.total) else stringResource(state.messageRes)) else stringResource(R.string.filters_button_generate),
+                    text = primaryText,
                     modifier = Modifier.weight(1f),
-                    enabled = !loading,
-                    isLoading = loading,
-                    onClick = { onGenerate(qty) },
-                    icon = { if (!loading) Icon(Icons.AutoMirrored.Filled.Send, null) }
+                    enabled = !isLoading,
+                    isLoading = isLoading,
+                    onClick = { onGenerate(quantity) },
+                    icon = {
+                        if (!isLoading) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.Send,
+                                contentDescription = null
+                            )
+                        }
+                    }
                 )
             }
         }
     }
 }
 
-@Composable private fun Btn(icon: androidx.compose.ui.graphics.vector.ImageVector, enabled: Boolean, onClick: () -> Unit) {
-    FilledIconButton(onClick, enabled = enabled, modifier = Modifier.size(Dimen.LargeIcon), colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)) { Icon(icon, null, Modifier.size(Dimen.SmallIcon)) }
+@Composable
+private fun QuantityAdjustButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    enabled: Boolean,
+    onClick: () -> Unit
+) {
+    FilledIconButton(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = Modifier.size(Dimen.LargeIcon),
+        colors = IconButtonDefaults.filledIconButtonColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+        )
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier.size(Dimen.SmallIcon)
+        )
+    }
 }

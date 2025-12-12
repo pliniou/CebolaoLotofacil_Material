@@ -12,23 +12,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import com.cebolao.lotofacil.ui.theme.Dimen
-import com.cebolao.lotofacil.ui.theme.Shapes
 
 @Composable
 fun CustomCard(
     modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
-    hasBorder: Boolean = true, // Default to true for better separation in Flat UI
-    elevation: Dp = Dimen.Elevation.None, // No elevation by default
+    hasBorder: Boolean = true,
+    elevation: Dp = Dimen.Elevation.None,
     contentPadding: Dp = Dimen.CardContentPadding,
     onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    val shape = Shapes.medium // Standard 12dp
-    
-    // Subtle border for definition
+    val shape = MaterialTheme.shapes.medium
+
     val border = if (hasBorder) {
-        BorderStroke(Dimen.Border.Hairline, MaterialTheme.colorScheme.outlineVariant)
+        BorderStroke(
+            Dimen.Border.Hairline,
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)
+        )
     } else null
 
     val colors = CardDefaults.cardColors(containerColor = backgroundColor)

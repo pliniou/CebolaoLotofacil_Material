@@ -10,13 +10,20 @@ import com.cebolao.lotofacil.ui.theme.AccentPalette
 import com.cebolao.lotofacil.util.STATE_IN_TIMEOUT_MS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class MainUiState(val isReady: Boolean = false)
-data class StartDestinationState(val destination: String = Screen.Onboarding.route, val isLoading: Boolean = true)
+data class MainUiState(
+    val isReady: Boolean = false
+)
+
+data class StartDestinationState(
+    val destination: String = Screen.Onboarding.route,
+    val isLoading: Boolean = true
+)
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -24,12 +31,12 @@ class MainViewModel @Inject constructor(
     private val updateAppConfigUseCase: UpdateAppConfigUseCase
 ) : ViewModel() {
 
-    private val _onboardingCompleted = observeAppConfigUseCase.hasCompletedOnboarding
+    private val onboardingCompleted = observeAppConfigUseCase.hasCompletedOnboarding
 
-    val startDestination = _onboardingCompleted
+    val startDestination: StateFlow<StartDestinationState> = onboardingCompleted
         .map { completed ->
             val route = if (completed) Screen.Home.route else Screen.Onboarding.route
-            StartDestinationState(route, isLoading = false)
+            StartDestinationState(destination = route, isLoading = false)
         }
         .stateIn(
             scope = viewModelScope,
@@ -37,7 +44,7 @@ class MainViewModel @Inject constructor(
             initialValue = StartDestinationState(isLoading = true)
         )
 
-    val uiState = startDestination
+    val uiState: StateFlow<MainUiState> = startDestination
         .map { MainUiState(isReady = !it.isLoading) }
         .stateIn(
             scope = viewModelScope,
@@ -45,15 +52,15 @@ class MainViewModel @Inject constructor(
             initialValue = MainUiState(isReady = false)
         )
 
-    val themeMode = observeAppConfigUseCase.themeMode
+    val themeMode: StateFlow<String> = observeAppConfigUseCase.themeMode
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS),
             initialValue = THEME_MODE_LIGHT
         )
 
-    val accentPalette = observeAppConfigUseCase.accentPalette
-        .map { name -> AccentPalette.entries.find { it.name == name } ?: AccentPalette.AZUL }
+    val accentPalette: StateFlow<AccentPalette> = observeAppConfigUseCase.accentPalette
+        .map(::mapAccentPalette)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(STATE_IN_TIMEOUT_MS),
@@ -61,14 +68,24 @@ class MainViewModel @Inject constructor(
         )
 
     fun onOnboardingComplete() {
-        viewModelScope.launch { updateAppConfigUseCase.completeOnboarding() }
+        viewModelScope.launch {
+            updateAppConfigUseCase.completeOnboarding()
+        }
     }
 
     fun setThemeMode(mode: String) {
-        viewModelScope.launch { updateAppConfigUseCase.setThemeMode(mode) }
+        viewModelScope.launch {
+            updateAppConfigUseCase.setThemeMode(mode)
+        }
     }
 
     fun setAccentPalette(palette: AccentPalette) {
-        viewModelScope.launch { updateAppConfigUseCase.setAccentPalette(palette.name) }
+        viewModelScope.launch {
+            updateAppConfigUseCase.setAccentPalette(palette.name)
+        }
+    }
+
+    private fun mapAccentPalette(name: String): AccentPalette {
+        return AccentPalette.entries.find { it.name == name } ?: AccentPalette.AZUL
     }
 }

@@ -1,12 +1,6 @@
 package com.cebolao.lotofacil.ui.components
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -43,8 +37,8 @@ fun MessageState(
         )
         Spacer(Modifier.height(Dimen.LargePadding))
         Text(
-            text = title, 
-            style = MaterialTheme.typography.headlineMedium, 
+            text = title,
+            style = MaterialTheme.typography.headlineMedium,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onBackground
         )
@@ -55,9 +49,9 @@ fun MessageState(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
+
         if (actionLabel != null && onActionClick != null) {
             Spacer(Modifier.height(Dimen.SectionSpacing))
-            
             PrimaryActionButton(
                 text = actionLabel,
                 onClick = onActionClick,

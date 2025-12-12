@@ -2,7 +2,6 @@ package com.cebolao.lotofacil.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,23 +38,31 @@ fun FilterPresetSelector(
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedPresetLabel by remember { mutableStateOf<Int?>(null) }
+    var selectedPresetLabelRes by remember { mutableStateOf<Int?>(null) }
 
     Box(modifier = modifier.fillMaxWidth()) {
         OutlinedCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { expanded = true },
-            colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface)
+            shape = MaterialTheme.shapes.medium,
+            colors = CardDefaults.outlinedCardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            )
         ) {
             Row(
                 modifier = Modifier
-                    .padding(Dimen.MediumPadding)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(Dimen.MediumPadding),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(
+                        Dimen.SmallPadding
+                    )
+                ) {
                     Icon(
                         imageVector = Icons.Default.Tune,
                         contentDescription = null,
@@ -69,31 +76,36 @@ fun FilterPresetSelector(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            text = selectedPresetLabel?.let { stringResource(it) } 
+                            text = selectedPresetLabelRes?.let { stringResource(it) }
                                 ?: stringResource(R.string.preset_none),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
-                Icon(Icons.Default.ArrowDropDown, null)
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
 
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .background(MaterialTheme.colorScheme.surfaceContainer)
+            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHigh)
         ) {
             FilterPresets.all.forEach { preset ->
                 DropdownMenuItem(
-                    text = { 
-                        Text(stringResource(preset.labelRes), style = MaterialTheme.typography.bodyLarge)
+                    text = {
+                        Text(
+                            text = stringResource(preset.labelRes),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
                     },
                     onClick = {
-                        selectedPresetLabel = preset.labelRes
+                        selectedPresetLabelRes = preset.labelRes
                         onPresetSelected(preset)
                         expanded = false
                     }

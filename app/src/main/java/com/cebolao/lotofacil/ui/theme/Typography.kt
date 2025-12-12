@@ -19,7 +19,7 @@ val Typography = Typography(
     displayMedium = TextStyle(
         fontFamily = FontFamilyDisplay,
         fontWeight = FontWeight.Bold,
-        fontSize = 28.sp, 
+        fontSize = 28.sp,
         lineHeight = 36.sp
     ),
     displaySmall = TextStyle(
@@ -75,7 +75,7 @@ val Typography = Typography(
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = 0.25.sp
     ),
     bodyMedium = TextStyle(
         fontFamily = FontFamilyBody,

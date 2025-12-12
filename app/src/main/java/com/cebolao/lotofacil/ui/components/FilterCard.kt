@@ -46,51 +46,158 @@ fun FilterCard(
     lastDraw: Set<Int>?,
     modifier: Modifier = Modifier
 ) {
-    val missingData by remember(state.type, lastDraw) { derivedStateOf { state.type == FilterType.REPETIDAS_CONCURSO_ANTERIOR && lastDraw == null } }
+    val missingData by remember(state.type, lastDraw) {
+        derivedStateOf {
+            state.type == FilterType.REPETIDAS_CONCURSO_ANTERIOR && lastDraw == null
+        }
+    }
     val active = state.isEnabled && !missingData
-    
-    SectionCard(modifier.fillMaxWidth(), backgroundColor = if (active) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceContainerLow) {
-        Column(Modifier.padding(Dimen.MediumPadding)) { // Increased padding
-            Header(state, active, missingData, onInfo, onToggle)
-            AnimatedVisibility(active, enter = expandVertically() + fadeIn(), exit = shrinkVertically() + fadeOut()) {
-                Content(state, onRange)
+
+    SectionCard(
+        modifier = modifier.fillMaxWidth(),
+        backgroundColor = if (active) {
+            MaterialTheme.colorScheme.surface
+        } else {
+            MaterialTheme.colorScheme.surfaceContainerLow
+        }
+    ) {
+        Column(
+            modifier = Modifier.padding(Dimen.MediumPadding)
+        ) {
+            Header(
+                state = state,
+                active = active,
+                missing = missingData,
+                onInfo = onInfo,
+                onToggle = onToggle
+            )
+            AnimatedVisibility(
+                visible = active,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                Content(state = state, onRange = onRange)
             }
         }
     }
 }
 
-@Composable private fun Header(state: FilterState, active: Boolean, missing: Boolean, onInfo: () -> Unit, onToggle: (Boolean) -> Unit) {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)) {
-        Icon(state.type.filterIcon, null, tint = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(Dimen.MediumIcon))
+@Composable
+private fun Header(
+    state: FilterState,
+    active: Boolean,
+    missing: Boolean,
+    onInfo: () -> Unit,
+    onToggle: (Boolean) -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Dimen.MediumPadding)
+    ) {
+        Icon(
+            imageVector = state.type.filterIcon,
+            contentDescription = null,
+            tint = if (active) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
+            modifier = Modifier.size(Dimen.MediumIcon)
+        )
         Column(Modifier.weight(1f)) {
-            Text(stringResource(state.type.titleRes), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
-            if (missing) Text(stringResource(R.string.filters_unavailable_data), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
+            Text(
+                text = stringResource(state.type.titleRes),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            if (missing) {
+                Text(
+                    text = stringResource(R.string.filters_unavailable_data),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
         }
-        IconButton(onInfo) { Icon(Icons.Outlined.Info, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) }
-        Switch(state.isEnabled, onToggle, enabled = !missing, colors = SwitchDefaults.colors(checkedThumbColor = MaterialTheme.colorScheme.onPrimary, checkedTrackColor = MaterialTheme.colorScheme.primary))
+        IconButton(onClick = onInfo) {
+            Icon(
+                imageVector = Icons.Outlined.Info,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Switch(
+            checked = state.isEnabled,
+            onCheckedChange = onToggle,
+            enabled = !missing,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                checkedTrackColor = MaterialTheme.colorScheme.primary
+            )
+        )
     }
 }
 
-@Composable private fun Content(state: FilterState, onRange: (ClosedFloatingPointRange<Float>) -> Unit) {
-    val alpha by animateFloatAsState(1f, label = "alpha")
-    Column(Modifier.padding(top = Dimen.SmallPadding).alpha(alpha)) {
-        Row(Modifier.fillMaxWidth().padding(horizontal = Dimen.SmallPadding), Arrangement.SpaceBetween) {
-            Label(stringResource(R.string.filters_min_label), state.selectedRange.start.toInt())
-            Label(stringResource(R.string.filters_max_label), state.selectedRange.endInclusive.toInt(), Alignment.End)
+@Composable
+private fun Content(
+    state: FilterState,
+    onRange: (ClosedFloatingPointRange<Float>) -> Unit
+) {
+    val alpha by animateFloatAsState(
+        targetValue = 1f,
+        label = "filterContentAlpha"
+    )
+
+    Column(
+        modifier = Modifier
+            .padding(top = Dimen.SmallPadding)
+            .alpha(alpha)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Dimen.SmallPadding),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Label(
+                text = stringResource(R.string.filters_min_label),
+                value = state.selectedRange.start.toInt()
+            )
+            Label(
+                text = stringResource(R.string.filters_max_label),
+                value = state.selectedRange.endInclusive.toInt(),
+                align = Alignment.End
+            )
         }
         RangeSlider(
             value = state.selectedRange,
             onValueChange = onRange,
             valueRange = state.type.fullRange,
-            steps = (state.type.fullRange.endInclusive - state.type.fullRange.start).toInt() - 1,
+            steps = (state.type.fullRange.endInclusive - state.type.fullRange.start)
+                .toInt() - 1,
             modifier = Modifier.padding(top = Dimen.SmallPadding)
         )
     }
 }
 
-@Composable private fun Label(txt: String, value: Int, align: Alignment.Horizontal = Alignment.Start) {
+@Composable
+private fun Label(
+    text: String,
+    value: Int,
+    align: Alignment.Horizontal = Alignment.Start
+) {
     Column(horizontalAlignment = align) {
-        Text(txt, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text("$value", style = MaterialTheme.typography.titleMedium, fontFamily = FontFamilyDisplay, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = value.toString(),
+            style = MaterialTheme.typography.titleMedium,
+            fontFamily = FontFamilyDisplay,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Medium
+        )
     }
 }

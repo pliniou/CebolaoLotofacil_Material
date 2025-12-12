@@ -1,5 +1,3 @@
-@file:Suppress("SameParameterValue", "SameParameterValue")
-
 package com.cebolao.lotofacil.ui.components
 
 import androidx.annotation.DrawableRes
@@ -49,71 +47,91 @@ fun FormattedText(
 
 @Composable
 fun TitleWithIcon(
-          text: String,
-          modifier: Modifier = Modifier,
-          iconVector: ImageVector? = null,
-          @DrawableRes iconRes: Int? = null,
-          tint: Color = MaterialTheme.colorScheme.primary
+    text: String,
+    modifier: Modifier = Modifier,
+    iconVector: ImageVector? = null,
+    @DrawableRes iconRes: Int? = null,
+    tint: Color = MaterialTheme.colorScheme.primary
 ) {
     Row(
-              modifier = modifier, 
-              verticalAlignment = Alignment.CenterVertically, 
-              horizontalArrangement = Arrangement.spacedBy(Dimen.ItemSpacing)
-          ) {
-              if (iconRes != null) {
-                  Image(
-                      painter = painterResource(id = iconRes),
-                      contentDescription = null,
-                      modifier = Modifier.size(Dimen.MediumIcon)
-                  )
-              } else if (iconVector != null) {
-                  Icon(
-                      imageVector = iconVector,
-                      contentDescription = null,
-                      tint = tint,
-                      modifier = Modifier.size(Dimen.MediumIcon)
-                  )
-              }
-              
-              Text(
-                  text = text, 
-                  style = MaterialTheme.typography.headlineMedium,
-                  color = MaterialTheme.colorScheme.onSurface
-              )
-          }
-      }
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Dimen.ItemSpacing)
+    ) {
+        when {
+            iconRes != null -> {
+                Image(
+                    painter = painterResource(id = iconRes),
+                    contentDescription = null,
+                    modifier = Modifier.size(Dimen.MediumIcon)
+                )
+            }
+
+            iconVector != null -> {
+                Icon(
+                    imageVector = iconVector,
+                    contentDescription = null,
+                    tint = tint,
+                    modifier = Modifier.size(Dimen.MediumIcon)
+                )
+            }
+        }
+
+        Text(
+            text = text,
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
 
 @Composable
-fun InfoPoint(title: String, description: String, modifier: Modifier = Modifier) {
-          Column(modifier, verticalArrangement = Arrangement.spacedBy(Dimen.ExtraSmallPadding)) {
-              Text(
-                  text = title, 
-                  style = MaterialTheme.typography.titleMedium, 
-                  fontWeight = FontWeight.Bold, 
-                  color = MaterialTheme.colorScheme.primary
-              )
-              Text(
-                  text = description, 
-                  style = MaterialTheme.typography.bodyMedium, 
-                  color = MaterialTheme.colorScheme.onSurface
-              )
-          }
+fun InfoPoint(
+    title: String,
+    description: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(Dimen.ExtraSmallPadding)
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = description,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
 }
 
 private fun htmlToAnnotatedString(html: String): AnnotatedString {
-          val spanned = HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_MODE_LEGACY)
-          return buildAnnotatedString {
-              append(spanned.toString())
-              spanned.getSpans(0, spanned.length, Any::class.java)?.forEach { span ->
-                  val start = spanned.getSpanStart(span)
-                  val end = spanned.getSpanEnd(span)
-                  when (span) {
-                      is android.text.style.StyleSpan -> when (span.style) {
-                          android.graphics.Typeface.BOLD -> addStyle(SpanStyle(fontWeight = FontWeight.Bold), start, end)
-                          android.graphics.Typeface.ITALIC -> addStyle(SpanStyle(fontStyle = FontStyle.Italic), start, end)
-                      }
-                      is android.text.style.UnderlineSpan -> addStyle(SpanStyle(textDecoration = TextDecoration.Underline), start, end)
-                  }
-              }
-          }
+    val spanned = HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_MODE_LEGACY)
+    return buildAnnotatedString {
+        append(spanned.toString())
+        spanned.getSpans(0, spanned.length, Any::class.java).forEach { span ->
+            val start = spanned.getSpanStart(span)
+            val end = spanned.getSpanEnd(span)
+            when (span) {
+                is android.text.style.StyleSpan -> when (span.style) {
+                    android.graphics.Typeface.BOLD ->
+                        addStyle(SpanStyle(fontWeight = FontWeight.Bold), start, end)
+
+                    android.graphics.Typeface.ITALIC ->
+                        addStyle(SpanStyle(fontStyle = FontStyle.Italic), start, end)
+                }
+
+                is android.text.style.UnderlineSpan ->
+                    addStyle(
+                        SpanStyle(textDecoration = TextDecoration.Underline),
+                        start,
+                        end
+                    )
+            }
+        }
+    }
 }

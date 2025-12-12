@@ -27,41 +27,56 @@ fun LastDrawCard(
     winnerData: List<WinnerData>,
     modifier: Modifier = Modifier
 ) {
-    SectionCard(modifier, title = null) { // Remove default separate title to control hierarchy manually
-        Column(verticalArrangement = Arrangement.spacedBy(Dimen.CardContentPadding)) {
-            // Header: Title + Contest Number
+    SectionCard(
+        modifier = modifier,
+        title = null
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(Dimen.CardContentPadding)
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = stringResource(R.string.home_last_contest_format, draw.contestNumber),
+                    text = stringResource(
+                        R.string.home_last_contest_format,
+                        draw.contestNumber
+                    ),
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = draw.date ?: "",
+                    text = draw.date.orEmpty(),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                 )
             }
 
-            // Body: Numbers (Center Stage)
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(Dimen.BallSpacing, Alignment.CenterHorizontally),
+                horizontalArrangement = Arrangement.spacedBy(
+                    Dimen.BallSpacing,
+                    Alignment.CenterHorizontally
+                ),
                 verticalArrangement = Arrangement.spacedBy(Dimen.BallSpacing),
                 maxItemsInEachRow = AppConfig.UI.NUMBER_GRID_ITEMS_PER_ROW
             ) {
-                draw.numbers.sorted().forEach { 
-                    NumberBall(it, sizeVariant = NumberBallSize.Medium, variant = NumberBallVariant.Neutral) 
+                draw.numbers.sorted().forEach { number ->
+                    NumberBall(
+                        number = number,
+                        sizeVariant = NumberBallSize.Medium,
+                        variant = NumberBallVariant.Neutral
+                    )
                 }
             }
 
             if (winnerData.isNotEmpty()) {
                 AppDivider()
-                Column(verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(Dimen.SmallPadding)
+                ) {
                     winnerData.forEach { WinnerRow(it) }
                 }
             }
@@ -69,7 +84,8 @@ fun LastDrawCard(
     }
 }
 
-@Composable private fun WinnerRow(data: WinnerData) {
+@Composable
+private fun WinnerRow(data: WinnerData) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -83,15 +99,15 @@ fun LastDrawCard(
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = if (data.winnerCount == 1) 
-                    stringResource(R.string.home_winner_count_one, data.winnerCount) 
-                else 
+                text = if (data.winnerCount == 1)
+                    stringResource(R.string.home_winner_count_one, data.winnerCount)
+                else
                     stringResource(R.string.home_winner_count_other, data.winnerCount),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        
+
         Text(
             text = Formatters.formatCurrency(data.prize),
             style = MaterialTheme.typography.titleMedium,

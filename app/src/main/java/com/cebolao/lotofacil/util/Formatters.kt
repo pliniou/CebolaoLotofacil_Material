@@ -3,6 +3,8 @@ package com.cebolao.lotofacil.util
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import java.text.NumberFormat
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 object Formatters {
@@ -14,13 +16,16 @@ object Formatters {
     }
 
     fun formatDate(timestamp: Long): String {
-        return java.text.SimpleDateFormat(LOCALE_DATE_FORMAT, appLocale).format(java.util.Date(timestamp))
+        val formatter = SimpleDateFormat(LOCALE_DATE_FORMAT, appLocale)
+        return formatter.format(Date(timestamp))
     }
-    
+
     fun getLocale(): Locale = appLocale
 }
 
 @Composable
 fun rememberCurrencyFormatter(): NumberFormat {
-    return remember { NumberFormat.getCurrencyInstance(Formatters.getLocale()) }
+    return remember {
+        NumberFormat.getCurrencyInstance(Formatters.getLocale())
+    }
 }
